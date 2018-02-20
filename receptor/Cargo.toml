@@ -1,0 +1,34 @@
+[package]
+name = "Inquisitor server"
+version = "0.1.0"
+authors = ["George Hosu <george@cerebralab.com>"]
+build = "build.rs"
+
+[dependencies]
+rusqlite = "*"
+hyper = "*"
+tokio = "*"
+tokio-core = "*"
+tokio-io = "*"
+futures = "*"
+time = "*"
+bincode= "*"
+
+# The core APIs, including the Serialize and Deserialize traits. Always
+# required when using Serde.
+serde = "1.0"
+
+# Support for #[derive(Serialize, Deserialize)]. Required if you want Serde
+# to work for structs and enums defined in your crate.
+serde_derive = "1.0"
+
+# Each data format lives in its own crate; the sample code below uses JSON
+# but you may be using a different one.
+serde_json = "1.0"
+
+[features]
+default = []
+
+[[bin]]
+name = "inquisitor_receptor"
+path = "receptor.rs"
