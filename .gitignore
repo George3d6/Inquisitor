@@ -2,3 +2,4 @@
 **/target
 receptor/status.rs
 agent/status.rs
+**/plugins

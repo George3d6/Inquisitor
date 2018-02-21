@@ -21,10 +21,10 @@ use hyper::server::{Http, Request, Response, Service};
 use hyper::{Method, StatusCode};
 
 mod status;
-use status::*;
+use status::Status;
 
 mod database;
-use database::*;
+use database::{initialize_database, get_connection};
 
 use std::vec::Vec;
 use std::collections::HashMap;

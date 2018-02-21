@@ -21,6 +21,9 @@ serde_derive = "1.0"
 # but you may be using a different one.
 serde_json = "1.0"
 
+# Required for plugin, maybe move somewhere else
+sysinfo = "0.5.1"
+
 [features]
 default = []
 
