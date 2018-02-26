@@ -104,6 +104,5 @@ fn main() {
 
     current_thread::run(|_| {
         current_thread::spawn(receptor);
-
     });
 }

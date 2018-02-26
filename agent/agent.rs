@@ -9,6 +9,17 @@ use bincode::{serialize, deserialize};
 
 extern crate time;
 
+extern crate futures;
+extern crate tokio;
+extern crate tokio_io;
+use futures::{Future, Stream};
+use tokio::executor::current_thread;
+use tokio::net::{TcpStream};
+use tokio_io::{io, AsyncRead};
+
+use std::io::prelude::*;
+use std::net::TcpStream;
+
 mod status;
 use status::Status;
 
@@ -17,26 +28,41 @@ use plugin_interface::AgentPlugin;
 
 mod plugins;
 
-use std::string::String;
-use std::io::prelude::*;
-use std::net::TcpStream;
+
+struct StatusSender {
+    stream: TcpStream,
+}
+
+impl StatusSender {
+    fn new() -> StatusSender {
+        return StatusSender{stream: TcpStream::connect("127.0.0.1:1478").except("Can't create tcp stream")}
+    }
+
+    pub fn arbitrate<PluginType>(&self, &plugin: PluginType) {
+        if(plugin.ready()) {
+            let name = plugin.name();
+            let message = plugin.gather().except("Issue running gather on plugin: " + name);
+            let status = Status{sender: String::from("Add sender to config and/or autodetect sender")
+            , ts: time::now_utc().tm_sec as i64, message: message, plugin_name: name};
+        }
+        /*
+        fn name(&self) -> String;
+        fn gather(&mut self) -> Result<String, String>;
+        fn ready(&self) -> bool;
+        */
+    }
+}
 
 
 fn test_messages() {
-    let statuses = vec![Status {sender: String::from("George's computer, dynamic IP"), ts: time::now_utc().tm_sec as i64, message: String::from("test plugin 1"), plugin_name: String::from("plugin 1")},
-                        Status {sender: String::from("George's computer, dynamic IP"), ts: time::now_utc().tm_sec as i64, message: String::from("test plugin 2"), plugin_name: String::from("plugin 2")}];
-
+    //Status{sender: String::from("George's computer, dynamic IP"), ts: time::now_utc().tm_sec as i64, message: String::from("test plugin 2"), plugin_name: String::from("plugin 2")}
     let mut sysinfo = plugins::system_monitor::Plugin::new();
     let info = sysinfo.gather().unwrap();
+
+    let socket = TcpStream::connect(&"127.0.0.1:1478".parse().except("Can't parse address")).except("Can't start TCP stream");
+
+
     println!("{:?}", info);
-    /*
-    let mut stream = TcpStream::connect("127.0.0.1:1478").expect("Can't initialize tcp stream");
-    for status in statuses {
-        let payload = serialize(&status, Infinite).expect("Can't serialize payload");
-        stream.write(&payload);
-        stream.flush();
-    }
-    */
 }
 
 
