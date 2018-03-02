@@ -16,7 +16,7 @@ pub struct Plugin {
 
 impl AgentPlugin for Plugin {
     fn new() -> Plugin {
-        return Plugin{sys: System::new()}
+        return Plugin{sys: System::new()};
     }
 
     fn gather(&mut self) -> Result<String, String> {
