@@ -1,6 +1,6 @@
 # Inquisitor
 
-![Inquisitor icon](https://i.imgur.com/rsOLEBh.png)
+![Inquisitor icon](https://i.imgur.com/3XZNDko.png)
 
 Still in a pre-alpha state, basically just a skeleton atm, please ignore for now.
 
