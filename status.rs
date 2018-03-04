@@ -1,8 +1,7 @@
-use std::vec::Vec;
 use std::string::String;
 
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Status {
     pub sender:         String,
     pub ts:             i64,

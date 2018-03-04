@@ -3,40 +3,52 @@ extern crate serde_json;
 
 #[macro_use]
 extern crate serde_derive;
-extern crate bincode;
-
-use bincode::{serialize, deserialize};
-
-extern crate time;
 
 mod status;
 use status::Status;
-
 mod plugin_interface;
+mod utils;
 use plugin_interface::AgentPlugin;
+
+use std::io::prelude::*;
+use std::net::{SocketAddr, TcpStream};
+use std::{thread, time};
 
 mod plugins;
 
-use std::string::String;
-use std::io::prelude::*;
-use std::net::TcpStream;
+
+struct StatusSender {
+    addr:  SocketAddr,
+}
+
+impl StatusSender {
+    fn new() -> StatusSender {
+        return StatusSender{addr: SocketAddr::from(([127, 0, 0, 1], 1478))}
+    }
+
+    pub fn arbitrate<PluginType>(&mut self, plugin: &mut PluginType) where PluginType: AgentPlugin {
+        if plugin.ready() {
+            let name = plugin.name();
+            let message = plugin.gather().expect(&format!("Issue running gather on plugin: {}", name) as &str);
+            let status = Status{sender: String::from("Add sender to config and/or autodetect sender"), ts: utils::current_ts(), message: message, plugin_name: name};
+
+            let payload = serde_json::to_string(&status).expect("Can't serialize payload");
+            let mut stream = TcpStream::connect(&self.addr).expect("Can't create tcp stream");
+            stream.write(&payload.as_bytes());
+            stream.flush();
+        }
+    }
+}
 
 
 fn test_messages() {
-    let mut statuses = vec![Status {sender: String::from("George's computer, dynamic IP"), ts: time::now_utc().tm_sec as i64, message: String::from("test plugin 1"), plugin_name: String::from("plugin 1")},
-                        Status {sender: String::from("George's computer, dynamic IP"), ts: time::now_utc().tm_sec as i64, message: String::from("test plugin 2"), plugin_name: String::from("plugin 2")}];
-
     let mut sysinfo = plugins::system_monitor::Plugin::new();
-    let info = sysinfo.gather().unwrap();
 
-    statuses[0].message = info.clone();
-    statuses[1].message = info.clone();
+    let mut sender = StatusSender::new();
 
-    let mut stream = TcpStream::connect("127.0.0.1:1478").expect("Can't initialize tcp stream");
-    for status in statuses {
-        let payload = serialize(&status).expect("Can't serialize payload");
-        stream.write(&payload);
-        stream.flush();
+    loop {
+        thread::sleep(time::Duration::from_millis(1000));
+        sender.arbitrate(&mut sysinfo);
     }
 }
 

@@ -5,10 +5,11 @@ authors = ["George Hosu <george@cerebralab.com>"]
 build = "build.rs"
 
 [dependencies]
+tokio = "*"
+tokio-io = "*"
+hyper = "*"
+
 time = "*"
-
-bincode= "*"
-
 # The core APIs, including the Serialize and Deserialize traits. Always
 # required when using Serde.
 serde = "1.0"

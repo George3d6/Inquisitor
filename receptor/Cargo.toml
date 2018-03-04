@@ -8,11 +8,9 @@ build = "build.rs"
 rusqlite = "*"
 hyper = "*"
 tokio = "*"
-tokio-core = "*"
 tokio-io = "*"
 futures = "*"
 time = "*"
-bincode= "*"
 
 # The core APIs, including the Serialize and Deserialize traits. Always
 # required when using Serde.

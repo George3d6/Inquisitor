@@ -1,9 +1,6 @@
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
-extern crate bincode;
-use bincode::{deserialize};
-use serde_json::{to_string};
 
 extern crate rusqlite;
 use rusqlite::Connection;
@@ -22,6 +19,7 @@ use hyper::{Method, StatusCode};
 
 mod status;
 use status::Status;
+mod utils;
 
 mod database;
 use database::{initialize_database, get_connection};
@@ -48,19 +46,49 @@ impl Service for DataServer {
 
         let mut response = Response::new();
         match (req.method(), req.path()) {
-            (&Method::Get, "/") => {
-                let mut raw_statuses = self.db_conn.prepare("SELECT * FROM raw_status").expect("Can't select from raw status database");
-                let raw_status_iter = raw_statuses.query_map(&[], |row| {
+            (&Method::Get, "/") =>  response.set_body(String::from("I am alive !")),
+
+            (&Method::Get, "/plugin_data") => {
+                let params = utils::get_url_params(&req);
+                let plugin_name = match params.get("name") {
+                    Some(name) => name,
+                    None => ""
+                };
+
+                let level = match params.get("level") {
+                    Some(name) => name,
+                    None => "",
+                };
+
+                let ts_start = match params.get("ts_start") {
+                    Some(name) => name,
+                    None => ""
+                };
+
+                let ts_end = match params.get("ts_end") {
+                    Some(name) => name,
+                    None => ""
+                };
+
+                let mut raw_data = if level == "raw" {
+                    self.db_conn.prepare("SELECT * FROM raw_status WHERE strftime('%s',ts_received) > :ts_start AND strftime('%s',ts_received) < :ts_end").expect("Can't select from database")
+                } else {
+                    self.db_conn.prepare("SELECT * FROM processed_status WHERE strftime('%s',ts_received) > :ts_start AND strftime('%s',ts_received) < :ts_end").expect("Can't select from database")
+                };
+
+                let raw_status_iter = raw_data.query_map_named(&[(":ts_start", &ts_start), (":ts_end", &ts_end)], |row| {
                     Status{sender: row.get(0), message: row.get(1), plugin_name: row.get(2), ts: row.get(3)}
                 }).expect("Problem getting raw status");
-                for s in raw_status_iter {
-                    println!("Sender is {:?}", s.unwrap().sender);
-                }
-                response.set_body(String::from("AA"));
-            }
-            _ => {
-                response.set_status(StatusCode::NotFound);
+                let status_csv_itter = raw_status_iter.map(|rs| {
+                    let s = rs.expect("Corrupt status in database");
+                    return format!("{}  {}  {}  {}", s.sender, s.message, s.plugin_name, s.ts)
+                });
+                let status_csv_vec: Vec<String> = status_csv_itter.collect();
+
+                response.set_body(status_csv_vec.join("\n"));
             },
+
+            _ => response.set_status(StatusCode::NotFound),
         }
         Box::new(futures::future::ok(response))
     }
@@ -71,7 +99,7 @@ fn proces_status(stream: TcpStream, db_conn: Rc<RefCell<Connection>>) {
     let (reader, _) = stream.split();
     let conn = io::read_to_end(reader, Vec::new()).then(move |res| {
         let payload = Vec::from(res.expect("Can't read input from agent").1);
-        let status: Status = deserialize(&payload).expect("Can't deserialize status");
+        let status: Status = serde_json::from_slice(&payload).expect("Can't deserialize status");
         db_conn.borrow_mut().execute("INSERT INTO raw_status(sender, message, plugin_name, ts_sent)
             VALUES (?1, ?2, ?3, ?4)", &[&status.sender, &status.message, &status.plugin_name,
             &status.ts.to_string()]).expect("Can't insert status into raw_status table");
@@ -104,6 +132,5 @@ fn main() {
 
     current_thread::run(|_| {
         current_thread::spawn(receptor);
-
     });
 }
