@@ -4,3 +4,4 @@ receptor/status.rs
 agent/status.rs
 agent/plugins
 receptor/plugins
+agent/agent_processed.rs
