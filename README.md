@@ -1,7 +1,6 @@
 # ![Inquisitor icon](https://i.imgur.com/3XZNDko.png) Inquisitor
 
 
-
 Still in a pre-alpha state, basically just a skeleton atm, please ignore for now.
 
 Don't look at it, don't tocuh it, don't use it !
