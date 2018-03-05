@@ -1,8 +1,4 @@
-extern crate rusqlite;
-
 use rusqlite::Connection;
-
-use status::*;
 
 
 pub fn initialize_database() {
@@ -29,7 +25,7 @@ pub fn initialize_database() {
     conn.execute("CREATE INDEX IF NOT EXISTS ts_sent_ind ON processed_status(ts_sent)", &[]).expect("Can't index tables");
     conn.execute("CREATE INDEX IF NOT EXISTS ts_received_ind ON processed_status(ts_received)", &[]).expect("Can't index tables");
 
-    conn.close();
+    conn.close().expect("Can't close connection to sqlite");
 }
 
 pub fn get_connection() -> Connection {

@@ -1,8 +1,6 @@
-extern crate serde;
-extern crate serde_json;
-
 #[macro_use]
 extern crate serde_derive;
+extern crate serde_json;
 
 mod status;
 use status::Status;
@@ -34,21 +32,22 @@ impl StatusSender {
 
             let payload = serde_json::to_string(&status).expect("Can't serialize payload");
             let mut stream = TcpStream::connect(&self.addr).expect("Can't create tcp stream");
-            stream.write(&payload.as_bytes());
-            stream.flush();
+            stream.write(&payload.as_bytes()).expect("Can't write to tcp stream !");
+            stream.flush().expect("Can't flush the tcp stream !");
         }
     }
 }
 
 
 fn test_messages() {
-    let mut sysinfo = plugins::system_monitor::Plugin::new();
+    {{CREATE_PLUGINS}}
+
 
     let mut sender = StatusSender::new();
 
     loop {
         thread::sleep(time::Duration::from_millis(1000));
-        sender.arbitrate(&mut sysinfo);
+        {{USE_PLUGINS}}
     }
 }
 

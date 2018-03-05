@@ -1,4 +1,3 @@
-extern crate serde;
 extern crate serde_json;
 
 extern crate sysinfo;
@@ -6,7 +5,6 @@ use self::sysinfo::{SystemExt, System, DiskExt, NetworkExt, ProcessorExt};
 
 use plugin_interface::AgentPlugin;
 use utils;
-
 
 use std::collections::HashMap;
 use std::vec::Vec;
@@ -27,9 +25,19 @@ struct MachineState<'a> {
     network_map: HashMap<&'a str, String>,
 }
 
+impl Plugin {
+    fn config(plugin: &mut Plugin) {
+        let config = utils::get_yml_config(&format!("{}.yml",file!().replace("plugins/", "").replace(".rs", "")));
+        plugin.periodicity = config["periodicity"].as_i64().expect("Can't read periodicity as i64")
+    }
+}
+
 impl AgentPlugin for Plugin {
+
     fn new() -> Plugin {
-        return Plugin{sys: System::new(), last_call_ts: 0, periodicity: 3};
+        let mut new_plugin = Plugin{sys: System::new(), last_call_ts: 0, periodicity: 0};
+        Plugin::config(&mut new_plugin);
+        return new_plugin
     }
 
     fn name(&self) -> String {

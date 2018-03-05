@@ -25,10 +25,8 @@ mod database;
 use database::{initialize_database, get_connection};
 
 use std::vec::Vec;
-use std::collections::HashMap;
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::time::{SystemTime, UNIX_EPOCH};
 use std::thread;
 
 
@@ -71,12 +69,12 @@ impl Service for DataServer {
                 };
 
                 let mut raw_data = if level == "raw" {
-                    self.db_conn.prepare("SELECT * FROM raw_status WHERE strftime('%s',ts_received) > :ts_start AND strftime('%s',ts_received) < :ts_end").expect("Can't select from database")
+                    self.db_conn.prepare("SELECT * FROM raw_status WHERE strftime('%s',ts_received) > :ts_start AND strftime('%s',ts_received) < :ts_end AND plugin_name=:plugin_name").expect("Can't select from database")
                 } else {
-                    self.db_conn.prepare("SELECT * FROM processed_status WHERE strftime('%s',ts_received) > :ts_start AND strftime('%s',ts_received) < :ts_end").expect("Can't select from database")
+                    self.db_conn.prepare("SELECT * FROM processed_status WHERE strftime('%s',ts_received) > :ts_start AND strftime('%s',ts_received) < :ts_end AND plugin_name=:plugin_name").expect("Can't select from database")
                 };
 
-                let raw_status_iter = raw_data.query_map_named(&[(":ts_start", &ts_start), (":ts_end", &ts_end)], |row| {
+                let raw_status_iter = raw_data.query_map_named(&[(":ts_start", &ts_start), (":ts_end", &ts_end), (":plugin_name", &plugin_name)], |row| {
                     Status{sender: row.get(0), message: row.get(1), plugin_name: row.get(2), ts: row.get(3)}
                 }).expect("Problem getting raw status");
                 let status_csv_itter = raw_status_iter.map(|rs| {
@@ -115,7 +113,7 @@ fn main() {
     thread::spawn(move || {
         let server_addr = "127.0.0.1:1834".parse().expect("Can't parse HTTP server address");
         let server = Http::new().bind(&server_addr, move || Ok(DataServer{db_conn: get_connection()})).expect("Can't start HTTP server");
-        server.run();
+        server.run().expect("Can't start hyper http server");
     });
 
 
