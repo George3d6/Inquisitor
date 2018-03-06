@@ -1,5 +1,5 @@
 # ![Inquisitor icon](https://i.imgur.com/3XZNDko.png) Inquisitor
-#  <a href="url"><img src="https://i.imgur.com/3XZNDko.png" height="12" width="12"></a> Resize test
+
 
 
 Still in a pre-alpha state, basically just a skeleton atm, please ignore for now.
