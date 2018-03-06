@@ -25,5 +25,6 @@ A monitoring tool with a minimal footprint, clean interfaces and a modern UI. Me
 <a href="#"><img alt="Priority" src="https://i.imgur.com/6ieSrzD.png" height="28" width="28"></a>
 Make sure SQLite starts in serialized mode (and compiles in serialized mode once SQLite compilation and static linking is added)
 
-* <a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a> Feature
+
+<a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a>
 Add SQLite compilation as part of the build and link with it statically
