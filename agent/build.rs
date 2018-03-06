@@ -39,9 +39,6 @@ fn main() {
 
 
 
-
-
-
     let mut agent_file = File::open("agent.rs").expect("Can't find agent.rs");
     let mut agent_contents = String::new();
     agent_file.read_to_string(&mut agent_contents).expect("something went wrong reading the file agent.rs");

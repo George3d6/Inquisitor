@@ -29,6 +29,8 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::thread;
 
+mod plugins;
+
 
 struct DataServer {
     pub db_conn: Connection,
