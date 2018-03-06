@@ -12,16 +12,16 @@ A monitoring tool with a minimal footprint, clean interfaces and a modern UI. Me
 
 ## Roadmap
 
-#### <img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"> Feature
-#### <img alt="Bug" src="https://i.imgur.com/umZtkC4.png" height="28" width="28"> Bug
-#### <img alt="Priority" src="https://i.imgur.com/6ieSrzD.png" height="28" width="28"> Priority
-#### <img alt="Requires external contributors" src="https://i.imgur.com/lmOki5V.png" height="28" width="28"> Requires external contributors
-#### <img alt="Under development" src="https://i.imgur.com/iSXfnTb.png" height="28" width="28"> Under development
+#### <a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a> Feature
+#### <a href="#"><img alt="Bug" src="https://i.imgur.com/umZtkC4.png" height="28" width="28"></a> Bug
+#### <a href="#"><img alt="Priority" src="https://i.imgur.com/6ieSrzD.png" height="28" width="28"></a> Priority
+#### <a href="#"><img alt="Requires external contributors" src="https://i.imgur.com/lmOki5V.png" height="28" width="28"></a> Requires external contributors
+#### <a href="#"><img alt="Under development" src="https://i.imgur.com/iSXfnTb.png" height="28" width="28"></a> Under development
 
 
-* <img dispaly="inline-block" alt="Bug" src="https://i.imgur.com/umZtkC4.png" height="28" width="28">
-<img dispaly="inline-block"  alt="Priority" src="https://i.imgur.com/6ieSrzD.png" height="28" width="28">
+* <a href="#"><img alt="Bug" src="https://i.imgur.com/umZtkC4.png" height="28" width="28"></a>
+<a href="#"><img alt="Priority" src="https://i.imgur.com/6ieSrzD.png" height="28" width="28"></a>
 Make sure SQLite starts in serialized mode (and compiles in serialized mode once SQLite compilation and static linking is added)
 
-* <img dispaly="inline-block"  alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"> Feature
+* <a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a> Feature
 Add SQLite compilation as part of the build and link with it statically
