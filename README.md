@@ -18,8 +18,10 @@ A monitoring tool with a minimal footprint, clean interfaces and a modern UI. Me
 #### <a href="#"><img alt="Requires external contributors" src="https://i.imgur.com/lmOki5V.png" height="28" width="28"></a> Requires external contributors
 #### <a href="#"><img alt="Under development" src="https://i.imgur.com/iSXfnTb.png" height="28" width="28"></a> Under development
 
+<br>
+<br>
 
-* <a href="#"><img alt="Bug" src="https://i.imgur.com/umZtkC4.png" height="28" width="28"></a>
+<a href="#"><img alt="Bug" src="https://i.imgur.com/umZtkC4.png" height="28" width="28"></a>
 <a href="#"><img alt="Priority" src="https://i.imgur.com/6ieSrzD.png" height="28" width="28"></a>
 Make sure SQLite starts in serialized mode (and compiles in serialized mode once SQLite compilation and static linking is added)
 
