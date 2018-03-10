@@ -1,0 +1,47 @@
+body {
+    background-color: rgb(236,236,236);
+}
+
+#main {
+    min-height: 100vh;
+    min-width: 100vw;
+}
+
+#header {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    background-color: rgb(56, 56, 56);
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: vw;
+    padding-right: vw;
+}
+
+.header-button {
+    text-align: center;
+}
+
+#menu {
+    background-color: rgb(136,136,136);
+}
+
+#content {
+    background-color: rgb(236,236,236);
+}
+
+#graph-holder {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    flex-direction: row;
+    background-color: rgb(56, 56, 56);
+}
+
+.graph {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+    background-color: rgb(216,216,216);
+}

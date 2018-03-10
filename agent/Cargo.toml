@@ -27,9 +27,14 @@ sysinfo = "0.5.1"
 
 yaml-rust = "0.4"
 
+fs_extra = "1.1.0"
+
 [features]
 default = []
 
 [[bin]]
 name = "inquisitor_agent"
 path = "agent_processed.rs"
+
+[build-dependencies]
+fs_extra = "1.1.0"

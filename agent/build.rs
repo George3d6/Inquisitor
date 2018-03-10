@@ -1,4 +1,5 @@
-use std::fs::copy;
+extern crate fs_extra;
+
 use std::fs::read_dir;
 use std::fs::create_dir_all;
 use std::io::prelude::*;
@@ -13,7 +14,7 @@ fn main() {
 
     let common_files = vec!["status.rs"];
     for file in common_files {
-        copy(["../", file].join(""), file).unwrap();
+        fs_extra::file::copy(["../", file].join(""), file, &fs_extra::file::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000}).unwrap();
     }
 
     let paths = read_dir("../agent_plugins/").unwrap();
@@ -28,13 +29,14 @@ fn main() {
 
     let rust_files: Vec<String> = common_files.iter().filter(|s| s.contains(".rs")).map(|s| s.clone()).collect();
     for file in &rust_files {
-        copy([String::from("../agent_plugins/"), file.clone()].join(""), [String::from("plugins/"), file.clone()].join("")).unwrap();
+        fs_extra::file::copy([String::from("../agent_plugins/"), file.clone()].join(""), [String::from("plugins/"), file.clone()].join(""), &fs_extra::file::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000}).unwrap();
     }
 
     let aux_files: Vec<String> = common_files.iter().filter(|s| !s.contains(".rs")).map(|s| s.clone()).collect();
     for file in aux_files {
-        copy([String::from("../agent_plugins/"), file.clone()].join(""), [String::from("target/debug/"), file.clone()].join("")).unwrap();
-        copy([String::from("../agent_plugins/"), file.clone()].join(""), [String::from("target/release/"), file.clone()].join("")).unwrap();
+        for dest in vec!["target/debug/", "target/release/"] {
+            fs_extra::file::copy([String::from("../agent_plugins/"), file.clone()].join(""), [dest, &file].join(""), &fs_extra::file::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000}).unwrap();
+        }
     }
 
 
@@ -44,10 +46,10 @@ fn main() {
     agent_file.read_to_string(&mut agent_contents).expect("something went wrong reading the file agent.rs");
 
     let create_plugins_vec: Vec<String> = rust_files.iter().map(|s| s.replace(".rs", "")).map(|s| format!("let mut {plugin_name} = plugins::{plugin_name}::Plugin::new();", plugin_name=s)).collect();
-    agent_contents = agent_contents.replace("{{CREATE_PLUGINS}}", &create_plugins_vec.join("\n"));
+    agent_contents = agent_contents.replace("{{CREATE_PLUGINS}}", &create_plugins_vec.join("\n  "));
 
     let use_plugins_vec: Vec<String> = rust_files.iter().map(|s| s.replace(".rs", "")).map(|s| format!("sender.arbitrate(&mut {plugin_name});", plugin_name=s)).collect();
-    agent_contents = agent_contents.replace("{{USE_PLUGINS}}", &use_plugins_vec.join("\n"));
+    agent_contents = agent_contents.replace("{{USE_PLUGINS}}", &use_plugins_vec.join("\n        "));
 
     File::create("agent_processed.rs").unwrap().write_all(agent_contents.as_bytes()).unwrap();
 

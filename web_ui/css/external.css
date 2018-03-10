@@ -1,0 +1,119 @@
+/* Taken from other sources and possibly a tad bit more buggy */
+
+
+/* Button style from: https://codepen.io/apredsa/pen/VPJapq?q=minimalist+button&limit=all&type=type-pens */
+.redglo-button, .redglow-button-center, .redglow-button-around, .redglow-button-2, .redglow-button-left, .redglow-button-right, .redglow-button-bottom, .redglow-button-top {
+  -webkit-transition: all 0.5s cubic-bezier(0.17, 0.35, 0.12, 0.94);
+  transition: all 0.5s cubic-bezier(0.17, 0.35, 0.12, 0.94);
+}
+
+.redglow-button {
+  position: relative;
+  padding-top:30px;
+  padding-bottom:30px;
+  padding-left:30px;
+  padding-right:30px;
+  width:200px;
+  text-align: center;
+  background: rgb(244,244,244);
+  color: rgb(244, 22, 22);
+  cursor: pointer;
+  line-height: 40px;
+  border: 1px solid rgb(211,211,211);
+}
+
+.redglow-button:hover {
+  color: rgb(90,22,22);
+}
+
+.redglow-button-left {
+  position: absolute;
+  left: -1px;
+  top: 0;
+  height: 0;
+  width: 0;
+  border-left: 1px solid rgb(244, 22, 22);
+}
+
+.redglow-button-top {
+  position: absolute;
+  right: 0;
+  top: -1px;
+  height: 0;
+  width: 0;
+  border-top: 1px solid rgb(244, 22, 22);
+}
+
+.redglow-button-right {
+  position: absolute;
+  right: -1px;
+  bottom: 0;
+  height: 0;
+  width: 0;
+  border-left: 1px solid rgb(244, 22, 22);
+}
+
+.redglow-button-bottom {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  height: 0;
+  width: 0;
+  border-top: 1px solid rgb(244, 22, 22);
+}
+
+.redglow-button:hover .redglow-button-top,
+.redglow-button:hover .redglow-button-bottom {
+  width: 100%;
+}
+
+.redglow-button:hover .redglow-button-left,
+.redglow-button:hover .redglow-button-right {
+  height: 100%;
+}
+
+.redglow-button-around {
+  position: absolute;
+  left: -1px;
+  bottom: -1px;
+  width: 0px;
+  height: 0px;
+  background-color: red;
+  z-index: 1;
+  border-radius: 100%;
+}
+
+.redglow-button-2:hover .redglow-button-around {
+  -webkit-animation: button-around 1.2s ease-out;
+          animation: button-around 1.2s ease-out;
+}
+
+@-webkit-keyframes button-around {
+  0% {
+    width: 0px;
+    height: 0px;
+  }
+  50% {
+    width: calc(100% + 2px);
+    height: calc(100% + 2px);
+  }
+  100% {
+    width: 0px;
+    height: 0px;
+  }
+}
+
+@keyframes button-around {
+  0% {
+    width: 0px;
+    height: 0px;
+  }
+  50% {
+    width: calc(100% + 2px);
+    height: calc(100% + 2px);
+  }
+  100% {
+    width: 0px;
+    height: 0px;
+  }
+}

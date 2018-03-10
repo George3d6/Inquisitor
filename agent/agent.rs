@@ -7,12 +7,12 @@ use status::Status;
 mod plugin_interface;
 mod utils;
 use plugin_interface::AgentPlugin;
+mod plugins;
 
 use std::io::prelude::*;
 use std::net::{SocketAddr, TcpStream};
 use std::{thread, time};
 
-mod plugins;
 
 
 struct StatusSender {
@@ -28,7 +28,7 @@ impl StatusSender {
         if plugin.ready() {
             let name = plugin.name();
             let message = plugin.gather().expect(&format!("Issue running gather on plugin: {}", name) as &str);
-            let status = Status{sender: String::from("Add sender to config and/or autodetect sender"), ts: utils::current_ts(), message: message, plugin_name: name};
+            let status = Status{sender: String::from("Test sender 2"), ts: utils::current_ts(), message: message, plugin_name: name};
 
             let payload = serde_json::to_string(&status).expect("Can't serialize payload");
             let mut stream = TcpStream::connect(&self.addr).expect("Can't create tcp stream");
@@ -39,7 +39,7 @@ impl StatusSender {
 }
 
 
-fn test_messages() {
+fn main() {
     {{CREATE_PLUGINS}}
 
 
@@ -49,9 +49,4 @@ fn test_messages() {
         thread::sleep(time::Duration::from_millis(1000));
         {{USE_PLUGINS}}
     }
-}
-
-
-fn main() {
-    test_messages();
 }

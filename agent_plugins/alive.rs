@@ -16,7 +16,7 @@ pub struct Plugin {
 impl Plugin {
     fn config(plugin: &mut Plugin) {
         let config = utils::get_yml_config(&format!("{}.yml",file!().replace("plugins/", "").replace(".rs", "")));
-        plugin.periodicity = config["periodicity"].as_i64().expect("Can't read periodicity as i64")
+        plugin.periodicity = config["periodicity"].as_i64().expect("Can't read periodicity as i64");
     }
 }
 
@@ -34,7 +34,7 @@ impl AgentPlugin for Plugin {
 
     fn gather(&mut self) -> Result<String, String> {
         self.last_call_ts = utils::current_ts();
-        return Ok(String::from(""))
+        return Ok(String::from("I live"))
     }
 
     fn ready(&self) -> bool {
