@@ -1,0 +1,5 @@
+periodicity_arr:
+    - 30
+
+commands:
+    - ['uname', '-a']

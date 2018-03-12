@@ -1,0 +1,87 @@
+/*
+    This plugin is used to periodically execute a series of remote commands and return the output
+*/
+extern crate serde_json;
+
+use plugin_interface::AgentPlugin;
+use utils;
+
+use std::vec::Vec;
+use std::collections::HashMap;
+use std::string::String;
+use std::process::Command;
+
+
+pub struct Plugin {
+    last_call_map: HashMap<String, i64>,
+    periodicity_map: HashMap<String, i64>,
+    processes: Vec<String>,
+}
+
+impl Plugin {
+    fn config(plugin: &mut Plugin) {
+        let config = utils::get_yml_config(&format!("{}.yml",file!().replace("plugins/", "").replace(".rs", "")));
+
+        plugin.processes = config["processes"].as_vec().expect("Can't read commands vector")
+        .iter().map(|x| String::from(x.as_str().expect("Can't read command element"))).collect();
+
+        let periodicity_arr: Vec<i64> = config["periodicity_arr"].as_vec().expect("Can't read periodicity vector")
+        .iter().map(|x| x.as_i64().expect("Can't read periodicity")).collect();
+
+        for i in 0..plugin.processes.len() {
+            plugin.periodicity_map.insert(plugin.processes[i].clone(), periodicity_arr[i]);
+            plugin.last_call_map.insert(plugin.processes[i].clone(), 0);
+        }
+    }
+}
+
+impl AgentPlugin for Plugin {
+
+    fn new() -> Plugin {
+        let mut new_plugin = Plugin{last_call_map: HashMap::new(), periodicity_map: HashMap::new(), processes: Vec::new()};
+        Plugin::config(&mut new_plugin);
+        return new_plugin
+    }
+
+    fn name(&self) -> String {
+        return String::from("Process counter");
+    }
+
+    fn gather(&mut self) -> Result<String, String> {
+
+        let mut results = HashMap::new();
+        for process in &self.processes {
+
+            self.last_call_map.insert(process.clone(), utils::current_ts());
+
+            let mut cmd = Command::new("pgrep");
+            cmd.arg("-f");
+            cmd.arg(&process);
+
+            let output = cmd.output().unwrap();
+
+            let mut running: i64 = 0;
+
+            if output.status.success() {
+                let str_output = String::from_utf8(output.stdout).unwrap();
+                if str_output.len() > 0 {
+                    let v: Vec<&str> = str_output.split("\n").filter(|&x| x != "").collect();
+                    running = v.len() as i64;
+                }
+            }
+
+            results.insert(process, running);
+        }
+
+        return Ok(serde_json::to_string(&results).expect("Can't serialize command result map"));
+    }
+
+    fn ready(&self) -> bool {
+        for (name, _) in &self.last_call_map {
+            if self.last_call_map.get(name).unwrap() + self.periodicity_map.get(name).unwrap() < utils::current_ts() {
+                return true
+            }
+        }
+        return false
+    }
+}

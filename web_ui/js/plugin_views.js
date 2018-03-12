@@ -1,74 +1,78 @@
 function display_timeseries(plugin_level, plugin_name, data, generate_timeseries_map) {
 
     if(generate_timeseries_map === undefined) {
-        console.log("No function to plot this view !");
         return "No";
     }
     const timeseries_map = generate_timeseries_map(data);
 
-    document.getElementById('graph-holder').innerHTML = '';
+    document.getElementById('graph-main').innerHTML = '';
     for (let k in timeseries_map) {
-        const points = timeseries_map[k].points;
+        let points = timeseries_map[k].points;
         const metadata = timeseries_map[k].metadata;
-        document.getElementById('graph-holder').innerHTML += `<svg id="graph-${k.replace(/ /g, "-")}" class="graph" width="800" height="900"></svg>`;
+        document.getElementById('graph-main').innerHTML += `<div id="graph-holder-${k.replace(/ /g, "-")}" class="graph_holder">
+                                                                <div id="graph-header-${k.replace(/ /g, "-")}" class="graph_header">
+                                                                <div id="graph-button-${k.replace(/ /g, "-")}" class="open open-close-button"></div>
+                                                                <p class="graph_header_text">${plugin_name} - ${k}</p>
+                                                                </div>
+                                                                <svg id="graph-${k.replace(/ /g, "-")}" class="graph"  height="380" width="420"></svg>
+                                                             </div>`;
+
 
         const svg = d3.select(`#graph-${k.replace(/ /g, "-")}`);
-        const margin = {top: 50, right: 20, bottom: 30, left: 50};
+        const margin = {top: 50, right: 20, bottom: 30, left: 40};
         const width = +svg.attr('width') - margin.left - margin.right;
         const height = +svg.attr('height') - margin.top - margin.bottom;
-        const g = svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-        svg.append("text")
-        .attr("x", (width / 2))
-        .attr("y", 24)
-        .attr("text-anchor", "middle")
-        .style("font-size", "24px")
-        .text(`${plugin_name} - ${k}`);
+        const parse_time = d3.timeParse("%d-%b-%y");
 
+        points = points.map((point) => {
+            point.ts = (point.ts * 1000);
+            return point;
+        });
+
+        // Set the ranges and define the line
         const x = d3.scaleTime().rangeRound([0, width]);
-
         const y = d3.scaleLinear().rangeRound([height, 0]);
+        const line = d3.line().x(function(d) { return x( d.ts ); }).y(function(d) { return y(d.val); });
 
-        const line = d3.line().x(function(d) { return x(d.ts); }).y(function(d) { return y(d.val); });
-
-        x.domain(d3.extent(points, (point) => {  return parseFloat(point.ts) }));
+        x.domain(d3.extent(points, (p) => { return p.ts; }));
 
         if('ymin' in metadata && 'ymax' in metadata) {
             y.domain([metadata.ymin, metadata.ymax]);
         } else {
-            y.domain(d3.extent(points, (point) => {  return parseFloat(point.val) }));
+            y.domain([0, d3.max(points, (p) =>  { return parseFloat(p.val); })]);
         }
 
 
-
-        g.append('g')
-        .attr('transform', 'translate(0,' + height + ')')
-        .call(d3.axisBottom(x))
-        .select('.domain')
-        .remove();
-
-        g.append('g')
-            .call(d3.axisLeft(y))
-            .append('text')
-            .attr('fill', 'rgb(16,16,16)')
-            .attr('transform', 'rotate(-90)')
-            .attr('y', 6)
-            .attr('dy', '0.71em')
-            .attr('text-anchor', 'end')
-            .attr('font-size', '14px')
-            .text(metadata.ylabel);
+        const g = svg.append('g').attr("class", "axisY").attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+        svg.append('g').attr("transform", "translate(35," + (50) + ")").attr('class', 'axis').call(d3.axisLeft(y));
+        svg.append('g').attr("transform", "translate(35," + (height + 50) + ")").attr('class', 'axis').call(d3.axisBottom(x));
 
         g.append('path')
-            .datum(points)
+            .data([points])
             .attr('fill', 'none')
-            .attr('stroke', ' rgb(146, 42, 62)')
-            .attr("stroke-width", 6)
+            .attr('stroke', 'rgb(250,250,250)')
+            .attr("stroke-width", 3)
             .attr('stroke-linejoin', 'round')
             .attr('stroke-linecap', 'round')
-            .attr('stroke-width', 1.5)
             .attr('d', line)
-            .attr('font-size', '14px')
-            .text('Time');
+            .attr('text-anchor', 'middle');
+
+        svg.append("text")
+        .attr("transform",  "translate(" + (width/2) + " ," + (height + margin.top + 40) + ")")
+        .style('fill', 'rgb(250,250,250)')
+        .style("text-anchor", "middle")
+        .text("Date");
+
+        svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left - 10)
+        .attr("x", 0 - (height / 2) - 35)
+        .attr("dy", "1em")
+        .style('fill', 'rgb(250,250,250)')
+        .style("text-anchor", "middle")
+        .text(metadata.ylabel);
+
     }
     return "Ok";
 }
@@ -91,10 +95,30 @@ function timeseries_map_receptor_Sync_check(data) {
             timeseries_map[sender_name].metadata = {
                 'ymax': 30
                 ,'ymin': -30
-                ,'ylable': 'Time difference between agent and receptor (seconds)'
+                ,'ylabel': 'Time difference between agent and receptor (seconds)'
             };
         }
     });
+    return timeseries_map;
+}
+
+
+function timeseries_map_agent_Process_counter(data) {
+    const timeseries_map = [];
+    data.forEach((row) => {
+        const obj = JSON.parse(row[1]);
+        const sender_name = row[0];
+        const ts = row[2];
+
+        for(let process_name in obj) {
+            if (!(`${sender_name} - ${process_name}` in timeseries_map)) {
+                timeseries_map[`${sender_name} - ${process_name}`] = {'points': []};
+            };
+            timeseries_map[`${sender_name} - ${process_name}`].points.push({'ts': row[2], 'val': obj[process_name]});
+            timeseries_map[`${sender_name} - ${process_name}`].metadata = {'ylabel': 'Nr of processes running'};
+        }
+    });
+
     return timeseries_map;
 }
 
@@ -108,25 +132,41 @@ function timeseries_map_agent_System_monitor(data) {
  */
     const timeseries_map = [];
     data.forEach((row) => {
+        const system_state = JSON.parse(row[1]);
+        const sender_name = row[0];
+        const ts = row[2];
 
-            const system_state = JSON.parse(row[1]);
-            const sender_name = row[0];
-            const ts = row[2];
+        /* Memory */
 
-            if (!(`${sender_name} used memory` in timeseries_map)) {
-                timeseries_map[`${sender_name} used memory`] = {'points': []};
+        if (!(`${sender_name} used memory` in timeseries_map)) {
+            timeseries_map[`${sender_name} used memory`] = {'points': []};
+        };
+
+        timeseries_map[`${sender_name} used memory`].points.push({'ts': row[2], 'val': system_state['memory_map']['used_memory']})
+
+        if(!('metadata' in timeseries_map[`${sender_name} used memory`])) {
+            timeseries_map[`${sender_name} used memory`].metadata = {
+                'ymax': system_state['memory_map']['total_memory']
+                ,'ymin': 0
+                ,'ylabel': 'Memory usage (bytes)'
             };
+        }
 
-            timeseries_map[`${sender_name} used memory`].points.push({'ts': row[2], 'val': system_state['memory_map']['used_memory']})
+        /* CPU */
 
-            if(!('metadata' in timeseries_map[`${sender_name} used memory`])) {
-                timeseries_map[`${sender_name} used memory`].metadata = {
-                    'ymax': system_state['memory_map']['total_memory']
-                    ,'ymin': 0
-                    ,'ylable': 'Memory usage (bytes)'
-                };
-            }
+        if (!(`${sender_name} used processor_map` in timeseries_map)) {
+            timeseries_map[`${sender_name} used processor_map`] = {'points': []};
+        };
 
+        timeseries_map[`${sender_name} used processor_map`].points.push({'ts': row[2], 'val': system_state['processor_map']['total_usage']})
+
+        if(!('metadata' in timeseries_map[`${sender_name} used processor_map`])) {
+            timeseries_map[`${sender_name} used processor_map`].metadata = {
+                'ymax': 1
+                ,'ymin': 0
+                ,'ylabel': 'CPU usage (%)'
+            };
+        }
 
     });
     return timeseries_map;

@@ -17,6 +17,7 @@ fn main() {
         fs_extra::file::copy(["../", file].join(""), file, &fs_extra::file::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000}).unwrap();
     }
 
+
     let paths = read_dir("../agent_plugins/").unwrap();
 
     let mut common_files: Vec<String> = Vec::new();
@@ -35,6 +36,7 @@ fn main() {
     let aux_files: Vec<String> = common_files.iter().filter(|s| !s.contains(".rs")).map(|s| s.clone()).collect();
     for file in aux_files {
         for dest in vec!["target/debug/", "target/release/"] {
+            fs_extra::file::copy("agent_config.yml", [dest, "agent_config.yml"].join(""), &fs_extra::file::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000}).unwrap();
             fs_extra::file::copy([String::from("../agent_plugins/"), file.clone()].join(""), [dest, &file].join(""), &fs_extra::file::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000}).unwrap();
         }
     }
@@ -48,7 +50,7 @@ fn main() {
     let create_plugins_vec: Vec<String> = rust_files.iter().map(|s| s.replace(".rs", "")).map(|s| format!("let mut {plugin_name} = plugins::{plugin_name}::Plugin::new();", plugin_name=s)).collect();
     agent_contents = agent_contents.replace("{{CREATE_PLUGINS}}", &create_plugins_vec.join("\n  "));
 
-    let use_plugins_vec: Vec<String> = rust_files.iter().map(|s| s.replace(".rs", "")).map(|s| format!("sender.arbitrate(&mut {plugin_name});", plugin_name=s)).collect();
+    let use_plugins_vec: Vec<String> = rust_files.iter().map(|s| s.replace(".rs", "")).map(|s| format!("sender.arbitrate(&mut {plugin_name}, &mut payload);", plugin_name=s)).collect();
     agent_contents = agent_contents.replace("{{USE_PLUGINS}}", &use_plugins_vec.join("\n        "));
 
     File::create("agent_processed.rs").unwrap().write_all(agent_contents.as_bytes()).unwrap();

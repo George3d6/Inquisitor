@@ -3,38 +3,60 @@
 
 // If hearing about System FC fills you with a sense of awe don't go past this point
 
-/* Some god'ol'fashoned global variables */
+/* Some god'ol'fashoned global variables and global calls */
 const ROUTER = new Navigo(null, true, '#!');
-const CONFIG = __config;
 
 
 /* Dirty global state using functions */
 function toggle_visibility(obj) {
-    if(obj.main) {
-        document.getElementById('main').style.display = 'flex';
-    } else {
-        document.getElementById('main').style.display = 'none';
+    if('main' in obj) {
+        if(obj.main) {
+            document.getElementById('main').style.display = 'flex';
+        } else {
+            document.getElementById('main').style.display = 'none';
+        }
     }
-    if(obj.header) {
-        document.getElementById('header').style.display = 'flex';
-    } else {
-        document.getElementById('header').style.display = 'none';
+
+    if('header' in obj) {
+        if(obj.header) {
+            document.getElementById('header').style.display = 'flex';
+        } else {
+            document.getElementById('header').style.display = 'none';
+        }
+    }
+
+    if('warning' in obj) {
+        if(obj.warning) {
+            document.getElementById('warning').style.display = 'block';
+        } else {
+            document.getElementById('warning').style.display = 'none';
+        }
     }
 }
 
 
 async function go_to_view(viw_obj) {
-    toggle_visibility({'main': true, 'header': false});
-    const response = await fetch(`/plugin_data?ts_start=0&ts_end=1820197300&level=${viw_obj.level}&name=${viw_obj.name}`);
+    await place_view_buttons();
+    activate_view_button_click();
+
+    toggle_visibility({'main': true, 'header': true, 'warning': false});
+
+    const response = await fetch(`/plugin_data?ts_start=${Math.round(new Date().getTime()/1000) - 4 * 3600}&ts_end=${Math.round(new Date().getTime()/1000)}&level=${viw_obj.level}&name=${viw_obj.name}`);
     const tsv = await response.text();
     const data = tsv.split('\n').map((row) => row.split('\t'));
-    console.log(`timeseries_map_${viw_obj.level}_${viw_obj.name.replace(/ /gi, '_')}`);
-    display_timeseries(viw_obj.level, viw_obj.name, data, window[`timeseries_map_${viw_obj.level}_${viw_obj.name.replace(/ /gi, '_')}`]);
+
+    const res = display_timeseries(viw_obj.level, viw_obj.name, data, window[`timeseries_map_${viw_obj.level}_${viw_obj.name.replace(/ /gi, '_')}`]);
+    close_button_behavior();
+    if(res === 'No') {
+        toggle_visibility({'warning': true});
+        document.getElementById('graph-main').innerHTML = '';
+        document.getElementById('warning').innerHTML = `Can't generate graphs for plugin ${viw_obj.name}`;
+    }
 }
 
 
 function generate_view_buttons() {
-    return CONFIG.plugins.map((plugin) => {
+    return __config.plugins.map((plugin) => {
         return `
             <a class="redglow-button header-button" id="${plugin.name + plugin.level}">
                 ${plugin.name.toUpperCase()}
@@ -49,7 +71,7 @@ function generate_view_buttons() {
 
 
 function activate_view_button_click() {
-    CONFIG.plugins.forEach((plugin) => {
+    __config.plugins.forEach((plugin) => {
         document.getElementById(plugin.name + plugin.level).addEventListener('click', (e) => {
             ROUTER.navigate(`/view/${encodeURIComponent(plugin.level)}/${encodeURIComponent(plugin.name)}`);
         });
@@ -57,7 +79,24 @@ function activate_view_button_click() {
 }
 
 
-function place_view_buttons() {
+async function place_view_buttons() {
+    if(__config.plugins === undefined) {
+        __config.plugins = [];
+
+        const levels = ['agent', 'receptor'];
+        for(let i = 0; i < levels.length; i++) {
+            const resp = await fetch(`http://localhost:1834/plugin_list?level=${levels[i]}`);
+            const text = await resp.text();
+            const plugin_names = text.split('\n');
+            for(let n = 0; n < plugin_names.length; n++) {
+                console.log(plugin_names[n]);
+                __config.plugins.push({
+                    'name': plugin_names[n]
+                    ,'level': levels[i]
+                });
+            }
+        }
+    }
     document.getElementById('header').innerHTML = generate_view_buttons().join('\n');
 }
 
@@ -72,15 +111,14 @@ function display_not_found() {
 }
 
 
-ROUTER.notFound(function (query) {
-    ROUTER.navigate('/404/notfound')
+ROUTER.notFound((query) => {
+    ROUTER.navigate('/404/notfound');
 });
 
 ROUTER.on(
     {
         '/': () => {
             toggle_visibility({'main': false, 'header': true})
-            place_view_buttons();
             activate_view_button_click();
         }
         ,'/view/:level/:plugin_name': (params) => {

@@ -7,13 +7,12 @@ use rusqlite::Connection;
 
 extern crate futures;
 extern crate tokio;
-extern crate tokio_io;
 extern crate tokio_core;
-use futures::{Future, Stream};
-use tokio::executor::current_thread;
+use futures::Future;
 use tokio::net::{TcpStream, TcpListener};
-use tokio_io::{io, AsyncRead};
 use tokio_core::reactor::Core;
+use futures::Stream;
+use tokio::io::AsyncRead;
 
 extern crate hyper;
 use hyper::server::{Http, Request, Response, Service};
@@ -35,8 +34,6 @@ mod database;
 use database::{initialize_database, get_connection};
 
 use std::vec::Vec;
-use std::cell::RefCell;
-use std::rc::Rc;
 use std::{thread, time};
 use std::env::current_exe;
 use std::path::Path;
@@ -114,7 +111,41 @@ impl Service for DataServer {
                 _ => response.set_status(StatusCode::NotFound),
             }
             Box::new(futures::future::ok(response))
-        } else {
+        }
+        else if req.path() == "/plugin_list" {
+            let mut response = Response::new();
+            match (req.method(), req.path()) {
+                (&Method::Get, "/plugin_list") => {
+                    let params = utils::get_url_params(&req);
+                    let level = match params.get("level") {
+                        Some(name) => name,
+                        None => "",
+                    };
+
+                    let mut raw_data = if level == "agent" {
+                        self.db_conn.prepare("SELECT DISTINCT(plugin_name) FROM agent_status").expect("Can't select from database")
+                    } else {
+                        self.db_conn.prepare("SELECT DISTINCT(plugin_name) FROM receptor_status").expect("Can't select from database")
+                    };
+
+                    let raw_status_iter = raw_data.query_map_named(&[], |row| {
+                        row.get(0)
+                    }).expect("Problem getting receptor_status tuple");
+
+                    let status_tsv_itter = raw_status_iter.map(|s| {
+                        let name: String = s.expect("Corrupt status in database");
+                        return name
+                    });
+
+                    let status_tsv_vec: Vec<String> = status_tsv_itter.collect();
+
+                    response.set_body(status_tsv_vec.join("\n"));
+                }
+                _ => response.set_status(StatusCode::NotFound),
+            }
+            Box::new(futures::future::ok(response))
+        }
+        else {
             self.static_.call(req)
         }
 
@@ -122,17 +153,19 @@ impl Service for DataServer {
 }
 
 
-fn proces_status(stream: TcpStream, db_conn: Rc<RefCell<Connection>>) {
+fn proces_status(stream: TcpStream, db_conn: Connection) {
     let (reader, _) = stream.split();
-    let conn = io::read_to_end(reader, Vec::new()).then(move |res| {
+    let conn = tokio::io::read_to_end(reader, Vec::new()).then(move |res| {
         let payload = Vec::from(res.expect("Can't read input from agent").1);
-        let status: Status = serde_json::from_slice(&payload).expect("Can't deserialize status");
-        db_conn.borrow_mut().execute("INSERT INTO agent_status(sender, message, plugin_name, ts_sent)
-            VALUES (?1, ?2, ?3, ?4)", &[&status.sender, &status.message, &status.plugin_name,
-            &status.ts.to_string()]).expect("Can't insert status into agent_status table");
+        let statuses: Vec<Status> = serde_json::from_slice(&payload).expect("Can't deserialize status");
+        for status in statuses {
+            db_conn.execute("INSERT INTO agent_status(sender, message, plugin_name, ts_sent)
+                VALUES (?1, ?2, ?3, ?4)", &[&status.sender, &status.message, &status.plugin_name,
+                &status.ts.to_string()]).expect("Can't insert status into agent_status table");
+        }
         Ok(())
     });
-    current_thread::spawn(conn);
+    tokio::spawn(conn);
 }
 
 
@@ -199,15 +232,12 @@ fn main() {
     let listener_addr = "127.0.0.1:1478".parse().expect("Can't parse TCP server address");
     let listener = TcpListener::bind(&listener_addr).expect("Can't start TCP server");
 
-    let db_conn: Rc<RefCell<Connection>> = Rc::new(RefCell::new(get_connection()));
     let receptor = listener.incoming().for_each(move |stream| {
-        proces_status(stream, db_conn.clone());
+        proces_status(stream, get_connection());
         Ok(())
     }).map_err(|err| {
         println!("IO error {:?}", err);
     });
 
-    current_thread::run(|_| {
-        current_thread::spawn(receptor);
-    });
+    tokio::run(receptor);
 }

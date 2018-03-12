@@ -1,0 +1,7 @@
+periodicity_arr:
+    - 8
+    - 12
+
+processes:
+    - firefox
+    - konsole test

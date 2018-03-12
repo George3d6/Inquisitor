@@ -15,15 +15,15 @@
   padding-right:30px;
   width:200px;
   text-align: center;
-  background: rgb(244,244,244);
-  color: rgb(244, 22, 22);
+  background: rgb(245,245,245);
+  color: rgb(244,67,54);
   cursor: pointer;
   line-height: 40px;
-  border: 1px solid rgb(211,211,211);
+  border: 1px solid rgb(189,189,189);
 }
 
 .redglow-button:hover {
-  color: rgb(90,22,22);
+  color: rgb(183,28,28);
 }
 
 .redglow-button-left {
@@ -32,7 +32,7 @@
   top: 0;
   height: 0;
   width: 0;
-  border-left: 1px solid rgb(244, 22, 22);
+  border-left: 1px solid rgb(244,67,54);
 }
 
 .redglow-button-top {
@@ -41,7 +41,7 @@
   top: -1px;
   height: 0;
   width: 0;
-  border-top: 1px solid rgb(244, 22, 22);
+  border-top: 1px solid rgb(244,67,54);
 }
 
 .redglow-button-right {
@@ -50,7 +50,7 @@
   bottom: 0;
   height: 0;
   width: 0;
-  border-left: 1px solid rgb(244, 22, 22);
+  border-left: 1px solid rgb(244,67,54);
 }
 
 .redglow-button-bottom {
@@ -59,7 +59,7 @@
   bottom: -1px;
   height: 0;
   width: 0;
-  border-top: 1px solid rgb(244, 22, 22);
+  border-top: 1px solid rgb(244,67,54);
 }
 
 .redglow-button:hover .redglow-button-top,
@@ -78,7 +78,7 @@
   bottom: -1px;
   width: 0px;
   height: 0px;
-  background-color: red;
+  background-color: rgb(244,67,54);
   z-index: 1;
   border-radius: 100%;
 }
@@ -116,4 +116,58 @@
     width: 0px;
     height: 0px;
   }
+}
+
+
+/* Close button: https://codepen.io/murphyrandle/pen/wvCgI?q=close+button&limit=all&type=type-pens */
+
+.open-close-button {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 0.1em solid rgb(33,33,33);
+  margin-left: 6px;
+  font-size: 16px;
+  border-radius: 80%;
+  position: relative;
+  -moz-transition: 0.5s;
+  -o-transition: 0.5s;
+  -webkit-transition: 0.5s;
+  transition: 0.5s;
+  -moz-transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+.open-close-button:before {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  background-color: rgb(33,33,33);
+  width: 80%;
+  height: 6%;
+  left: 10%;
+  top: 47%;
+}
+.open-close-button:after {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  background-color: rgb(33,33,33);
+  width: 6%;
+  height: 80%;
+  left: 47%;
+  top: 10%;
+}
+.open-close-button.open {
+  background-color: rgb(33,33,33);
+  -moz-transform: rotate(225deg);
+  -ms-transform: rotate(225deg);
+  -webkit-transform: rotate(225deg);
+  transform: rotate(225deg);
+}
+.open-close-button.open:after {
+  background-color: rgb(183,28,28)
+}
+.open-close-button.open:before {
+  background-color: rgb(183,28,28)
 }

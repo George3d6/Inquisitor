@@ -35,12 +35,12 @@ fn main() {
         fs_extra::file::copy([String::from("../receptor_plugins/"), file.clone()].join(""), [String::from("plugins/"), file.clone()].join(""), &fs_extra::file::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000}).unwrap();
     }
 
-    let mut aux_files: Vec<String> = common_files.iter().filter(|s| !s.contains(".rs")).map(|s| s.clone()).collect();
+    let aux_files: Vec<String> = common_files.iter().filter(|s| !s.contains(".rs")).map(|s| s.clone()).collect();
 
     for file in aux_files {
         for dest in vec!["target/debug/", "target/release/"] {
             fs_extra::file::copy([String::from("../receptor_plugins/"), file.clone()].join(""), [dest, &file].join(""), &fs_extra::file::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000}).unwrap();
-            fs_extra::dir::copy("../web_ui", dest, &fs_extra::dir::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000, copy_inside: true, depth: 9999});
+            fs_extra::dir::copy("../web_ui", dest, &fs_extra::dir::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000, copy_inside: true, depth: 9999}).unwrap();
         }
     }
 

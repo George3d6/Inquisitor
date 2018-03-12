@@ -2,6 +2,12 @@
 extern crate serde_derive;
 extern crate serde_json;
 
+extern crate futures;
+extern crate tokio;
+use futures::Future;
+use tokio::net::TcpStream;
+
+
 mod status;
 use status::Status;
 mod plugin_interface;
@@ -9,31 +15,30 @@ mod utils;
 use plugin_interface::AgentPlugin;
 mod plugins;
 
-use std::io::prelude::*;
-use std::net::{SocketAddr, TcpStream};
-use std::{thread, time};
+extern crate hostname;
 
+use std::net::SocketAddr;
+use std::{thread, time};
+use std::vec::Vec;
+use std::string::String;
 
 
 struct StatusSender {
-    addr:  SocketAddr,
+    pub addr:  SocketAddr,
+    pub hostname: String,
 }
 
 impl StatusSender {
-    fn new() -> StatusSender {
-        return StatusSender{addr: SocketAddr::from(([127, 0, 0, 1], 1478))}
+    fn new(hostname: String) -> StatusSender {
+        return StatusSender{addr: SocketAddr::from(([127, 0, 0, 1], 1478)), hostname: hostname}
     }
 
-    pub fn arbitrate<PluginType>(&mut self, plugin: &mut PluginType) where PluginType: AgentPlugin {
+    pub fn arbitrate<PluginType>(&mut self, plugin: &mut PluginType, payload: &mut Vec<Status>) where PluginType: AgentPlugin {
         if plugin.ready() {
             let name = plugin.name();
             let message = plugin.gather().expect(&format!("Issue running gather on plugin: {}", name) as &str);
-            let status = Status{sender: String::from("Test sender 2"), ts: utils::current_ts(), message: message, plugin_name: name};
-
-            let payload = serde_json::to_string(&status).expect("Can't serialize payload");
-            let mut stream = TcpStream::connect(&self.addr).expect("Can't create tcp stream");
-            stream.write(&payload.as_bytes()).expect("Can't write to tcp stream !");
-            stream.flush().expect("Can't flush the tcp stream !");
+            let status = Status{sender: self.hostname.clone(), ts: utils::current_ts(), message: message, plugin_name: name};
+            payload.push(status);
         }
     }
 }
@@ -42,11 +47,29 @@ impl StatusSender {
 fn main() {
     {{CREATE_PLUGINS}}
 
+    let config = utils::get_yml_config("agent_config.yml");
 
-    let mut sender = StatusSender::new();
+    let hostanme = match config["machine_identifier"].as_str() {
+            Some(name) => String::from(name),
+            None => hostname::get_hostname().unwrap(),
+    };
 
+    let mut sender = StatusSender::new(hostanme);
     loop {
         thread::sleep(time::Duration::from_millis(1000));
+        let mut payload = Vec::new();
+
         {{USE_PLUGINS}}
+
+        if payload.len() > 0 {
+            let serialized_payload = serde_json::to_string(&payload).expect("Can't serialize payload");
+
+            let send = TcpStream::connect(&sender.addr)
+                .and_then(|stream| {
+                    return tokio::io::write_all(stream, serialized_payload)
+                }).map_err(|e| eprintln!("Error: {}", e)).map(|_| ());
+
+            tokio::run(send);
+        }
     }
 }
