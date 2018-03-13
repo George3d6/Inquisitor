@@ -1,0 +1,7 @@
+files:
+    - /tmp/a
+    - /tmp/b
+
+keyphrase:
+    - 'Error'
+    - 'Err:'

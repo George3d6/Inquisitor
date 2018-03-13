@@ -7,6 +7,9 @@ use std::fs::File;
 use std::string::String;
 
 
+static PLUGINS: &'static [&str] = &["command_runner", "file_checker.rs"];
+
+
 fn main() {
     create_dir_all("plugins").expect("Can't create plugin director !?");
     create_dir_all("target/debug").expect("Can't create plugin director !?");
@@ -37,7 +40,14 @@ fn main() {
     for file in aux_files {
         for dest in vec!["target/debug/", "target/release/"] {
             fs_extra::file::copy("agent_config.yml", [dest, "agent_config.yml"].join(""), &fs_extra::file::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000}).unwrap();
-            fs_extra::file::copy([String::from("../agent_plugins/"), file.clone()].join(""), [dest, &file].join(""), &fs_extra::file::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000}).unwrap();
+
+            for &plugin in PLUGINS {
+                if plugin == "all" || file.contains(plugin) {
+                    fs_extra::file::copy([String::from("../agent_plugins/"), file.clone()].join(""), [dest, &file].join(""), &fs_extra::file::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000}).unwrap();
+                    break
+                }
+            }
+
         }
     }
 

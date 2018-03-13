@@ -36,9 +36,13 @@ impl StatusSender {
     pub fn arbitrate<PluginType>(&mut self, plugin: &mut PluginType, payload: &mut Vec<Status>) where PluginType: AgentPlugin {
         if plugin.ready() {
             let name = plugin.name();
-            let message = plugin.gather().expect(&format!("Issue running gather on plugin: {}", name) as &str);
-            let status = Status{sender: self.hostname.clone(), ts: utils::current_ts(), message: message, plugin_name: name};
-            payload.push(status);
+            match plugin.gather() {
+                Ok(message) => {
+                    let status = Status{sender: self.hostname.clone(), ts: utils::current_ts(), message: message, plugin_name: name};
+                    payload.push(status);
+                }
+                Err(_) => ()
+            }
         }
     }
 }
