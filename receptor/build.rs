@@ -6,6 +6,7 @@ use std::io::prelude::*;
 use std::fs::File;
 use std::string::String;
 
+static PLUGINS: &'static [&str] = &["sync_check"];
 
 fn main() {
 
@@ -32,15 +33,27 @@ fn main() {
 
     let rust_files: Vec<String> = common_files.iter().filter(|s| s.contains(".rs")).map(|s| s.clone()).collect();
     for file in &rust_files {
-        fs_extra::file::copy([String::from("../receptor_plugins/"), file.clone()].join(""), [String::from("plugins/"), file.clone()].join(""), &fs_extra::file::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000}).unwrap();
+        for &plugin in PLUGINS {
+            if plugin == "all" || file.contains(plugin) {
+                fs_extra::file::copy([String::from("../receptor_plugins/"), file.clone()].join(""), [String::from("plugins/"), file.clone()].join(""), &fs_extra::file::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000}).unwrap();
+                break
+            }
+        }
     }
 
     let aux_files: Vec<String> = common_files.iter().filter(|s| !s.contains(".rs")).map(|s| s.clone()).collect();
 
     for file in aux_files {
         for dest in vec!["target/debug/", "target/release/"] {
-            fs_extra::file::copy([String::from("../receptor_plugins/"), file.clone()].join(""), [dest, &file].join(""), &fs_extra::file::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000}).unwrap();
             fs_extra::dir::copy("../web_ui", dest, &fs_extra::dir::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000, copy_inside: true, depth: 9999}).unwrap();
+            fs_extra::file::copy("receptor_config.yml", [dest, "receptor_config.yml"].join(""), &fs_extra::file::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000}).unwrap();
+
+            for &plugin in PLUGINS {
+                if plugin == "all" || file.contains(plugin) {
+                    fs_extra::file::copy([String::from("../receptor_plugins/"), file.clone()].join(""), [dest, &file].join(""), &fs_extra::file::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000}).unwrap();
+                    break
+                }
+            }
         }
     }
 

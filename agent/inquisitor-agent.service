@@ -1,0 +1,11 @@
+[Unit]
+Description=The client/agent piece for the inquisitor monitoring software
+
+[Service]
+Type=simple
+PIDFile=/var/run/inquisitor-agent.pid
+ExecStart=/usr/bin/inquisitor_agent
+WorkingDirectory=/etc/inquisitor-agent
+
+[Install]
+WantedBy=multi-user.target

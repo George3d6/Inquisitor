@@ -7,7 +7,7 @@ use std::fs::File;
 use std::string::String;
 
 
-static PLUGINS: &'static [&str] = &["command_runner", "file_checker.rs"];
+static PLUGINS: &'static [&str] = &["command_runner", "alive", "file_checker", "process_counter", "system_monitor"];
 
 
 fn main() {
@@ -33,7 +33,12 @@ fn main() {
 
     let rust_files: Vec<String> = common_files.iter().filter(|s| s.contains(".rs")).map(|s| s.clone()).collect();
     for file in &rust_files {
-        fs_extra::file::copy([String::from("../agent_plugins/"), file.clone()].join(""), [String::from("plugins/"), file.clone()].join(""), &fs_extra::file::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000}).unwrap();
+        for &plugin in PLUGINS {
+            if plugin == "all" || file.contains(plugin) {
+                fs_extra::file::copy([String::from("../agent_plugins/"), file.clone()].join(""), [String::from("plugins/"), file.clone()].join(""), &fs_extra::file::CopyOptions{overwrite: true, skip_exist: false, buffer_size: 64000}).unwrap();
+                break
+            }
+        }
     }
 
     let aux_files: Vec<String> = common_files.iter().filter(|s| !s.contains(".rs")).map(|s| s.clone()).collect();

@@ -1,3 +1,5 @@
+periodicity: 20
+
 files:
     - /tmp/a
     - /tmp/b

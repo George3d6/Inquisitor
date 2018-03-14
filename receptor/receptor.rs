@@ -192,8 +192,31 @@ impl PluginRunner {
 
 
 fn main() {
+    let config = utils::get_yml_config("receptor_config.yml");
+
+    let clean_older_than = config["clean_older_than"].as_i64().expect("Please specify a time after which logs should start being removed from the database under the root parameter: 'clean_older_than' [type==i64]");
+
     initialize_database();
 
+    /* Do some administrative sutff */
+    thread::spawn(move || {
+        loop {
+             let db_conn = get_connection();
+
+             db_conn.execute("DELETE FROM agent_status WHERE CAST(strftime('%s',ts_received) as decimal)
+             < (CAST(strftime('%s',CURRENT_TIMESTAMP) as decimal) - ?1)", &[&clean_older_than])
+             .expect("Can't clean up agent_status table");
+
+             db_conn.execute("DELETE FROM receptor_status WHERE CAST(strftime('%s',ts) as decimal)
+             < (CAST(strftime('%s',CURRENT_TIMESTAMP) as decimal) - ?1)", &[&clean_older_than])
+             .expect("Can't clean up receptor_status table");
+
+             thread::sleep(time::Duration::from_millis(360 * 1000));
+        }
+    });
+
+
+    /* Run receptor side plugins */
     thread::spawn(|| {
         {{CREATE_PLUGINS}}
 
@@ -205,8 +228,11 @@ fn main() {
         }
     });
 
-    thread::spawn(|| {
-        let server_addr = "127.0.0.1:1834".parse().expect("Can't parse HTTP server address");
+
+    /* Run http server for the web UI and http endpoints to get plugin data */
+    let server_addr_str = format!("{}:{}", config["server"]["bind"].as_str().unwrap(), config["server"]["port"].as_i64().unwrap());
+    thread::spawn(move || {
+        let server_addr = server_addr_str.parse().expect("Can't parse HTTP server address");
         let mut root = current_exe().unwrap();
         root.pop();
 
@@ -229,7 +255,9 @@ fn main() {
     });
 
 
-    let listener_addr = "127.0.0.1:1478".parse().expect("Can't parse TCP server address");
+    /* Listen for incoming statuses from agents and process them & validate them & insert them into the database */
+    let receptor_addr_str = format!("{}:{}", config["receptor"]["bind"].as_str().unwrap(), config["receptor"]["port"].as_i64().unwrap());
+    let listener_addr = receptor_addr_str.parse().expect("Can't parse TCP server address");
     let listener = TcpListener::bind(&listener_addr).expect("Can't start TCP server");
 
     let receptor = listener.incoming().for_each(move |stream| {

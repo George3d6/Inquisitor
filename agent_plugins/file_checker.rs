@@ -24,6 +24,8 @@ struct FileInfo {
 
 
 pub struct Plugin {
+    last_call_ts: i64,
+    periodicity: i64,
     file_info_map: HashMap<String, FileInfo>,
 }
 
@@ -45,13 +47,15 @@ impl Plugin {
 
             plugin.file_info_map.insert(files[i].clone(), FileInfo{last_line: nr_lines, last_size: file_size, look_for: keyphrase[i].clone()});
         }
+
+        plugin.periodicity = config["periodicity"].as_i64().expect("Can't read periodicity as i64");
     }
 }
 
 impl AgentPlugin for Plugin {
 
     fn new() -> Plugin {
-        let mut new_plugin = Plugin{file_info_map: HashMap::new()};
+        let mut new_plugin = Plugin{last_call_ts: 0, periodicity: 0, file_info_map: HashMap::new()};
         Plugin::config(&mut new_plugin);
         return new_plugin
     }
@@ -61,7 +65,8 @@ impl AgentPlugin for Plugin {
     }
 
     fn gather(&mut self) -> Result<String, String> {
-
+        self.last_call_ts = utils::current_ts();
+        
         let mut results = Vec::new();
         let mut new_file_info_arr = Vec::new();
 
@@ -97,6 +102,6 @@ impl AgentPlugin for Plugin {
     }
 
     fn ready(&self) -> bool {
-        return true
+        return self.last_call_ts + self.periodicity < utils::current_ts()
     }
 }

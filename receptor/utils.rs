@@ -30,5 +30,5 @@ pub fn get_yml_config(name: &str) -> Yaml {
     cfg_file_path.push(name);
     let contents = read_to_string(&cfg_file_path).unwrap();
     let mut docs = YamlLoader::load_from_str(&contents).unwrap();
-    return docs.remove(0);
+    return docs.remove(0)
 }

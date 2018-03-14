@@ -29,8 +29,8 @@ struct StatusSender {
 }
 
 impl StatusSender {
-    fn new(hostname: String) -> StatusSender {
-        return StatusSender{addr: SocketAddr::from(([127, 0, 0, 1], 1478)), hostname: hostname}
+    fn new(hostname: String, addr_str: String) -> StatusSender {
+        return StatusSender{addr: addr_str.parse().unwrap(), hostname: hostname}
     }
 
     pub fn arbitrate<PluginType>(&mut self, plugin: &mut PluginType, payload: &mut Vec<Status>) where PluginType: AgentPlugin {
@@ -58,7 +58,9 @@ fn main() {
             None => hostname::get_hostname().unwrap(),
     };
 
-    let mut sender = StatusSender::new(hostanme);
+    let addr = format!("{}:{}", config["receptor"]["host"].as_str().unwrap(), config["receptor"]["port"].as_i64().unwrap());
+    
+    let mut sender = StatusSender::new(hostanme, addr);
     loop {
         thread::sleep(time::Duration::from_millis(1000));
         let mut payload = Vec::new();
