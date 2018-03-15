@@ -82,14 +82,12 @@ function activate_view_button_click() {
 async function place_view_buttons() {
     if(__config.plugins === undefined) {
         __config.plugins = [];
-
         const levels = ['agent', 'receptor'];
         for(let i = 0; i < levels.length; i++) {
             const resp = await fetch(`http://localhost:1834/plugin_list?level=${levels[i]}`);
             const text = await resp.text();
             const plugin_names = text.split('\n');
             for(let n = 0; n < plugin_names.length; n++) {
-                console.log(plugin_names[n]);
                 __config.plugins.push({
                     'name': plugin_names[n]
                     ,'level': levels[i]
@@ -117,15 +115,16 @@ ROUTER.notFound((query) => {
 
 ROUTER.on(
     {
-        '/': () => {
-            toggle_visibility({'main': false, 'header': true})
+        '/': async () => {
+            toggle_visibility({'main': false, 'header': true});
+            await place_view_buttons();
             activate_view_button_click();
         }
-        ,'/view/:level/:plugin_name': (params) => {
+        ,'/view/:level/:plugin_name': async (params) => {
             const plugin_name = decodeURIComponent();
-            go_to_view({'name': params.plugin_name, 'level': params.level});
+            await go_to_view({'name': params.plugin_name, 'level': params.level});
         }
-        ,'/404/notfound': (params) => {
+        ,'/404/notfound': async (params) => {
             display_not_found();
         }
     }
