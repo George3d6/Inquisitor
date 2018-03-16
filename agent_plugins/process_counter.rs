@@ -16,11 +16,19 @@ pub struct Plugin {
     last_call_map: HashMap<String, i64>,
     periodicity_map: HashMap<String, i64>,
     processes: Vec<String>,
+    disable: bool,
 }
 
 impl Plugin {
     fn config(plugin: &mut Plugin) {
         let config = utils::get_yml_config(&format!("{}.yml",file!().replace("plugins/", "").replace(".rs", "")));
+
+        if config["disable"].as_bool().unwrap_or(false) {
+            plugin.disable = true;
+            return
+        } else {
+            plugin.disable = false;
+        }
 
         plugin.processes = config["processes"].as_vec().expect("Can't read commands vector")
         .iter().map(|x| String::from(x.as_str().expect("Can't read command element"))).collect();
@@ -38,7 +46,7 @@ impl Plugin {
 impl AgentPlugin for Plugin {
 
     fn new() -> Plugin {
-        let mut new_plugin = Plugin{last_call_map: HashMap::new(), periodicity_map: HashMap::new(), processes: Vec::new()};
+        let mut new_plugin = Plugin{disable: false, last_call_map: HashMap::new(), periodicity_map: HashMap::new(), processes: Vec::new()};
         Plugin::config(&mut new_plugin);
         return new_plugin
     }
@@ -77,6 +85,9 @@ impl AgentPlugin for Plugin {
     }
 
     fn ready(&self) -> bool {
+        if self.disable {
+            return false
+        }
         for (name, _) in &self.last_call_map {
             if self.last_call_map.get(name).unwrap() + self.periodicity_map.get(name).unwrap() < utils::current_ts() {
                 return true
