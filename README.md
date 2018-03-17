@@ -71,8 +71,6 @@ listed above.
 
 ## Goals
 
-### In short
-
 - A monitoring tool meant to be modified, extended and customized.
 
 - Easy to deploy and run by providing an intuitive build, not having (many) dynamic dependencies and not consuming too many resources
