@@ -64,7 +64,7 @@ all plugins are disabled by default.
 listed above.
 
 
-#### Plugin configuration
+#### Plugin configuration guide
 
 @TODO
 
@@ -118,6 +118,9 @@ on the statuses received from the agents or the data processed by the receptor.
 Currently the only endpoint present is the web ui, I'm working on implementing some example endpoints that can send warnings via twillio,
 slack and SMTP.
 
+
+## Extending via endpoints and plugins & contributing code
+@TODO
 
 
 ## Roadmap
