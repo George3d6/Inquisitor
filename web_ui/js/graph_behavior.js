@@ -5,7 +5,6 @@ function close_button_behavior() {
             let is_open = false;
             let classes = '';
             buttons[i].className.split(' ').forEach((cls) => {
-                console.log(cls);
                 if(cls === 'open') {
                     is_open = true;
                 } else {
@@ -23,7 +22,7 @@ function close_button_behavior() {
             if(!is_open) {
                 classes += ` open`;
                 graph.style.display = 'block';
-                //graph_holder.style.height = 
+                //graph_holder.style.height =
             } else {
                 graph.style.display = 'none';
             }

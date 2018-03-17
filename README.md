@@ -1,91 +1,122 @@
 # ![Inquisitor icon](https://i.imgur.com/3XZNDko.png) Inquisitor
-**_Version: 0.2.2_**
+**_Version: 0.2.3_**
 
 
 Inquisitor is a monitoring tool written solely in Rust, it's easy to extend via a plugin system, minimalist and easy to deploy,
 fast and resource light by using asyncio and the amazing optimizations that rustc&llvm provide.
 
 It's composed of a receptor, which receives messages, processes them, stores them and provides them to various endpoints,
-and an agent, which is ran on the monitored machines in order to collect data via various plugins. Both the agent and the receptor have a similar plugin system,
-the agent's plugins are meant for data collection and light processing, whilst the receptor plugins are meant for processing and correlating the data from the
-various agents in order to generate more complex or generalized metrics.
+and an agent, which is ran on the monitored machines in order to collect data via various plugins. Both the agent and the receptor have a similar plugin system, the agent's plugins are meant for data collection and light processing, whilst the receptor plugins are meant for processing and correlating the data from the various agents in order to generate more complex or generalized metrics.
 
 
 ## Usage
 
-I'm currently working on a 20 minute video and a quick guide to explain how to deploy and use inquisitor (by showing how I use it to monitor my own infrastrucutre)
+### Video guides
+
+[![Inquisitor setup tutorial (version 0.2.2)](https://www.youtube.com/watch?v=_b-MlPBgub8Y)
+
+### Text guides
+
+#### Receptor setup
+
+The receptor is the component that receives statuses from the various machine being monitored. It can also process them in order to provide
+higher level metrics. It serve these endpoints over a http interface (by default on port 1834). To install and run the receptor:
+
+1. Go to the machine where the receptor is to be installed and make sure these are netowrking rules in places such that it can receive
+messages from the monitored machines on port `1478` and serve those statuses on port `1834`
+
+2. Download the latest release of the receptor from https://github.com/George3d6/Inquisitor/releases and uncompress it.
+`wget 'https://github.com/George3d6/Inquisitor/releases/download/0.2.2/inquisitor-receptor.tar.gz' && tar -xvf inquisitor-receptor.tar.gz && rm inquisitor-receptor.tar.gz;`
+
+3. Install sqlite3 on the machine (many distros come with it already installed). Most package managers should have sqlite:
+* Arch: `sudo pacman -S sqlite`
+* Ubuntu/Debian: `sudo apt install sqlite3 libsqlite3-dev`
+* Suse: `sudo zypper install sqlite3 sqlite3-devel`
+* Fedora/CentOS/RHL: `sudo dnf install sqlite sqlite-devel sqlite-tcl sqlite-jdbc`
+
+4. `cd inquisitor-receptor` and edit the `receptor_config.yml` file to allow it to bind to a public interface (unless you are testing locally).
+You can do this by changing the `bind` parameter to `0:0:0:0`
+
+5. Run the binary `./inquisitor_receptor`
+
+6. You should be able to get data from the following routes:
+
+* The web UI: `your_ip:1834`
+
+* The list plugin route: `your_ip:1834/plugin_list?level=agent` Where `level` is either agent (for agent plugins) or receptor (for receptor plugins)
+
+* The plugin data route: `your_ip:1834/plugin_data?ts_start=0&ts_end=1920197300&level=agent&name=System%20monitor`
+Where `ts_start` is the timestamp of the oldest status you want to get and `ts_end` the date of the newest. `plugin_name` is the name of the
+plugin (You can list all plugin you have data fro from the List plugin route).
+
+#### Agent setup
+
+1. On the machines you want to monitor, download the latest release of the agent from https://github.com/George3d6/Inquisitor/releases and uncompress it.
+`wget 'https://github.com/George3d6/Inquisitor/releases/download/0.2.2/inquisitor-agent.tar.gz' && tar -xvf inquisitor-agent.tar.gz && rm inquisitor-agent.tar.gz;`
+
+2. In the `agent_config.yml` file set `host` to the IP/Domain of the machine were you installed the receptor. Add a `machine_identifier`
+parameter if you want the identifier/name for this machine to be something else than it's hostname
+
+3. Edit the `plugin_name.yml` files for any plugin you want to use (e.g. `file_checker.yml`). To enable the plugin set `disable: false`,
+all plugins are disabled by default.
+
+4. Run the agent `./inquisitor_agent`. It should start sending data to the receptor. You can check the data being send at the endpoints
+listed above.
+
+
+#### Plugin configuration
+
+@TODO
 
 
 ## Goals
 
 ### In short
 
-- Written to be modified, extended and customized.
+- A monitoring tool meant to be modified, extended and customized.
 
 - Easy to deploy and run by providing an intuitive build, not having (many) dynamic dependencies and not consuming too many resources
 
-- Effortless to learn, reading a 20 minute guide or watching a 40 minute video should be enough for anyone to understand how to use, deploy and extend this software.
+- Effortless to learn, 15 minute should be enough time to learn how to use this software almost perfectly. An hour should be enough to learn
+how to add your own custom plugins to it.
 
-- Meant for programatic use. The web-ui exists in order to provide some insights (In the future it may be distributed separately from the receptor), but the
-intended use for the receptor is via extending it with your own custom endpoints that send warnings and reports.
-
-### /Rant
-
-The main reason why I thought this was worth developing is because most established monitoring tools (Zabbix, Nagios, Icinga, Munin) feel to "old" to me. Their
-codebases are huge and impenetrable, the guides on how to use them could be compiled in a manual of hundreds of pages, they are relatively slow (sometimes by
-their very design, due to the languages they are written in), they overxtend by adding security and authentication layers, they add even more bloat by trying to have interfaces aimed at "dumb/non-tech savy/business" users and often time are a mix between a community effort and an "enterprise" component
-
-As such, the main reason why I want to develop Inquisitor is to have a monitoring tool that doesn't do that, something that is 100% free and open (no binary blobs,
-no Enterprise Edition), something that is meant to be used by developer, that doesn't hold you hand and assumes your can't use a linux box, it assumes you are busy and want to deploy your monitoring software quickly, configure it quickly and have it work out of the box once you run the binary. Also, I want to build something that is
-minimalist, that does one thing (monitoring) and does it well.
+- Meant for programatic use. The interface should be built in such a way as to easily allow developers/devops to add their own custom endpoints.
 
 
 ## Components
 
 ### The agent
 
-The agent is ran on every monitored machine, so it's resource usage and binary size should be kept reasonably low.
-
-The agent is the more complete part of the two. Containing most of the basic plugins one would need to engage in basic monitoring (resource monitoring, file
-monitoring, process monitoring... etc). It's as dependency-free as I could make it without complicating myself, it's only dynamically linked only against
-linux-vdso, libdl, librt, libpthread(to be removed when I figure out an easy way to force tokio to be single thread), ld and libc.
-
-It's meant to send data to the receptor, it doesn't received data, thus not inducing the risk of a security breach if the receptor machine is compromised or the
-receptor binary is corrupted or contains a bug.
+Meant to be installed on all the machine you want to monitor. It's a scaffolding that allows plugins to send data to the receptor.
 
 
 ### The receptor
 
-The receptor is meant to run on only one or two instances and doesn't hamper the performance of other software, so most of the logic should be in the receptor if
-at all possible.
-
-The receptor is less fleshed out and, at the moment, it requires the sqlite3 shared library to be installed on the host machine. Besides receiving and processing
-statuses from the agents, it also includes endpoints to query the data it has collected, a routines to process the received data via it's plugins and clean old data
-as well as an endpoint for the inquisitor web_ui.
+Collects, processes and stored data from all the agents in order to display it. The processing of data can be modified via plugins.
 
 
 ### Plugins
 
-The plugin system is quite easy to get used to. It's biggest disadvantage is that each time a plugin has to be added or removed it requires a new compilation,
-plugins can't be loaded dynamically or ran as seprate processes.
-
+Plugins can be added to both the receptor and the agent in order to gather different types of data and, if needed, process it in different
+ways in the receptor. Plugins are meant to be written in rust and should be easy to configure and must implement the `AgentPlugin`
+or `ReceptorPlugin` trait. For bare-bones plugin examples see [the Alive plugin (for the agent)](agent_plugins/alive.rs) and
+[the Sync check plugin (for the receptor)](receptor_plugins/sync_check.rs)
 
 ### The Web UI
 
-This is the only part of the project that I'm not quite sure I want to keep. It's a minimalist UI that's meant to list and provide graphs for plugins. It isn't
-able to automatically generate plots for new plugins, it requires a `timeseries_map_agent/recptor_Plugin_name` function to be defined in order to plot timeseries.
-In the future, it will require a similar function for other types of graphs.
+A minimalist UI that's meant to list plugins and provide graphs for them. It isn't
+able to automatically generate plots for a new plugins, it requires a `timeseries_map_agent/recptor_Plugin_name` function to be defined in order to plot timeseries. In the future, it will require a similar function for other types of graphs.
 
-Unlike some other monitoring front-ends, it's not a top priority and it's not meant to be used for controlling the monitoring system. It's more of a showcase of
-how you could build your own endpoints.
+In the future it may be made into a standalone endpoint, for now it is part of the inquisitor-receptor server.
 
 
 ### Endpoints
 
-Endpoints are meant to communicate the relevant data gathered by Inquisitor to the agent. Sending warning if process are down, if machine resources are
-reaching beyond a certain cap or anthing else a user may desire.
+Endpoints are meant to communicate the relevant data gathered by Inquisitor to the agent. Sending warning or periodic status messages depending
+on the statuses received from the agents or the data processed by the receptor.
 
-Currently there are no example endpoints present (besides the web ui, which is a bit more special). In the next release some endpoints for slack, email and twillio will be included.
+Currently the only endpoint present is the web ui, I'm working on implementing some example endpoints that can send warnings via twillio,
+slack and SMTP.
 
 
 
@@ -98,30 +129,24 @@ Currently there are no example endpoints present (besides the web ui, which is a
 #### <a href="#"><img alt="Under development" src="https://i.imgur.com/iSXfnTb.png" height="28" width="28"></a> Under development
 
 
-
-
-<br>
-<br>
-
 <a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a>
 <a href="#"><img alt="Priority" src="https://i.imgur.com/6ieSrzD.png" height="28" width="28"></a>
 <a href="#"><img alt="Requires external contributors" src="https://i.imgur.com/lmOki5V.png" height="28" width="28"></a>
 Come up with a testing plan in order to start moving towards a stable release. This part is a bit tricky since 99% of the "hard parts" relate to side effects,
 so it may require a bit of fiddling to come up with a good testing framework and practices. (Advice is welcome on this one)
 
-
 <a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a>
 <a href="#"><img alt="Under development" src="https://i.imgur.com/iSXfnTb.png" height="28" width="28"></a>
 <a href="#"><img alt="Requires external contributors" src="https://i.imgur.com/lmOki5V.png" height="28" width="28"></a>
 Finalize the http interface for getting plugin data and make sure it's not missing any essential component before starting to build towards a stable release.
 
-
-
 <a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a>
 <a href="#"><img alt="Priority" src="https://i.imgur.com/6ieSrzD.png" height="28" width="28"></a>
 Replace the "custom" code inlining system with some macros (if possible).
 
-
+<a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a>
+<a href="#"><img alt="Priority" src="https://i.imgur.com/6ieSrzD.png" height="28" width="28"></a>
+Use asyncio for all the agent plugins which use the fs.
 
 <a href="#"><img alt="Bug" src="https://i.imgur.com/umZtkC4.png" height="28" width="28"></a>
 <a href="#"><img alt="Priority" src="https://i.imgur.com/6ieSrzD.png" height="28" width="28"></a>

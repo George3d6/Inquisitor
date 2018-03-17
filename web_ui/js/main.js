@@ -57,6 +57,9 @@ async function go_to_view(viw_obj) {
 
 function generate_view_buttons() {
     return __config.plugins.map((plugin) => {
+        if (plugin.name.toUpperCase() === '') {
+            return '';
+        }
         return `
             <a class="redglow-button header-button" id="${plugin.name + plugin.level}">
                 ${plugin.name.toUpperCase()}
@@ -84,14 +87,16 @@ async function place_view_buttons() {
         __config.plugins = [];
         const levels = ['agent', 'receptor'];
         for(let i = 0; i < levels.length; i++) {
-            const resp = await fetch(`http://localhost:1834/plugin_list?level=${levels[i]}`);
+            const resp = await fetch(`/plugin_list?level=${levels[i]}`);
             const text = await resp.text();
             const plugin_names = text.split('\n');
             for(let n = 0; n < plugin_names.length; n++) {
-                __config.plugins.push({
-                    'name': plugin_names[n]
-                    ,'level': levels[i]
-                });
+                if (plugin_names[n] !== '') {
+                    __config.plugins.push({
+                        'name': plugin_names[n]
+                        ,'level': levels[i]
+                    });
+                }
             }
         }
     }

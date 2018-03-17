@@ -1,4 +1,4 @@
-machine_identifier: george-home-machine
+# machine_identifier: name_of_this_machine
 receptor:
     host: 127.0.0.1
     port: 1478
