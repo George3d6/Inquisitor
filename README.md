@@ -13,7 +13,7 @@ and an agent, which is ran on the monitored machines in order to collect data vi
 
 ### Video guides
 
-[![Inquisitor setup tutorial (version 0.2.2)](http://www.clipartbest.com/cliparts/9cp/onE/9cponEedi.png)](https://www.youtube.com/watch?v=_b-MlPBgub8Y)
+[![Inquisitor setup tutorial (version 0.2.2)](http://www.clipartbest.com/cliparts/9cp/onE/9cponEedi.png)](https://youtu.be/Nbn-85oAcR)
 
 ### Text guides
 
