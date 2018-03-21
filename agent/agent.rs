@@ -14,7 +14,6 @@ mod plugin_interface;
 mod utils;
 use plugin_interface::AgentPlugin;
 mod plugins;
-
 extern crate hostname;
 
 use std::net::SocketAddr;
@@ -30,7 +29,7 @@ struct StatusSender {
 
 impl StatusSender {
     fn new(hostname: String, addr_str: String) -> StatusSender {
-        return StatusSender{addr: addr_str.parse().unwrap(), hostname: hostname}
+        StatusSender{addr: addr_str.parse().unwrap(), hostname: hostname}
     }
 
     pub fn arbitrate<PluginType>(&mut self, plugin: &mut PluginType, payload: &mut Vec<Status>) where PluginType: AgentPlugin {
@@ -59,7 +58,7 @@ fn main() {
     };
 
     let addr = format!("{}:{}", config["receptor"]["host"].as_str().unwrap(), config["receptor"]["port"].as_i64().unwrap());
-    
+
     let mut sender = StatusSender::new(hostanme, addr);
     loop {
         thread::sleep(time::Duration::from_millis(1000));
@@ -72,7 +71,7 @@ fn main() {
 
             let send = TcpStream::connect(&sender.addr)
                 .and_then(|stream| {
-                    return tokio::io::write_all(stream, serialized_payload)
+                    tokio::io::write_all(stream, serialized_payload)
                 }).map_err(|e| eprintln!("Error: {}", e)).map(|_| ());
 
             tokio::run(send);

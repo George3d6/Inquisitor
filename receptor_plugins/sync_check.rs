@@ -35,11 +35,11 @@ impl ReceptorPlugin for Plugin {
     fn new() -> Plugin {
         let mut new_plugin = Plugin{disable: false, last_call_ts: 0, periodicity: 0};
         Plugin::config(&mut new_plugin);
-        return new_plugin
+        new_plugin
     }
 
     fn name(&self) -> String {
-        return String::from("Sync check");
+        String::from("Sync check")
     }
 
     fn gather(&mut self, db_conn: &Connection) -> Result<String, String> {
@@ -59,13 +59,13 @@ impl ReceptorPlugin for Plugin {
         }
 
 
-        return Ok(serde_json::to_string(&diff_map).expect("Can't serialize clock dif map"))
+        Ok(serde_json::to_string(&diff_map).expect("Can't serialize clock dif map"))
     }
 
     fn ready(&self) -> bool {
         if self.disable {
             return false
         }
-        return self.last_call_ts + self.periodicity < utils::current_ts()
+        self.last_call_ts + self.periodicity < utils::current_ts()
     }
 }

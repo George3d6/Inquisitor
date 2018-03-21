@@ -48,11 +48,11 @@ impl AgentPlugin for Plugin {
     fn new() -> Plugin {
         let mut new_plugin = Plugin{disable: false, last_call_map: HashMap::new(), periodicity_map: HashMap::new(), processes: Vec::new()};
         Plugin::config(&mut new_plugin);
-        return new_plugin
+        new_plugin
     }
 
     fn name(&self) -> String {
-        return String::from("Process counter");
+        String::from("Process counter")
     }
 
     fn gather(&mut self) -> Result<String, String> {
@@ -81,7 +81,7 @@ impl AgentPlugin for Plugin {
             results.insert(process, running);
         }
 
-        return Ok(serde_json::to_string(&results).expect("Can't serialize command result map"));
+        Ok(serde_json::to_string(&results).expect("Can't serialize command result map"))
     }
 
     fn ready(&self) -> bool {
@@ -93,6 +93,6 @@ impl AgentPlugin for Plugin {
                 return true
             }
         }
-        return false
+        false
     }
 }

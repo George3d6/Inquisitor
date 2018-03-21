@@ -57,6 +57,7 @@ impl Service for DataServer {
 
                 (&Method::Get, "/plugin_data") => {
                     let params = utils::get_url_params(&req);
+
                     let plugin_name = match params.get("name") {
                         Some(name) => name,
                         None => ""
@@ -69,13 +70,14 @@ impl Service for DataServer {
 
                     let ts_start = match params.get("ts_start") {
                         Some(name) => name,
-                        None => ""
+                        None => "-1"
                     };
 
                     let ts_end = match params.get("ts_end") {
                         Some(name) => name,
-                        None => ""
+                        None => "-1"
                     };
+
                     if level == "agent" {
                         let mut raw_data = self.db_conn.prepare("SELECT * FROM agent_status WHERE strftime('%s',ts_received) > :ts_start AND strftime('%s',ts_received) < :ts_end AND plugin_name=:plugin_name").expect("Can't select from database");
 
@@ -84,7 +86,7 @@ impl Service for DataServer {
                         }).expect("Problem getting raw status");
                         let status_tsv_itter = raw_status_iter.map(|rs| {
                             let (sender, message, ts): (String, String, i64) = rs.expect("Corrupt status in database");
-                            return format!("{}\t{}\t{}", sender, message, ts)
+                            format!("{}\t{}\t{}", sender, message, ts)
                         });
                         let status_tsv_vec: Vec<String> = status_tsv_itter.collect();
 
@@ -98,7 +100,7 @@ impl Service for DataServer {
                         }).expect("Problem getting receptor_status tuple");
                         let status_tsv_itter = raw_status_iter.map(|rs| {
                             let (message, ts): (String, String) = rs.expect("Corrupt status in database");
-                            return format!("{}\t{}", message, ts)
+                            format!("{}\t{}", message, ts)
                         });
                         let status_tsv_vec: Vec<String> = status_tsv_itter.collect();
 
@@ -117,9 +119,9 @@ impl Service for DataServer {
             match (req.method(), req.path()) {
                 (&Method::Get, "/plugin_list") => {
                     let params = utils::get_url_params(&req);
-                    let level = match params.get("level") {
+                    let level: String = match params.get("level") {
                         Some(name) => name,
-                        None => "",
+                        None => ""
                     };
 
                     let mut raw_data = if level == "agent" {
@@ -133,8 +135,7 @@ impl Service for DataServer {
                     }).expect("Problem getting receptor_status tuple");
 
                     let status_tsv_itter = raw_status_iter.map(|s| {
-                        let name: String = s.expect("Corrupt status in database");
-                        return name
+                        s.expect("Corrupt status in database")
                     });
 
                     let status_tsv_vec: Vec<String> = status_tsv_itter.collect();
@@ -175,7 +176,7 @@ struct PluginRunner {
 
 impl PluginRunner {
     pub fn new() -> PluginRunner {
-        return PluginRunner{db_conn: get_connection()}
+        PluginRunner{db_conn: get_connection()}
     }
 
     pub fn run_plugin<PluginType>(&self, plugin: &mut PluginType) where PluginType: ReceptorPlugin {
@@ -199,7 +200,7 @@ fn main() {
     initialize_database();
 
     /* Do some administrative sutff */
-    thread::spawn(move || {
+    let administrator_thread = thread::spawn(move || {
         loop {
              let db_conn = get_connection();
 
@@ -217,7 +218,7 @@ fn main() {
 
 
     /* Run receptor side plugins */
-    thread::spawn(|| {
+    let plugin_runner_thread = thread::spawn(|| {
         let mut sync_check = plugins::sync_check::Plugin::new();
 
         let plugin_runner = PluginRunner::new();
@@ -231,7 +232,7 @@ fn main() {
 
     /* Run http server for the web UI and http endpoints to get plugin data */
     let server_addr_str = format!("{}:{}", config["server"]["bind"].as_str().unwrap(), config["server"]["port"].as_i64().unwrap());
-    thread::spawn(move || {
+    let hyper_server_thread = thread::spawn(move || {
         let server_addr = server_addr_str.parse().expect("Can't parse HTTP server address");
         let mut root = current_exe().unwrap();
         root.pop();
@@ -268,4 +269,7 @@ fn main() {
     });
 
     tokio::run(receptor);
+    administrator_thread.join().unwrap();
+    plugin_runner_thread.join().unwrap();
+    hyper_server_thread.join().unwrap();
 }

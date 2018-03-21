@@ -65,11 +65,11 @@ impl AgentPlugin for Plugin {
     fn new() -> Plugin {
         let mut new_plugin = Plugin{disable: false, last_call_ts: 0, periodicity: 0, file_info_map: HashMap::new()};
         Plugin::config(&mut new_plugin);
-        return new_plugin
+        new_plugin
     }
 
     fn name(&self) -> String {
-        return String::from("File checker");
+        String::from("File checker")
     }
 
     fn gather(&mut self) -> Result<String, String> {
@@ -103,9 +103,9 @@ impl AgentPlugin for Plugin {
 
 
         if results.len() > 0 {
-            return Ok(serde_json::to_string(&results).expect("Can't serialize command result map"))
+            Ok(serde_json::to_string(&results).expect("Can't serialize command result map"))
         } else {
-            return Err(String::from("Nothing to read"))
+            Err(String::from("Nothing to read"))
         }
     }
 
@@ -113,6 +113,6 @@ impl AgentPlugin for Plugin {
         if self.disable {
             return false
         }
-        return self.last_call_ts + self.periodicity < utils::current_ts()
+        self.last_call_ts + self.periodicity < utils::current_ts()
     }
 }

@@ -1,5 +1,5 @@
 # ![Inquisitor icon](https://i.imgur.com/3XZNDko.png) Inquisitor
-**_Version: 0.2.3_**
+**_Version: 0.2.4_**
 
 
 Inquisitor is a monitoring tool written solely in Rust, it's easy to extend via a plugin system, minimalist and easy to deploy,

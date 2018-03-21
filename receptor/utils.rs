@@ -16,12 +16,12 @@ use std::env::current_exe;
 pub fn get_url_params(req: &Request) -> HashMap<String, String> {
     let parsed_url = Url::parse(&format!("http://badhyper.io/{}", req.uri().as_ref())).unwrap();
     let hash_query: HashMap<String, String> = parsed_url.query_pairs().into_owned().collect();
-    return hash_query
+    hash_query
 }
 
 
 pub fn current_ts() -> i64 {
-    return SystemTime::now().duration_since(UNIX_EPOCH).expect("Error getting system time !?").as_secs() as i64
+    SystemTime::now().duration_since(UNIX_EPOCH).expect("Error getting system time !?").as_secs() as i64
 }
 
 pub fn get_yml_config(name: &str) -> Yaml {

@@ -32,22 +32,22 @@ impl AgentPlugin for Plugin {
     fn new() -> Plugin {
         let mut new_plugin = Plugin{disable: false, last_call_ts: 0, periodicity: 0};
         Plugin::config(&mut new_plugin);
-        return new_plugin
+        new_plugin
     }
 
     fn name(&self) -> String {
-        return String::from("Alive");
+        String::from("Alive")
     }
 
     fn gather(&mut self) -> Result<String, String> {
         self.last_call_ts = utils::current_ts();
-        return Ok(String::from("I live"))
+        Ok(String::from("I live"))
     }
 
     fn ready(&self) -> bool {
         if self.disable {
             return false
         }
-        return self.last_call_ts + self.periodicity < utils::current_ts()
+        self.last_call_ts + self.periodicity < utils::current_ts()
     }
 }

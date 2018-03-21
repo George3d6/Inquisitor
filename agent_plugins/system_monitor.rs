@@ -46,11 +46,11 @@ impl AgentPlugin for Plugin {
     fn new() -> Plugin {
         let mut new_plugin = Plugin{disable: false, sys: System::new(), last_call_ts: 0, periodicity: 0};
         Plugin::config(&mut new_plugin);
-        return new_plugin
+        new_plugin
     }
 
     fn name(&self) -> String {
-        return String::from("System monitor")
+        String::from("System monitor")
     }
 
     fn gather(&mut self) -> Result<String, String> {
@@ -88,13 +88,13 @@ impl AgentPlugin for Plugin {
         network_map.insert("out", format!("{}", network.get_outcome()));
 
         let machine_state = MachineState{fs_state: fs_state,memory_map: memory_map, swap_map: swap_map,processor_map: processor_map, network_map: network_map};
-        return Ok(serde_json::to_string(&machine_state).expect("Can't serialize fs_state"))
+        Ok(serde_json::to_string(&machine_state).expect("Can't serialize fs_state"))
     }
 
     fn ready(&self) -> bool {
         if self.disable {
             return false
         }
-        return self.last_call_ts + self.periodicity < utils::current_ts()
+        self.last_call_ts + self.periodicity < utils::current_ts()
     }
 }
