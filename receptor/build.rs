@@ -6,7 +6,10 @@ use std::io::prelude::*;
 use std::fs::File;
 use std::string::String;
 
-static PLUGINS: &'static [&str] = &["sync_check"];
+
+//static PLUGINS: &'static [&str] = &["sync_check"];
+static PLUGINS: &'static [&str] = &["all"];
+
 
 fn main() {
 

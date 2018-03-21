@@ -7,7 +7,8 @@ use std::fs::File;
 use std::string::String;
 
 
-static PLUGINS: &'static [&str] = &["command_runner", "alive", "file_checker", "process_counter", "system_monitor"];
+//static PLUGINS: &'static [&str] = &["command_runner", "alive", "file_checker", "process_counter", "system_monitor"];
+static PLUGINS: &'static [&str] = &["all"];
 
 
 fn main() {

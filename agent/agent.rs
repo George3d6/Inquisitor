@@ -52,10 +52,7 @@ fn main() {
 
     let config = utils::get_yml_config("agent_config.yml");
 
-    let hostanme = match config["machine_identifier"].as_str() {
-            Some(name) => String::from(name),
-            None => hostname::get_hostname().unwrap(),
-    };
+    let hostanme = config["machine_identifier"].as_str().map(|s| String::from(s)).unwrap_or(hostname::get_hostname().unwrap());
 
     let addr = format!("{}:{}", config["receptor"]["host"].as_str().unwrap(), config["receptor"]["port"].as_i64().unwrap());
 
