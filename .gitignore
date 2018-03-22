@@ -7,4 +7,5 @@ agent/plugins
 receptor/plugins
 receptor/database.sqlite
 agent/agent_processed.rs
-endpoints
+endpoints/target
+endpoints/semi_private_credentials_because_I_am_lazy.txt
