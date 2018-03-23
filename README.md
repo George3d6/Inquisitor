@@ -129,6 +129,10 @@ slack and SMTP.
 #### <a href="#"><img alt="Requires external contributors" src="https://i.imgur.com/lmOki5V.png" height="28" width="28"></a> Requires external contributors / Advice needed
 #### <a href="#"><img alt="Under development" src="https://i.imgur.com/iSXfnTb.png" height="28" width="28"></a> Under development
 
+<a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a>
+<a href="#"><img alt="Priority" src="https://i.imgur.com/6ieSrzD.png" height="28" width="28"></a>
+<a href="#"><img alt="Requires external contributors" src="https://i.imgur.com/lmOki5V.png" height="28" width="28"></a>
+Consider providing an intermediate schema for plugins in order to better facilitate having "generic" endpoints that can work with any plugins.
 
 <a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a>
 <a href="#"><img alt="Priority" src="https://i.imgur.com/6ieSrzD.png" height="28" width="28"></a>
