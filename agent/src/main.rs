@@ -1,19 +1,15 @@
 #![allow(unused_imports)]
 #[macro_use]
 extern crate serde_derive;
-extern crate serde_json;
-
 extern crate futures;
+extern crate plugins;
+extern crate serde_json;
 extern crate tokio;
 use futures::Future;
 use tokio::net::TcpStream;
 
 mod status;
 use status::Status;
-mod plugin_interface;
-mod utils;
-use plugin_interface::AgentPlugin;
-mod plugins;
 extern crate hostname;
 
 use std::net::SocketAddr;

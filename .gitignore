@@ -3,7 +3,6 @@
 receptor/status.rs
 receptor/receptor_processed.rs
 agent/status.rs
-agent/plugins
 receptor/plugins
 receptor/database.sqlite
 agent/agent_processed.rs

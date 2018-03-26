@@ -1,8 +1,6 @@
-use super::AgentPlugin;
-
 macro_rules! plugins {
     ( $( $x:ident ),* ) => {
-        $(mod $x;)*
+        $(extern crate $x;)*
 
         pub fn init() -> Vec<Box<AgentPlugin>> {
             let mut v: Vec<Box<AgentPlugin>> = vec!();

@@ -4,8 +4,9 @@
     It's information can also be used by other plugins in order to determine machine reliability
     or find machines with unsynchronized clocks
 */
-use plugin_interface::AgentPlugin;
-use utils;
+extern crate agent_lib;
+use agent_lib::plugin_interface::AgentPlugin;
+use agent_lib::utils;
 
 
 pub struct Plugin {

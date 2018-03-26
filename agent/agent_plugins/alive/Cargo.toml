@@ -1,0 +1,7 @@
+[package]
+name = "alive"
+version = "0.2.0"
+authors = ["George Hosu <george@cerebralab.com>"]
+
+[dependencies]
+agent_lib = {path="../../agent_lib"}

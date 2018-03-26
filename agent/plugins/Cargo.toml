@@ -1,0 +1,13 @@
+[package]
+name = "plugins"
+version = "0.2.0"
+authors = ["George Hosu <george@cerebralab.com>"]
+build = "build.rs"
+
+[dependencies]
+agent_lib = {path = "../agent_lib"}
+alive = {path = "../agent_plugins/alive"}
+filechecker = {path = "../agent_plugins/file_checker"}
+
+[build-dependencies]
+cargo_metadata = "0.5.3"

@@ -2,9 +2,9 @@
     This plugin is used to periodically execute a series of remote commands and return the output
 */
 extern crate serde_json;
-
-use plugin_interface::AgentPlugin;
-use utils;
+extern crate agent_lib;
+use agent_lib::plugin_interface::AgentPlugin;
+use agent_lib::utils;
 
 extern crate fs_extra;
 use self::fs_extra::dir::get_size;
