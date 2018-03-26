@@ -5,9 +5,13 @@ use std::path::Path;
 
 fn main() {
     // Get list of 'dependencies'
-    let v = &cargo_metadata::metadata_deps(Some(Path::new("Cargo.toml")), false)
+    let packages = &cargo_metadata::metadata_deps(Some(Path::new("Cargo.toml")), true)
         .unwrap()
-        .packages[0]
+        .packages;
+    let v = &packages
+        .iter()
+        .find(|&x| x.name == "plugins")
+        .unwrap()
         .dependencies;
     let mut plugins = vec![];
     for p in v {

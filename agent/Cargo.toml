@@ -21,3 +21,5 @@ futures = "0.1.18"
 hostname = "^0.1"
 agent_lib = {path="agent_lib"}
 plugins = {path="plugins"}
+
+[workspace]
