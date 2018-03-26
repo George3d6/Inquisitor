@@ -21,13 +21,13 @@ fn main() {
     let mut f = File::create("src/lib.rs").unwrap();
     f.write_all(
         format!(
-    "extern crate agent_lib;
-    use agent_lib::plugin_interface::AgentPlugin;
+            "extern crate agent_lib;
+use agent_lib::plugin_interface::AgentPlugin;
 
-    #[macro_use]
-    mod plugin_initialization;
+#[macro_use]
+mod plugin_initialization;
 
-    plugins!({});",
+plugins!({});",
             plugins.join(", ")
         ).as_bytes(),
     ).unwrap();

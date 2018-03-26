@@ -1,0 +1,8 @@
+[package]
+name = "process_counter"
+version = "0.2.0"
+authors = ["George Hosu <george@cerebralab.com>"]
+
+[dependencies]
+agent_lib = {path="../../agent_lib"}
+serde_json = "1.0"
