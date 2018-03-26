@@ -1,17 +1,16 @@
 extern crate yaml_rust;
-use self::yaml_rust::{YamlLoader, Yaml};
+use self::yaml_rust::{Yaml, YamlLoader};
 
-use hyper::server::{Request};
+use hyper::server::Request;
 
 use fs_extra::file::read_to_string;
 
 extern crate url;
 use self::url::Url;
 
-use std::time::{SystemTime, UNIX_EPOCH};
 use std::collections::HashMap;
 use std::env::current_exe;
-
+use std::time::{SystemTime, UNIX_EPOCH};
 
 pub fn get_url_params(req: &Request) -> HashMap<String, String> {
     let parsed_url = Url::parse(&format!("http://badhyper.io/{}", req.uri().as_ref())).unwrap();
@@ -19,9 +18,11 @@ pub fn get_url_params(req: &Request) -> HashMap<String, String> {
     hash_query
 }
 
-
 pub fn current_ts() -> i64 {
-    SystemTime::now().duration_since(UNIX_EPOCH).expect("Error getting system time !?").as_secs() as i64
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("Error getting system time !?")
+        .as_secs() as i64
 }
 
 pub fn get_yml_config(name: &str) -> Yaml {
@@ -30,5 +31,5 @@ pub fn get_yml_config(name: &str) -> Yaml {
     cfg_file_path.push(name);
     let contents = read_to_string(&cfg_file_path).unwrap();
     let mut docs = YamlLoader::load_from_str(&contents).unwrap();
-    return docs.remove(0)
+    return docs.remove(0);
 }
