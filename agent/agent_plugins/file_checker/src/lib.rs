@@ -12,8 +12,6 @@ use self::fs_extra::dir::get_size;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::string::String;
-use std::vec::Vec;
 
 struct FileInfo {
     last_line: i64,

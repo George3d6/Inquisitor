@@ -8,8 +8,6 @@ use agent_lib::utils;
 
 use std::collections::HashMap;
 use std::process::Command;
-use std::string::String;
-use std::vec::Vec;
 
 pub struct Plugin {
     last_call_map: HashMap<String, i64>,

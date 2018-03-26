@@ -9,7 +9,6 @@ use agent_lib::plugin_interface::AgentPlugin;
 use agent_lib::utils;
 
 use std::collections::HashMap;
-use std::vec::Vec;
 
 pub struct Plugin {
     sys: System,

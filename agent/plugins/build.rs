@@ -27,7 +27,8 @@ use agent_lib::plugin_interface::AgentPlugin;
 #[macro_use]
 mod plugin_initialization;
 
-plugins!({});",
+plugins!({});
+",
             plugins.join(", ")
         ).as_bytes(),
     ).unwrap();
