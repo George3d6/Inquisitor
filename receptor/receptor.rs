@@ -103,7 +103,7 @@ impl Service for DataServer {
             Box::new(futures::future::ok(response))
         }
         else if req.path() == "/plugin_list" {
-            let mut response = Resb ponse::new();
+            let mut response = Response::new();
             match (req.method(), req.path()) {
                 (&Method::Get, "/plugin_list") => {
                     let params = utils::get_url_params(&req);
