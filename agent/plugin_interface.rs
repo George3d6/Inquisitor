@@ -1,6 +1,5 @@
 use std::string::String;
 
-
 pub trait AgentPlugin {
     fn new() -> Self;
     fn name(&self) -> String;
