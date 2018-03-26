@@ -32,7 +32,7 @@ pub struct Plugin {
 
 impl Plugin {
     fn config(plugin: &mut Plugin) {
-        let config = utils::get_yml_config(&format!("{}.yml",file!().replace("plugins/", "").replace(".rs", "")));
+        let config = utils::get_yml_config("file_checker.yml");
 
         if config["disable"].as_bool().unwrap_or(false) {
             plugin.disable = true;
@@ -60,13 +60,13 @@ impl Plugin {
     }
 }
 
-impl AgentPlugin for Plugin {
-
-    fn new() -> Plugin {
+pub fn new() -> Plugin {
         let mut new_plugin = Plugin{disable: false, last_call_ts: 0, periodicity: 0, file_info_map: HashMap::new()};
         Plugin::config(&mut new_plugin);
         new_plugin
     }
+
+impl AgentPlugin for Plugin {
 
     fn name(&self) -> String {
         String::from("File checker")

@@ -1,0 +1,13 @@
+use super::AgentPlugin;
+
+macro_rules! plugins {
+    ( $( $x:ident ),* ) => {
+        $(mod $x;)*
+
+        pub fn init() -> Vec<Box<AgentPlugin>> {
+            let mut v: Vec<Box<AgentPlugin>> = vec!();
+            $(v.push(Box::new($x::new()));)*
+            v
+        }
+    }
+}

@@ -1,3 +1,4 @@
+#![allow(unused_imports)]
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
@@ -20,7 +21,14 @@ use std::string::String;
 use std::vec::Vec;
 use std::{thread, time};
 
-struct StatusSender {
+fn main() {
+    let plugins = plugins::init();
+    for p in plugins {
+        println!("{}", p.name());
+    }
+}
+
+/*struct StatusSender {
     pub addr: SocketAddr,
     pub hostname: String,
 }
@@ -91,3 +99,4 @@ fn main() {
         }
     }
 }
+*/
