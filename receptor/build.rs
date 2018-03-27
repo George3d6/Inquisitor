@@ -67,10 +67,10 @@ fn main() {
     agent_file.read_to_string(&mut agent_contents).expect("something went wrong reading the file receptor.rs");
 
     let create_plugins_vec: Vec<String> = rust_files.iter().map(|s| s.replace(".rs", "")).map(|s| format!("let mut {plugin_name} = plugins::{plugin_name}::Plugin::new();", plugin_name=s)).collect();
-    agent_contents = agent_contents.replace("{{CREATE_PLUGINS}}", &create_plugins_vec.join("\n      "));
+    agent_contents = agent_contents.replace("$$CREATE_PLUGINS$$", &create_plugins_vec.join("\n      "));
 
     let use_plugins_vec: Vec<String> = rust_files.iter().map(|s| s.replace(".rs", "")).map(|s| format!("plugin_runner.run_plugin(&mut {plugin_name});", plugin_name=s)).collect();
-    agent_contents = agent_contents.replace("{{USE_PLUGINS}}", &use_plugins_vec.join("\n        "));
+    agent_contents = agent_contents.replace("$$USE_PLUGINS$$", &use_plugins_vec.join("\n        "));
 
     File::create("receptor_processed.rs").unwrap().write_all(agent_contents.as_bytes()).unwrap();
 

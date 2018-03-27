@@ -2,7 +2,6 @@ use rusqlite::Connection;
 
 use std::string::String;
 
-
 pub trait ReceptorPlugin {
     fn new() -> Self;
     fn name(&self) -> String;
