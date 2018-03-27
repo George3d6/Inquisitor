@@ -1,0 +1,7 @@
+extern crate agent_lib;
+use agent_lib::AgentPlugin;
+
+#[macro_use]
+mod plugin_initialization;
+
+plugins!(alive, filechecker, process_counter, system_monitor);
