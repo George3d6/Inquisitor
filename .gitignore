@@ -1,8 +1,3 @@
-!agent/plugins/build.rs
-!agent/plugins/Cargo.toml
-!agent/plugins/README.md
-!agent/plugins/src/*
-
 **/Cargo.lock
 **/target
 receptor/status.rs
@@ -14,3 +9,9 @@ agent/agent_processed.rs
 endpoints/target
 endpoints/semi_private_credentials_because_I_am_lazy.txt
 agent/plugins/*
+
+
+!agent/plugins/build.rs
+!agent/plugins/Cargo.toml
+!agent/plugins/README.md
+!agent/plugins/src/*
