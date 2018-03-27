@@ -5,7 +5,7 @@
     or find machines with unsynchronized clocks
 */
 extern crate agent_lib;
-use agent_lib::plugin_interface::AgentPlugin;
+use agent_lib::AgentPlugin;
 use agent_lib::utils;
 
 pub struct Plugin {

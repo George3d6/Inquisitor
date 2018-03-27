@@ -1,21 +1,21 @@
 #[macro_use]
 extern crate serde_derive;
+extern crate agent_lib;
 extern crate futures;
+extern crate hostname;
 extern crate plugins;
 extern crate serde_json;
 extern crate tokio;
-extern crate agent_lib;
-extern crate hostname;
 
 mod status;
 
-use futures::Future;
-use tokio::net::TcpStream;
-use status::Status;
+use agent_lib::AgentPlugin;
 use agent_lib::utils;
-use agent_lib::plugin_interface::AgentPlugin;
+use futures::Future;
+use status::Status;
 use std::net::SocketAddr;
 use std::{thread, time};
+use tokio::net::TcpStream;
 
 fn main() {
     let mut plugins = plugins::init();
@@ -54,7 +54,6 @@ fn main() {
             tokio::run(send);
         }
     }
-    
 }
 
 struct StatusSender {
@@ -70,8 +69,7 @@ impl StatusSender {
         }
     }
 
-    pub fn arbitrate(&mut self, plugin: &mut Box<AgentPlugin>, payload: &mut Vec<Status>)
-    {
+    pub fn arbitrate(&mut self, plugin: &mut Box<AgentPlugin>, payload: &mut Vec<Status>) {
         if plugin.ready() {
             let name = plugin.name();
             match plugin.gather() {

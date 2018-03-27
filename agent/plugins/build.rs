@@ -26,7 +26,7 @@ fn main() {
     f.write_all(
         format!(
             "extern crate agent_lib;
-use agent_lib::plugin_interface::AgentPlugin;
+use agent_lib::AgentPlugin;
 
 #[macro_use]
 mod plugin_initialization;

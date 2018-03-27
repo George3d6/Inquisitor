@@ -5,7 +5,5 @@ authors = ["George Hosu <george@cerebralab.com>"]
 
 [dependencies]
 fs_extra = "1.1.0"
-# Required for plugin, maybe move somewhere else
 sysinfo = "0.5.1"
-
 yaml-rust = "0.4"

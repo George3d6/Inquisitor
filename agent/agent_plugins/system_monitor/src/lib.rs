@@ -5,7 +5,7 @@ extern crate serde_json;
 extern crate sysinfo;
 use self::sysinfo::{DiskExt, NetworkExt, ProcessorExt, System, SystemExt};
 
-use agent_lib::plugin_interface::AgentPlugin;
+use agent_lib::AgentPlugin;
 use agent_lib::utils;
 
 use std::collections::HashMap;

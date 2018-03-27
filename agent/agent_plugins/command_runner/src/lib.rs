@@ -3,7 +3,7 @@
 */
 extern crate agent_lib;
 extern crate serde_json;
-use agent_lib::plugin_interface::AgentPlugin;
+use agent_lib::AgentPlugin;
 use agent_lib::utils;
 
 use std::collections::HashMap;
