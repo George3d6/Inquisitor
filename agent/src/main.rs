@@ -1,66 +1,24 @@
-#![allow(unused_imports)]
 #[macro_use]
 extern crate serde_derive;
 extern crate futures;
 extern crate plugins;
 extern crate serde_json;
 extern crate tokio;
-use futures::Future;
-use tokio::net::TcpStream;
-
-mod status;
-use status::Status;
+extern crate agent_lib;
 extern crate hostname;
 
+mod status;
+
+use futures::Future;
+use tokio::net::TcpStream;
+use status::Status;
+use agent_lib::utils;
+use agent_lib::plugin_interface::AgentPlugin;
 use std::net::SocketAddr;
-use std::string::String;
-use std::vec::Vec;
 use std::{thread, time};
 
 fn main() {
-    let plugins = plugins::init();
-    for p in plugins {
-        println!("{}", p.name());
-    }
-}
-
-/*struct StatusSender {
-    pub addr: SocketAddr,
-    pub hostname: String,
-}
-
-impl StatusSender {
-    fn new(hostname: String, addr_str: String) -> StatusSender {
-        StatusSender {
-            addr: addr_str.parse().unwrap(),
-            hostname: hostname,
-        }
-    }
-
-    pub fn arbitrate<PluginType>(&mut self, plugin: &mut PluginType, payload: &mut Vec<Status>)
-    where
-        PluginType: AgentPlugin,
-    {
-        if plugin.ready() {
-            let name = plugin.name();
-            match plugin.gather() {
-                Ok(message) => {
-                    let status = Status {
-                        sender: self.hostname.clone(),
-                        ts: utils::current_ts(),
-                        message: message,
-                        plugin_name: name,
-                    };
-                    payload.push(status);
-                }
-                Err(_) => (),
-            }
-        }
-    }
-}
-
-fn main() {
-    $$CREATE_PLUGINS$$
+    let mut plugins = plugins::init();
 
     let config = utils::get_yml_config("agent_config.yml");
 
@@ -80,7 +38,9 @@ fn main() {
         thread::sleep(time::Duration::from_millis(1000));
         let mut payload = Vec::new();
 
-        $$USE_PLUGINS$$
+        for mut p in &mut plugins {
+            sender.arbitrate(&mut p, &mut payload);
+        }
 
         if payload.len() > 0 {
             let serialized_payload =
@@ -94,5 +54,38 @@ fn main() {
             tokio::run(send);
         }
     }
+    
 }
-*/
+
+struct StatusSender {
+    pub addr: SocketAddr,
+    pub hostname: String,
+}
+
+impl StatusSender {
+    fn new(hostname: String, addr_str: String) -> StatusSender {
+        StatusSender {
+            addr: addr_str.parse().unwrap(),
+            hostname: hostname,
+        }
+    }
+
+    pub fn arbitrate(&mut self, plugin: &mut Box<AgentPlugin>, payload: &mut Vec<Status>)
+    {
+        if plugin.ready() {
+            let name = plugin.name();
+            match plugin.gather() {
+                Ok(message) => {
+                    let status = Status {
+                        sender: self.hostname.clone(),
+                        ts: utils::current_ts(),
+                        message: message,
+                        plugin_name: name,
+                    };
+                    payload.push(status);
+                }
+                Err(_) => (),
+            }
+        }
+    }
+}
