@@ -10,6 +10,7 @@ alive = {path = "../agent_plugins/alive"}
 filechecker = {path = "../agent_plugins/file_checker"}
 process_counter = {path = "../agent_plugins/process_counter"}
 system_monitor = {path = "../agent_plugins/system_monitor"}
+command_runner = {path = "../agent_plugins/command_runner"}
 
 [build-dependencies]
-cargo_metadata = "0.5.3"
+cargo_metadata = "0.4.0"
