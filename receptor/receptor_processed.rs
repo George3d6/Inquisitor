@@ -58,26 +58,14 @@ impl Service for DataServer {
                 (&Method::Get, "/plugin_data") => {
                     let params = utils::get_url_params(&req);
 
-                    let plugin_name = match params.get("name") {
-                        Some(name) => name,
-                        None => ""
-                    };
+                    let plugin_name = params.get("name").map(|s| s.as_ref()).unwrap_or("");
 
-                    let level = match params.get("level") {
-                        Some(name) => name,
-                        None => "",
-                    };
+                    let level = params.get("level").map(|s| s.as_ref()).unwrap_or("");
 
-                    let ts_start = match params.get("ts_start") {
-                        Some(name) => name,
-                        None => "-1"
-                    };
+                    let ts_start = params.get("ts_start").map(|s| s.as_ref()).unwrap_or("-1");
 
-                    let ts_end = match params.get("ts_end") {
-                        Some(name) => name,
-                        None => "-1"
-                    };
-
+                    let ts_end = params.get("ts_end").map(|s| s.as_ref()).unwrap_or("-1");
+                    
                     if level == "agent" {
                         let mut raw_data = self.db_conn.prepare("SELECT * FROM agent_status WHERE strftime('%s',ts_received) > :ts_start AND strftime('%s',ts_received) < :ts_end AND plugin_name=:plugin_name").expect("Can't select from database");
 
@@ -115,14 +103,11 @@ impl Service for DataServer {
             Box::new(futures::future::ok(response))
         }
         else if req.path() == "/plugin_list" {
-            let mut response = Response::new();
+            let mut response = Resb ponse::new();
             match (req.method(), req.path()) {
                 (&Method::Get, "/plugin_list") => {
                     let params = utils::get_url_params(&req);
-                    let level: String = match params.get("level") {
-                        Some(name) => name,
-                        None => ""
-                    };
+                    let level = params.get("level").map(|s| s.as_ref()).unwrap_or("");
 
                     let mut raw_data = if level == "agent" {
                         self.db_conn.prepare("SELECT DISTINCT(plugin_name) FROM agent_status").expect("Can't select from database")
