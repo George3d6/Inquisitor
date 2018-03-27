@@ -3,9 +3,15 @@
 receptor/status.rs
 receptor/receptor_processed.rs
 agent/status.rs
-agent/plugins
 receptor/plugins
 receptor/database.sqlite
 agent/agent_processed.rs
 endpoints/target
 endpoints/semi_private_credentials_because_I_am_lazy.txt
+agent/plugins/*
+
+
+!agent/plugins/build.rs
+!agent/plugins/Cargo.toml
+!agent/plugins/README.md
+!agent/plugins/src/*
