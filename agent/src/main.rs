@@ -33,7 +33,7 @@ fn main() {
         config["receptor"]["port"].as_i64().unwrap()
     );
 
-    let mut sender = StatusSender::new(hostanme, addr);
+    let mut sender = StatusSender::new(hostanme, addr.parse().expect("Couldn't convert IP address"));
     loop {
         let mut payload = Vec::new();
 
@@ -64,10 +64,10 @@ struct StatusSender {
 }
 
 impl StatusSender {
-    fn new(hostname: String, addr_str: String) -> StatusSender {
+    fn new(hostname: String, addr: std::net::SocketAddr) -> StatusSender {
         StatusSender {
-            addr: addr_str.parse().unwrap(),
-            hostname: hostname,
+            addr,
+            hostname,
         }
     }
 
