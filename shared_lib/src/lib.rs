@@ -1,4 +1,5 @@
-use std::string::String;
+#[macro_use]
+extern crate serde_derive;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Status {

@@ -1,18 +1,14 @@
-#[macro_use]
-extern crate serde_derive;
 extern crate agent_lib;
 extern crate futures;
 extern crate hostname;
 extern crate plugins;
 extern crate serde_json;
+extern crate shared_lib;
 extern crate tokio;
 
-mod status;
-
-use agent_lib::AgentPlugin;
-use agent_lib::utils;
+use agent_lib::{utils, AgentPlugin};
 use futures::Future;
-use status::Status;
+use shared_lib::Status;
 use std::net::SocketAddr;
 use std::{thread, time};
 use tokio::net::TcpStream;
