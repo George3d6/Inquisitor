@@ -82,8 +82,8 @@ impl AgentPlugin for Plugin {
 
             if output.status.success() {
                 let str_output = String::from_utf8(output.stdout).unwrap();
-                if str_output.len() > 0 {
-                    let v: Vec<&str> = str_output.split("\n").filter(|&x| x != "").collect();
+                if !str_output.is_empty() {
+                    let v: Vec<&str> = str_output.split('\n').filter(|&x| x != "").collect();
                     running = v.len() as i64;
                 }
             }
@@ -100,7 +100,7 @@ impl AgentPlugin for Plugin {
         }
         self.last_call_map
             .iter()
-            .any(|(k, v)| v + self.periodicity_map.get(k).unwrap() < utils::current_ts())
+            .any(|(k, v)| v + self.periodicity_map[k] < utils::current_ts())
     }
 
     fn when_ready(&self) -> i64 {
@@ -109,10 +109,7 @@ impl AgentPlugin for Plugin {
         }
         use std::cmp::min;
         self.last_call_map.iter().fold(999, |m, (k, v)| {
-            min(
-                m,
-                utils::current_ts() - v + self.periodicity_map.get(k).unwrap(),
-            )
+            min(m, utils::current_ts() - v + self.periodicity_map[k])
         })
     }
 }

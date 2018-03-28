@@ -102,10 +102,8 @@ impl AgentPlugin for Plugin {
                 for line_res in BufReader::new(fp).lines() {
                     let line = line_res.unwrap();
                     line_nr += 1;
-                    if line_nr > file_info.last_line {
-                        if line.contains(&file_info.look_for) {
-                            results.push((file_name.clone(), format!("{}: {}", line_nr, line)));
-                        }
+                    if line_nr > file_info.last_line && line.contains(&file_info.look_for) {
+                        results.push((file_name.clone(), format!("{}: {}", line_nr, line)));
                     }
                 }
                 let new_file_info = FileInfo {
@@ -121,7 +119,7 @@ impl AgentPlugin for Plugin {
             self.file_info_map.insert(t.0, t.1);
         }
 
-        if results.len() > 0 {
+        if !results.is_empty() {
             Ok(serde_json::to_string(&results).expect("Can't serialize command result map"))
         } else {
             Err(String::from("Nothing to read"))

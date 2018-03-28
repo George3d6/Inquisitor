@@ -24,8 +24,8 @@ fn main() {
 
     let hostanme = config["machine_identifier"]
         .as_str()
-        .map(|s| String::from(s))
-        .unwrap_or(hostname::get_hostname().unwrap());
+        .map(String::from)
+        .unwrap_or_else(|| hostname::get_hostname().unwrap());
 
     let addr = format!(
         "{}:{}",
@@ -33,7 +33,8 @@ fn main() {
         config["receptor"]["port"].as_i64().unwrap()
     );
 
-    let mut sender = StatusSender::new(hostanme, addr.parse().expect("Couldn't convert IP address"));
+    let mut sender =
+        StatusSender::new(hostanme, addr.parse().expect("Couldn't convert IP address"));
     loop {
         let mut payload = Vec::new();
 
@@ -41,7 +42,7 @@ fn main() {
             sender.arbitrate(&mut p, &mut payload);
         }
 
-        if payload.len() > 0 {
+        if !payload.is_empty() {
             let serialized_payload =
                 serde_json::to_string(&payload).expect("Can't serialize payload");
 
@@ -65,26 +66,20 @@ struct StatusSender {
 
 impl StatusSender {
     fn new(hostname: String, addr: std::net::SocketAddr) -> StatusSender {
-        StatusSender {
-            addr,
-            hostname,
-        }
+        StatusSender { addr, hostname }
     }
 
     pub fn arbitrate(&mut self, plugin: &mut Box<AgentPlugin>, payload: &mut Vec<Status>) {
         if plugin.ready() {
             let name = plugin.name();
-            match plugin.gather() {
-                Ok(message) => {
-                    let status = Status {
-                        sender: self.hostname.clone(),
-                        ts: utils::current_ts(),
-                        message: message,
-                        plugin_name: name,
-                    };
-                    payload.push(status);
-                }
-                Err(_) => (),
+            if let Ok(message) = plugin.gather() {
+                let status = Status {
+                    sender: self.hostname.clone(),
+                    ts: utils::current_ts(),
+                    message,
+                    plugin_name: name,
+                };
+                payload.push(status);
             }
         }
     }
