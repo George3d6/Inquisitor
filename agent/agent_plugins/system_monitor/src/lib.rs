@@ -109,13 +109,6 @@ impl AgentPlugin for Plugin {
         Ok(serde_json::to_string(&machine_state).expect("Can't serialize fs_state"))
     }
 
-    fn ready(&self) -> bool {
-        if self.disable {
-            return false;
-        }
-        self.last_call_ts + self.periodicity < utils::current_ts()
-    }
-
     fn when_ready(&self) -> i64 {
         if self.disable {
             return 999;

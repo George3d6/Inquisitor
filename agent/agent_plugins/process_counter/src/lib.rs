@@ -94,15 +94,6 @@ impl AgentPlugin for Plugin {
         Ok(serde_json::to_string(&results).expect("Can't serialize command result map"))
     }
 
-    fn ready(&self) -> bool {
-        if self.disable {
-            return false;
-        }
-        self.last_call_map
-            .iter()
-            .any(|(k, v)| v + self.periodicity_map[k] < utils::current_ts())
-    }
-
     fn when_ready(&self) -> i64 {
         if self.disable {
             return 999;
