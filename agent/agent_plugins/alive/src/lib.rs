@@ -48,11 +48,11 @@ impl AgentPlugin for Plugin {
         self.last_call_ts = utils::current_ts();
         Ok(String::from("I live"))
     }
-
-    fn ready(&self) -> bool {
+    
+    fn when_ready(&self) -> i64 {
         if self.disable {
-            return false;
+            return 999;
         }
-        self.last_call_ts + self.periodicity < utils::current_ts()
+        utils::current_ts() - self.last_call_ts + self.periodicity
     }
 }

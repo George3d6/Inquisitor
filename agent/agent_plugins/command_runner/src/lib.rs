@@ -97,17 +97,13 @@ impl AgentPlugin for Plugin {
         Ok(serde_json::to_string(&results).expect("Can't serialize command result map"))
     }
 
-    fn ready(&self) -> bool {
+    fn when_ready(&self) -> i64 {
         if self.disable {
-            return false;
+            return 999;
         }
-        for (name, _) in &self.last_call_map {
-            if self.last_call_map.get(name).unwrap() + self.periodicity_map.get(name).unwrap()
-                < utils::current_ts()
-            {
-                return true;
-            }
-        }
-        false
+        use std::cmp::min;
+        self.last_call_map.iter().fold(999, |m, (k, v)| {
+            min(m, utils::current_ts() - v + self.periodicity_map[k])
+        })
     }
 }

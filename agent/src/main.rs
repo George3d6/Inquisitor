@@ -24,8 +24,8 @@ fn main() {
 
     let hostanme = config["machine_identifier"]
         .as_str()
-        .map(|s| String::from(s))
-        .unwrap_or(hostname::get_hostname().unwrap());
+        .map(String::from)
+        .unwrap_or_else(|| hostname::get_hostname().unwrap());
 
     let addr = format!(
         "{}:{}",
@@ -33,16 +33,16 @@ fn main() {
         config["receptor"]["port"].as_i64().unwrap()
     );
 
-    let mut sender = StatusSender::new(hostanme, addr);
+    let mut sender =
+        StatusSender::new(hostanme, addr.parse().expect("Couldn't convert IP address"));
     loop {
-        thread::sleep(time::Duration::from_millis(1000));
         let mut payload = Vec::new();
 
         for mut p in &mut plugins {
             sender.arbitrate(&mut p, &mut payload);
         }
 
-        if payload.len() > 0 {
+        if !payload.is_empty() {
             let serialized_payload =
                 serde_json::to_string(&payload).expect("Can't serialize payload");
 
@@ -53,6 +53,9 @@ fn main() {
 
             tokio::run(send);
         }
+
+        let s = &plugins.iter().min_by_key(|x| x.when_ready()).unwrap();
+        thread::sleep(time::Duration::from_secs(s.when_ready() as u64));
     }
 }
 
@@ -62,27 +65,21 @@ struct StatusSender {
 }
 
 impl StatusSender {
-    fn new(hostname: String, addr_str: String) -> StatusSender {
-        StatusSender {
-            addr: addr_str.parse().unwrap(),
-            hostname: hostname,
-        }
+    fn new(hostname: String, addr: std::net::SocketAddr) -> StatusSender {
+        StatusSender { addr, hostname }
     }
 
     pub fn arbitrate(&mut self, plugin: &mut Box<AgentPlugin>, payload: &mut Vec<Status>) {
         if plugin.ready() {
             let name = plugin.name();
-            match plugin.gather() {
-                Ok(message) => {
-                    let status = Status {
-                        sender: self.hostname.clone(),
-                        ts: utils::current_ts(),
-                        message: message,
-                        plugin_name: name,
-                    };
-                    payload.push(status);
-                }
-                Err(_) => (),
+            if let Ok(message) = plugin.gather() {
+                let status = Status {
+                    sender: self.hostname.clone(),
+                    ts: utils::current_ts(),
+                    message,
+                    plugin_name: name,
+                };
+                payload.push(status);
             }
         }
     }

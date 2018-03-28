@@ -1,5 +1,3 @@
-use std::string::String;
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Status {
     pub sender: String,
