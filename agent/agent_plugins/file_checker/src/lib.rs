@@ -134,4 +134,11 @@ impl AgentPlugin for Plugin {
         }
         self.last_call_ts + self.periodicity < utils::current_ts()
     }
+
+    fn when_ready(&self) -> i64 {
+        if self.disable {
+            return 999;
+        }
+        utils::current_ts() - self.last_call_ts + self.periodicity
+    }
 }

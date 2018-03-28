@@ -35,7 +35,6 @@ fn main() {
 
     let mut sender = StatusSender::new(hostanme, addr);
     loop {
-        thread::sleep(time::Duration::from_millis(1000));
         let mut payload = Vec::new();
 
         for mut p in &mut plugins {
@@ -53,6 +52,9 @@ fn main() {
 
             tokio::run(send);
         }
+
+        let s = &plugins.iter().min_by_key(|x| x.when_ready()).unwrap();
+        thread::sleep(time::Duration::from_secs(s.when_ready() as u64));
     }
 }
 

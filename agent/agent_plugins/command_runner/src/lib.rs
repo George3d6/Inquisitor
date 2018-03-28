@@ -101,13 +101,21 @@ impl AgentPlugin for Plugin {
         if self.disable {
             return false;
         }
-        for (name, _) in &self.last_call_map {
-            if self.last_call_map.get(name).unwrap() + self.periodicity_map.get(name).unwrap()
-                < utils::current_ts()
-            {
-                return true;
-            }
+        self.last_call_map
+            .iter()
+            .any(|(k, v)| v + self.periodicity_map.get(k).unwrap() < utils::current_ts())
+    }
+
+    fn when_ready(&self) -> i64 {
+        if self.disable {
+            return 999;
         }
-        false
+        use std::cmp::min;
+        self.last_call_map.iter().fold(999, |m, (k, v)| {
+            min(
+                m,
+                utils::current_ts() - v + self.periodicity_map.get(k).unwrap(),
+            )
+        })
     }
 }
