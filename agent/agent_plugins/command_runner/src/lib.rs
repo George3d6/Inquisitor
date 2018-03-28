@@ -101,13 +101,8 @@ impl AgentPlugin for Plugin {
         if self.disable {
             return false;
         }
-        for (name, _) in &self.last_call_map {
-            if self.last_call_map.get(name).unwrap() + self.periodicity_map.get(name).unwrap()
-                < utils::current_ts()
-            {
-                return true;
-            }
-        }
-        false
+        self.last_call_map
+            .iter()
+            .any(|(k, v)| v + self.periodicity_map[k] < utils::current_ts())
     }
 }

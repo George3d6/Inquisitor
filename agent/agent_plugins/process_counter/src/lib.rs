@@ -82,8 +82,8 @@ impl AgentPlugin for Plugin {
 
             if output.status.success() {
                 let str_output = String::from_utf8(output.stdout).unwrap();
-                if str_output.len() > 0 {
-                    let v: Vec<&str> = str_output.split("\n").filter(|&x| x != "").collect();
+                if !str_output.is_empty() {
+                    let v: Vec<&str> = str_output.split('\n').filter(|&x| x != "").collect();
                     running = v.len() as i64;
                 }
             }
@@ -98,13 +98,8 @@ impl AgentPlugin for Plugin {
         if self.disable {
             return false;
         }
-        for (name, _) in &self.last_call_map {
-            if self.last_call_map.get(name).unwrap() + self.periodicity_map.get(name).unwrap()
-                < utils::current_ts()
-            {
-                return true;
-            }
-        }
-        false
+        self.last_call_map
+            .iter()
+            .any(|(k, v)| v + self.periodicity_map[k] < utils::current_ts())
     }
 }
