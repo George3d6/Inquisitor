@@ -100,11 +100,11 @@ impl AgentPlugin for Plugin {
         network_map.insert("out", format!("{}", network.get_outcome()));
 
         let machine_state = MachineState {
-            fs_state: fs_state,
-            memory_map: memory_map,
-            swap_map: swap_map,
-            processor_map: processor_map,
-            network_map: network_map,
+            fs_state,
+            memory_map,
+            swap_map,
+            processor_map,
+            network_map,
         };
         Ok(serde_json::to_string(&machine_state).expect("Can't serialize fs_state"))
     }

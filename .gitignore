@@ -1,5 +1,6 @@
 **/Cargo.lock
 **/target
+*.sqlite
 receptor/status.rs
 receptor/receptor_processed.rs
 agent/status.rs
