@@ -23,18 +23,18 @@ pub struct Plugin {
     last_call_ts: i64,
     periodicity: i64,
     file_info_map: HashMap<String, FileInfo>,
-    disable: bool,
+    enabled: bool,
 }
 
 impl Plugin {
     fn config(plugin: &mut Plugin) {
         let config = utils::get_yml_config("file_checker.yml");
 
-        if config["disable"].as_bool().unwrap_or(false) {
-            plugin.disable = true;
-            return;
+        if config["enabled"].as_bool().unwrap_or(false) {
+            plugin.enabled = true;
         } else {
-            plugin.disable = false;
+            plugin.enabled = false;
+            return;
         }
 
         let keyphrase: Vec<String> = config["keyphrase"]
@@ -74,13 +74,17 @@ impl Plugin {
 
 pub fn new() -> Result<Plugin, String> {
     let mut new_plugin = Plugin {
-        disable: false,
+        enabled: false,
         last_call_ts: 0,
         periodicity: 0,
         file_info_map: HashMap::new(),
     };
     Plugin::config(&mut new_plugin);
-    Ok(new_plugin)
+    if new_plugin.enabled {
+        Ok(new_plugin)
+    } else {
+        Err("File checker disabled".into())
+    }
 }
 
 impl AgentPlugin for Plugin {
@@ -127,7 +131,7 @@ impl AgentPlugin for Plugin {
     }
 
     fn ready(&self) -> bool {
-        if self.disable {
+        if !self.enabled {
             return false;
         }
         self.last_call_ts + self.periodicity < utils::current_ts()

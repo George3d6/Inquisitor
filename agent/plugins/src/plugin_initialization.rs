@@ -6,7 +6,7 @@ macro_rules! plugins {
             let mut v: Vec<Box<AgentPlugin>> = vec!();
             $(
                 match $x::new() {
-                    Ok(x) => {v.push(Box::new(x)) }
+                    Ok(x) => {println!("{} successfully loaded", x.name()); v.push(Box::new(x)) }
                     Err(x) => {println!("{}", x)}
                 }
             )*

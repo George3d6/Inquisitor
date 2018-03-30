@@ -14,7 +14,7 @@ pub struct Plugin {
     sys: System,
     last_call_ts: i64,
     periodicity: i64,
-    disable: bool,
+    enabled: bool,
 }
 
 #[derive(Serialize, Debug)]
@@ -30,11 +30,11 @@ impl Plugin {
     fn config(plugin: &mut Plugin) {
         let config = utils::get_yml_config(&format!("system_monitor.yml"));
 
-        if config["disable"].as_bool().unwrap_or(false) {
-            plugin.disable = true;
-            return;
+        if config["enabled"].as_bool().unwrap_or(false) {
+            plugin.enabled = true;
         } else {
-            plugin.disable = false;
+            plugin.enabled = false;
+            return;
         }
 
         plugin.periodicity = config["periodicity"]
@@ -45,13 +45,17 @@ impl Plugin {
 
 pub fn new() -> Result<Plugin, String> {
     let mut new_plugin = Plugin {
-        disable: false,
+        enabled: false,
         sys: System::new(),
         last_call_ts: 0,
         periodicity: 0,
     };
     Plugin::config(&mut new_plugin);
-        Ok(new_plugin) 
+    if new_plugin.enabled {
+        Ok(new_plugin)
+    } else {
+        Err("System monitor disabled".into())
+    }
 }
 
 impl AgentPlugin for Plugin {
@@ -110,7 +114,7 @@ impl AgentPlugin for Plugin {
     }
 
     fn ready(&self) -> bool {
-        if self.disable {
+        if !self.enabled {
             return false;
         }
         self.last_call_ts + self.periodicity < utils::current_ts()
