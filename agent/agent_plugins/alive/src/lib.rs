@@ -11,32 +11,36 @@ use agent_lib::utils;
 pub struct Plugin {
     last_call_ts: i64,
     periodicity: i64,
-    disable: bool,
+    enabled: bool,
 }
 
 impl Plugin {
-    fn config(plugin: &mut Plugin) {
+    fn config(&mut self) {
         let config = utils::get_yml_config("alive.yml");
-        if config["disable"].as_bool().unwrap_or(false) {
-            plugin.disable = true;
-            return;
+        if config["enabled"].as_bool().unwrap_or(false) {
+            self.enabled = true;
         } else {
-            plugin.disable = false;
+            self.enabled = false;
+            return;
         }
-        plugin.periodicity = config["periodicity"]
+        self.periodicity = config["periodicity"]
             .as_i64()
             .expect("Can't read periodicity as i64");
     }
 }
 
-pub fn new() -> Plugin {
+pub fn new() -> Result<Plugin, String> {
     let mut new_plugin = Plugin {
-        disable: false,
+        enabled: false,
         last_call_ts: 0,
         periodicity: 0,
     };
     Plugin::config(&mut new_plugin);
-    new_plugin
+    if new_plugin.enabled {
+        Ok(new_plugin)
+    } else {
+        Err("Alive plugins disabled".into())
+    }
 }
 
 impl AgentPlugin for Plugin {
@@ -50,7 +54,7 @@ impl AgentPlugin for Plugin {
     }
 
     fn ready(&self) -> bool {
-        if self.disable {
+        if !self.enabled {
             return false;
         }
         self.last_call_ts + self.periodicity < utils::current_ts()
