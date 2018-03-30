@@ -1,6 +1,7 @@
 #[macro_use]
 mod database;
 
+extern crate serde_json;
 extern crate receptor_lib;
 extern crate shared_lib;
 extern crate plugins;
