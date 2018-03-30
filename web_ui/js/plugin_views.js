@@ -75,7 +75,7 @@ function default_timeseries_map(data, depth=0) {
                     if (timeseries_map[timeseries_key] === undefined) {
                         timeseries_map[timeseries_key] = [];
                     }
-                    timeseries_map[timeseries_key].push({'ts': ts, 'val': parseInt(val)});
+                    timeseries_map[timeseries_key].push({'ts': ts, 'val': parseFloat(val)});
                 }
             }
         } catch(err) {
