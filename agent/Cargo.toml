@@ -13,5 +13,3 @@ hostname = "^0.1"
 agent_lib = {path="agent_lib"}
 plugins = {path="plugins"}
 shared_lib = {path="../shared_lib"}
-
-[workspace]

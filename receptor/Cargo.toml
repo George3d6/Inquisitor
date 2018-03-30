@@ -2,7 +2,6 @@
 name = "Inquisitor server"
 version = "0.3.0"
 authors = ["George Hosu <george@cerebralab.com>"]
-build = "build.rs"
 
 [dependencies]
 tokio-core = "0.1.15"
@@ -32,12 +31,5 @@ shared_lib = {path="../shared_lib"}
 version = "0.11.0"
 features = ["bundled"]
 
-[features]
-default = []
-
 [[bin]]
 name = "inquisitor_receptor"
-path = "receptor_processed.rs"
-
-[build-dependencies]
-fs_extra = "1.1.0"

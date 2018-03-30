@@ -1,0 +1,13 @@
+[package]
+name = "receptor_lib"
+version = "0.3.0"
+authors = ["George Hosu <george@cerebralab.com>"]
+
+[dependencies]
+hyper = "0.11"
+fs_extra = "1.1.0"
+yaml-rust = "0.4"
+
+[dependencies.rusqlite]
+version = "0.11.0"
+features = ["bundled"]

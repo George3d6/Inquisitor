@@ -15,10 +15,9 @@ agent/plugins/*
 !agent/plugins/build.rs
 !agent/plugins/Cargo.toml
 !agent/plugins/README.md
-!agent/plugins/src/*
+!agent/plugins/src/plugin_initialization.rs
 
 !receptor/plugins/build.rs
 !receptor/plugins/Cargo.toml
 !receptor/plugins/README.md
-!receptor/plugins/src/*
-
+!receptor/plugins/src/plugin_initialization.rs

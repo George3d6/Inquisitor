@@ -1,3 +1,5 @@
+pub mod utils;
+
 use rusqlite::Connection;
 
 use std::string::String;

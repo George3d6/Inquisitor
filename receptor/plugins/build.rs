@@ -15,7 +15,7 @@ fn main() {
         .dependencies;
     let mut plugins = vec![];
     for p in v {
-        if p.kind == cargo_metadata::DependencyKind::Normal && p.name != "agent_lib" {
+        if p.kind == cargo_metadata::DependencyKind::Normal && p.name != "receptor_lib" {
             plugins.push(p.name.clone());
         }
     }
@@ -25,8 +25,8 @@ fn main() {
     let mut f = File::create("src/lib.rs").unwrap();
     f.write_all(
         format!(
-            "extern crate agent_lib;
-            use agent_lib::AgentPlugin;
+            "extern crate receptor_lib;
+            use receptor_lib::ReceptorPlugin;
 
             #[macro_use]
             mod plugin_initialization;

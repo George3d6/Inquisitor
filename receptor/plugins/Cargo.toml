@@ -1,0 +1,11 @@
+[package]
+name = "receptor_lib"
+version = "0.3.0"
+authors = ["George Hosu <george@cerebralab.com>"]
+build = "build.rs"
+
+[dependencies]
+sync_check = {path = "../receptor_plugins/sync_check"}
+
+[build-dependencies]
+cargo_metadata = "0.4.0"

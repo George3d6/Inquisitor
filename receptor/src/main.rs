@@ -1,4 +1,7 @@
 #[macro_use]
+extern crate agent_lib;
+extern crate plugins;
+
 extern crate serde_derive;
 extern crate serde_json;
 
@@ -22,13 +25,6 @@ extern crate hyper_staticfile;
 use hyper_staticfile::Static;
 
 extern crate fs_extra;
-
-mod status;
-use status::Status;
-mod plugin_interface;
-mod utils;
-use plugin_interface::ReceptorPlugin;
-mod plugins;
 
 mod database;
 use database::{get_connection, initialize_database};
@@ -241,11 +237,13 @@ fn main() {
 
     /* Run receptor side plugins */
     let plugin_runner_thread = thread::spawn(|| {
-        $$CREATE_PLUGINS$$
+        let mut plugins = plugins::init();
         let plugin_runner = PluginRunner::new();
 
         loop {
-            $$USE_PLUGINS$$
+            for p in &mut plugins {
+                plugin_runner.run_plugin(&mut **p);
+            }
             thread::sleep(time::Duration::from_millis(1000));
         }
     });
