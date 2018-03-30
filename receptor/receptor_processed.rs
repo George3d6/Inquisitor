@@ -61,14 +61,9 @@ impl Service for DataServer {
                     let level = params.get("level").map(|s| s.as_ref()).unwrap_or("");
 
                     let ts_start = params.get("ts_start").map(|s| s.as_ref()).unwrap_or("-1");
-<<<<<<< HEAD
-=======
 
                     let ts_end = params.get("ts_end").map(|s| s.as_ref()).unwrap_or("-1");
->>>>>>> origin/master
 
-                    let ts_end = params.get("ts_end").map(|s| s.as_ref()).unwrap_or("-1");
-                    
                     if level == "agent" {
                         let mut raw_data = self.db_conn.prepare("SELECT * FROM agent_status WHERE strftime('%s',ts_received) > :ts_start AND strftime('%s',ts_received) < :ts_end AND plugin_name=:plugin_name").expect("Can't select from database");
 
@@ -120,14 +115,8 @@ impl Service for DataServer {
                 _ => response.set_status(StatusCode::NotFound),
             }
             Box::new(futures::future::ok(response))
-<<<<<<< HEAD
-        }
-        else if req.path() == "/plugin_list" {
-            let mut response = Resb ponse::new();
-=======
         } else if req.path() == "/plugin_list" {
             let mut response = Response::new();
->>>>>>> origin/master
             match (req.method(), req.path()) {
                 (&Method::Get, "/plugin_list") => {
                     let params = utils::get_url_params(&req);

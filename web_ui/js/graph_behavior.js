@@ -22,10 +22,12 @@ function close_button_behavior() {
             if(!is_open) {
                 classes += ` open`;
                 graph.style.display = 'block';
-                //graph_holder.style.height =
+                graph_holder.style.height = '400px';
             } else {
                 graph.style.display = 'none';
+                graph_holder.style.height = '40px';
             }
+
             buttons[i].className = classes;
         });
     }

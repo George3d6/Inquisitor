@@ -45,9 +45,13 @@ async function go_to_view(viw_obj) {
     const tsv = await response.text();
     const data = tsv.split('\n').map((row) => row.split('\t'));
 
-    const res = display_timeseries(viw_obj.level, viw_obj.name, data, window[`timeseries_map_${viw_obj.level}_${viw_obj.name.replace(/ /gi, '_')}`]);
+    let ts_map_func = window[`timeseries_map_${viw_obj.level}_${viw_obj.name.replace(/ /gi, '_')}`];
+    if(ts_map_func === undefined) {
+        ts_map_func = window[`default_timeseries_map`]
+    }
+    const err = plot(ts_map_func(data));
     close_button_behavior();
-    if(res === 'No') {
+    if(err === true) {
         toggle_visibility({'warning': true});
         document.getElementById('graph-main').innerHTML = '';
         document.getElementById('warning').innerHTML = `Can't generate graphs for plugin ${viw_obj.name}`;

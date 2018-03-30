@@ -39,7 +39,6 @@ body {
 }
 
 #warning {
-    display: none;
     width: 100%;
     padding-top:26px;
     padding-bottom:26px;
@@ -58,4 +57,23 @@ body {
     justify-content: center;
     background-color: rgb(250,250,250);
     margin: 0 0 0 0;
+}
+
+.canvas_holder {
+    height: 400px;
+    width: 600px;
+    margin-top: 20px;
+    margin-right: 10px;
+    margin-left: 10px;
+    margin-bottom: 6px;
+}
+
+.graph_header {
+    height: 34px;
+    border-radius:4px;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, .3);
+    background: rgb(224,224,224);
+    margin-bottom: 16px;
+    padding-top:6px;
+    padding-left: 12px;
 }
