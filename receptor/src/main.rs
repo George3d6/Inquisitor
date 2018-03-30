@@ -1,33 +1,32 @@
 #[macro_use]
-extern crate agent_lib;
+mod database;
+
+extern crate receptor_lib;
+extern crate shared_lib;
 extern crate plugins;
-
 extern crate serde_derive;
-extern crate serde_json;
-
 extern crate rusqlite;
-use rusqlite::Connection;
-
 extern crate futures;
 extern crate tokio;
 extern crate tokio_core;
+extern crate hyper;
+extern crate hyper_staticfile;
+extern crate fs_extra;
+
+use rusqlite::Connection;
 use futures::Future;
 use futures::Stream;
 use tokio::io::AsyncRead;
 use tokio::net::{TcpListener, TcpStream};
 use tokio_core::reactor::Core;
-
-extern crate hyper;
 use hyper::server::{Http, Request, Response, Service};
 use hyper::{Method, StatusCode};
-
-extern crate hyper_staticfile;
 use hyper_staticfile::Static;
-
-extern crate fs_extra;
-
-mod database;
 use database::{get_connection, initialize_database};
+use shared_lib::Status;
+use receptor_lib::utils::get_yml_config;
+use receptor_lib::utils::get_url_params;
+use receptor_lib::ReceptorPlugin;
 
 use std::env::current_exe;
 use std::path::Path;
@@ -50,7 +49,7 @@ impl Service for DataServer {
             let mut response = Response::new();
             match (req.method(), req.path()) {
                 (&Method::Get, "/plugin_data") => {
-                    let params = utils::get_url_params(&req);
+                    let params = get_url_params(&req);
 
                     let plugin_name = params.get("name").map(|s| s.as_ref()).unwrap_or("");
 
@@ -115,7 +114,7 @@ impl Service for DataServer {
             let mut response = Response::new();
             match (req.method(), req.path()) {
                 (&Method::Get, "/plugin_list") => {
-                    let params = utils::get_url_params(&req);
+                    let params = get_url_params(&req);
                     let level = params.get("level").map(|s| s.as_ref()).unwrap_or("");
 
                     let mut raw_data = if level == "agent" {
@@ -206,7 +205,7 @@ impl PluginRunner {
 }
 
 fn main() {
-    let config = utils::get_yml_config("receptor_config.yml");
+    let config = get_yml_config("receptor_config.yml");
 
     let clean_older_than = config["clean_older_than"].as_i64().expect("Please specify a time after which logs should start being removed from the database under the root parameter: 'clean_older_than' [type==i64]");
 

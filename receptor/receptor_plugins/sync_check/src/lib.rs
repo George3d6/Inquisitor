@@ -1,7 +1,8 @@
 extern crate serde_json;
+extern crate rusqlite;
+extern crate receptor_lib;
 
 use rusqlite::Connection;
-
 use receptor_lib::ReceptorPlugin;
 use receptor_lib::utils;
 
@@ -30,14 +31,13 @@ impl Plugin {
     }
 }
 
+pub fn new() -> Result<Plugin, String> {
+    let mut new_plugin = Plugin{disable: false, last_call_ts: 0, periodicity: 0};
+    Plugin::config(&mut new_plugin);
+    Ok(new_plugin)
+}
+
 impl ReceptorPlugin for Plugin {
-
-    fn new() -> Plugin {
-        let mut new_plugin = Plugin{disable: false, last_call_ts: 0, periodicity: 0};
-        Plugin::config(&mut new_plugin);
-        new_plugin
-    }
-
     fn name(&self) -> String {
         String::from("Sync check")
     }

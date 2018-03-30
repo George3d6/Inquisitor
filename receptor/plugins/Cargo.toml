@@ -5,6 +5,7 @@ authors = ["George Hosu <george@cerebralab.com>"]
 build = "build.rs"
 
 [dependencies]
+receptor_lib = {path = "../receptor_lib"}
 sync_check = {path = "../receptor_plugins/sync_check"}
 
 [build-dependencies]
