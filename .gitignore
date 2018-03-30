@@ -10,12 +10,13 @@ agent/agent_processed.rs
 endpoints/target
 endpoints/semi_private_credentials_because_I_am_lazy.txt
 agent/plugins/*
+!agent/plugins/src/plugin_initialization.rs
 
 
 !agent/plugins/build.rs
 !agent/plugins/Cargo.toml
 !agent/plugins/README.md
-!agent/plugins/src/plugin_initialization.rs
+
 
 !receptor/plugins/build.rs
 !receptor/plugins/Cargo.toml
