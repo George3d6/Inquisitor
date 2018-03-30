@@ -18,7 +18,7 @@ pub struct Plugin {
 
 impl Plugin {
     fn config(plugin: &mut Plugin) {
-        let config = utils::get_yml_config(&format!("{}.yml",file!().replace("plugins/", "").replace(".rs", "")));
+        let config = utils::get_yml_config("sync_check.yml");
 
         if config["disable"].as_bool().unwrap_or(false) {
             plugin.disable = true;
