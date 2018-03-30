@@ -50,7 +50,7 @@ impl Plugin {
     }
 }
 
-pub fn new() -> Plugin {
+pub fn new() -> Result<Plugin, String> {
     let mut new_plugin = Plugin {
         disable: false,
         last_call_map: HashMap::new(),
@@ -58,7 +58,7 @@ pub fn new() -> Plugin {
         processes: Vec::new(),
     };
     Plugin::config(&mut new_plugin);
-    new_plugin
+    Ok(new_plugin)
 }
 
 impl AgentPlugin for Plugin {

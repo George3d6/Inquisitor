@@ -43,7 +43,7 @@ impl Plugin {
     }
 }
 
-pub fn new() -> Plugin {
+pub fn new() -> Result<Plugin, String> {
     let mut new_plugin = Plugin {
         disable: false,
         sys: System::new(),
@@ -51,7 +51,7 @@ pub fn new() -> Plugin {
         periodicity: 0,
     };
     Plugin::config(&mut new_plugin);
-    new_plugin
+        Ok(new_plugin) 
 }
 
 impl AgentPlugin for Plugin {

@@ -72,7 +72,7 @@ impl Plugin {
     }
 }
 
-pub fn new() -> Plugin {
+pub fn new() -> Result<Plugin, String> {
     let mut new_plugin = Plugin {
         disable: false,
         last_call_ts: 0,
@@ -80,7 +80,7 @@ pub fn new() -> Plugin {
         file_info_map: HashMap::new(),
     };
     Plugin::config(&mut new_plugin);
-    new_plugin
+    Ok(new_plugin)
 }
 
 impl AgentPlugin for Plugin {
