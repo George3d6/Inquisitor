@@ -13,17 +13,17 @@ pub struct Plugin {
     last_call_map: HashMap<String, i64>,
     periodicity_map: HashMap<String, i64>,
     commands: Vec<Vec<String>>,
-    disable: bool,
+    enabled: bool,
 }
 
 impl Plugin {
     fn config(plugin: &mut Plugin) {
         let config = utils::get_yml_config(&format!("command_runner.yml"));
-        if config["disable"].as_bool().unwrap_or(false) {
-            plugin.disable = true;
-            return;
+        if config["enabled"].as_bool().unwrap_or(false) {
+            plugin.enabled = true;
         } else {
-            plugin.disable = false;
+            plugin.enabled = false;
+            return;
         }
         plugin.commands = config["commands"]
             .as_vec()
@@ -55,15 +55,19 @@ impl Plugin {
     }
 }
 
-pub fn new() -> Plugin {
+pub fn new() -> Result<Plugin, String> {
     let mut new_plugin = Plugin {
-        disable: false,
+        enabled: false,
         last_call_map: HashMap::new(),
         periodicity_map: HashMap::new(),
         commands: Vec::new(),
     };
     Plugin::config(&mut new_plugin);
-    new_plugin
+    if new_plugin.enabled {
+        Ok(new_plugin)
+    } else {
+        Err("Command runner disabled".into())
+    }
 }
 
 impl AgentPlugin for Plugin {
@@ -98,7 +102,7 @@ impl AgentPlugin for Plugin {
     }
 
     fn ready(&self) -> bool {
-        if self.disable {
+        if !self.enabled {
             return false;
         }
         self.last_call_map
