@@ -1,5 +1,7 @@
 extern crate cargo_metadata;
 use std::fs::File;
+use std::fs::copy;
+use std::fs::create_dir_all;
 use std::io::Write;
 use std::path::Path;
 
@@ -36,4 +38,14 @@ fn main() {
             plugins.join(", ")
         ).as_bytes(),
     ).unwrap();
+
+    for plugin in plugins {
+        println!("{}", plugin);
+        create_dir_all("../target/debug");
+        create_dir_all("../target/release");
+        copy(format!("../agent_plugins/{x}/{x}.yml", x=plugin), format!("../target/debug/{x}.yml", x=plugin));
+        copy(format!("../agent_plugins/{x}/{x}.yml", x=plugin), format!("../target/release/{x}.yml", x=plugin));
+        copy("../inquisitor-agent.service", "../target/debug/");
+        copy("../inquisitor-agent.service", "../target/release/");
+    }
 }
