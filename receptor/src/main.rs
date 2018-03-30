@@ -184,9 +184,7 @@ impl PluginRunner {
         }
     }
 
-    pub fn run_plugin<PluginType>(&self, plugin: &mut PluginType)
-    where
-        PluginType: ReceptorPlugin,
+    pub fn run_plugin(&self, plugin: &mut ReceptorPlugin)
     {
         if plugin.ready() {
             let name = plugin.name();

@@ -29,8 +29,7 @@ fn main() {
         config["receptor"]["port"].as_i64().unwrap()
     );
 
-    let mut sender =
-        StatusSender::new(hostname, addr.parse().expect("Couldn't convert IP address"));
+    let mut sender = StatusSender::new(hostname, addr.parse().expect("Couldn't convert IP address"));
     loop {
         thread::sleep(time::Duration::from_millis(1000));
         let mut payload = Vec::new();
