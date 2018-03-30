@@ -1,5 +1,5 @@
 [package]
-name = "Inquisitor server"
+name = "inquisitor_receptor"
 version = "0.3.0"
 authors = ["George Hosu <george@cerebralab.com>"]
 
@@ -28,9 +28,5 @@ shared_lib = {path="../shared_lib"}
 [dependencies.rusqlite]
 version = "0.11.0"
 features = ["bundled"]
-
-[[bin]]
-name="inquisitor_receptor"
-path="src/main.rs"
 
 [workspace]
