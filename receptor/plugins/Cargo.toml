@@ -1,5 +1,5 @@
 [package]
-name = "receptor_lib"
+name = "plugins"
 version = "0.3.0"
 authors = ["George Hosu <george@cerebralab.com>"]
 build = "build.rs"

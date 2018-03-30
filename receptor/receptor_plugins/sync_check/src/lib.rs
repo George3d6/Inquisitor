@@ -2,8 +2,8 @@ extern crate serde_json;
 
 use rusqlite::Connection;
 
-use plugin_interface::ReceptorPlugin;
-use utils;
+use receptor_lib::ReceptorPlugin;
+use receptor_lib::utils;
 
 use std::collections::HashMap;
 use std::string::String;
