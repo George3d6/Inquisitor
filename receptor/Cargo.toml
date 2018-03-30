@@ -32,3 +32,5 @@ features = ["bundled"]
 [[bin]]
 name="inquisitor_receptor"
 path="src/main.rs"
+
+[workspace]
