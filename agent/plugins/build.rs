@@ -17,7 +17,7 @@ fn main() {
         .dependencies;
     let mut plugins = vec![];
     for p in v {
-        if p.kind == cargo_metadata::DependencyKind::Normal && p.name != "agent_lib" && p.name != "shared_lib" {
+        if p.kind == cargo_metadata::DependencyKind::Normal && p.name != "agent_lib" {
             plugins.push(p.name.clone());
         }
     }

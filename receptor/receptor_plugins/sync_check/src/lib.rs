@@ -1,13 +1,11 @@
 extern crate serde_json;
 extern crate rusqlite;
 extern crate receptor_lib;
-extern crate shared_lib;
 
 use rusqlite::Connection;
 use receptor_lib::ReceptorPlugin;
 use receptor_lib::utils;
-use shared_lib::current_ts;
-use shared_lib::get_yml_config;
+use receptor_lib::shared_lib::{get_yml_config, current_ts};
 
 use std::collections::HashMap;
 use std::string::String;

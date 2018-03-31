@@ -7,7 +7,6 @@ build = "build.rs"
 [dependencies]
 sync_check = {path = "../receptor_plugins/sync_check"}
 
-shared_lib = {path="../../shared_lib"}
 receptor_lib = {path = "../receptor_lib"}
 log = "0.4.0"
 env_logger = "0.5.6"

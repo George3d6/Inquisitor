@@ -5,7 +5,6 @@ authors = ["George Hosu <george@cerebralab.com>"]
 
 [dependencies]
 receptor_lib = {path="../../receptor_lib"}
-shared_lib = {path="../../../shared_lib"}
 serde_json = "1.0"
 
 [dependencies.rusqlite]

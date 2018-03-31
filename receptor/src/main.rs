@@ -1,11 +1,9 @@
-
 mod database;
 
 #[macro_use] extern crate log;
 extern crate env_logger;
 #[macro_use] extern crate serde_json;
 extern crate receptor_lib;
-extern crate shared_lib;
 extern crate plugins;
 extern crate serde_derive;
 extern crate rusqlite;
@@ -26,8 +24,8 @@ use hyper::server::{Http, Request, Response, Service};
 use hyper::{Method, StatusCode};
 use hyper_staticfile::Static;
 use database::{get_connection, initialize_database};
-use shared_lib::Status;
-use shared_lib::get_yml_config;
+use receptor_lib::shared_lib::Status;
+use receptor_lib::shared_lib::get_yml_config;
 use receptor_lib::utils::get_url_params;
 use receptor_lib::ReceptorPlugin;
 

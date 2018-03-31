@@ -7,3 +7,4 @@ authors = ["Richard Petrie <rap1011@ksu.edu>"]
 fs_extra = "1.1.0"
 sysinfo = "0.5.1"
 yaml-rust = "0.4"
+shared_lib = {path="../../shared_lib"}

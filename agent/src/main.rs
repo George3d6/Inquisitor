@@ -1,20 +1,23 @@
+#[macro_use] extern crate log;
+extern crate env_logger;
 extern crate agent_lib;
 extern crate futures;
 extern crate hostname;
 extern crate plugins;
 extern crate serde_json;
-extern crate shared_lib;
 extern crate tokio;
 
-use shared_lib::{get_yml_config, current_ts};
+use agent_lib::shared_lib::{get_yml_config, current_ts};
 use agent_lib::AgentPlugin;
 use futures::Future;
-use shared_lib::Status;
+use agent_lib::shared_lib::Status;
 use std::net::SocketAddr;
 use std::{thread, time};
 use tokio::net::TcpStream;
 
 fn main() {
+    env_logger::init();
+    
     let mut plugins = plugins::init();
 
     let config = get_yml_config("agent_config.yml").unwrap();
@@ -38,6 +41,8 @@ fn main() {
         for p in &mut plugins {
             sender.arbitrate(&mut **p, &mut payload);
         }
+
+        debug!("{:?}", payload);
 
         if !payload.is_empty() {
             let serialized_payload =
