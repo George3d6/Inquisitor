@@ -6,10 +6,10 @@ extern crate serde_json;
 extern crate shared_lib;
 extern crate tokio;
 
-use shared_lib::{get_yml_config, current_ts};
 use agent_lib::AgentPlugin;
 use futures::Future;
 use shared_lib::Status;
+use shared_lib::{current_ts, get_yml_config};
 use std::net::SocketAddr;
 use std::{thread, time};
 use tokio::net::TcpStream;
@@ -30,7 +30,8 @@ fn main() {
         config["receptor"]["port"].as_i64().unwrap()
     );
 
-    let mut sender = StatusSender::new(hostname, addr.parse().expect("Couldn't convert IP address"));
+    let mut sender =
+        StatusSender::new(hostname, addr.parse().expect("Couldn't convert IP address"));
     loop {
         thread::sleep(time::Duration::from_millis(1000));
         let mut payload = Vec::new();

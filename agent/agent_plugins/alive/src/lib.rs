@@ -5,9 +5,7 @@
     or find machines with unsynchronized clocks
 */
 extern crate agent_lib;
-extern crate shared_lib;
-use agent_lib::AgentPlugin;
-use shared_lib::{get_yml_config, current_ts};
+use agent_lib::{current_ts, get_yml_config, AgentPlugin};
 
 pub struct Plugin {
     last_call_ts: i64,
