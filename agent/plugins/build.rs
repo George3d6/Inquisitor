@@ -1,7 +1,5 @@
 extern crate cargo_metadata;
-use std::fs::File;
-use std::fs::copy;
-use std::fs::create_dir_all;
+use std::fs::{copy, create_dir_all, File};
 use std::io::Write;
 use std::path::Path;
 
@@ -17,9 +15,7 @@ fn main() {
         .dependencies;
     let mut plugins = vec![];
     for p in v {
-        if p.kind == cargo_metadata::DependencyKind::Normal && p.name != "agent_lib"
-            && p.name != "shared_lib"
-        {
+        if p.kind == cargo_metadata::DependencyKind::Normal && p.name != "agent_lib" {
             plugins.push(p.name.clone());
         }
     }
