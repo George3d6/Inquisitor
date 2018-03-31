@@ -1,6 +1,7 @@
-pub extern crate shared_lib;
+extern crate shared_lib;
 extern crate rusqlite;
 pub mod utils;
+pub use shared_lib::{current_ts, get_yml_config, Status};
 use rusqlite::Connection;
 use std::string::String;
 

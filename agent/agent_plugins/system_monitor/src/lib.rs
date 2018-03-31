@@ -3,10 +3,9 @@ extern crate serde_derive;
 extern crate agent_lib;
 extern crate serde_json;
 extern crate sysinfo;
-use self::sysinfo::{DiskExt, NetworkExt, ProcessorExt, System, SystemExt};
+use sysinfo::{DiskExt, NetworkExt, ProcessorExt, System, SystemExt};
 
-use agent_lib::AgentPlugin;
-use agent_lib::shared_lib::{get_yml_config, current_ts};
+use agent_lib::{current_ts, get_yml_config, AgentPlugin};
 
 use std::collections::HashMap;
 

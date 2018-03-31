@@ -4,6 +4,10 @@ version = "0.3.0"
 authors = ["George Hosu <george@cerebralab.com>"]
 build = "build.rs"
 
+[lib]
+name = "plugins"
+path = "src/lib.rs"
+
 [dependencies]
 sync_check = {path = "../receptor_plugins/sync_check"}
 

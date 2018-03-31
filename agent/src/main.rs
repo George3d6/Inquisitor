@@ -7,17 +7,15 @@ extern crate plugins;
 extern crate serde_json;
 extern crate tokio;
 
-use agent_lib::shared_lib::{get_yml_config, current_ts};
-use agent_lib::AgentPlugin;
+use agent_lib::{get_yml_config, current_ts, Status, AgentPlugin};
 use futures::Future;
-use agent_lib::shared_lib::Status;
 use std::net::SocketAddr;
 use std::{thread, time};
 use tokio::net::TcpStream;
 
 fn main() {
     env_logger::init();
-    
+
     let mut plugins = plugins::init();
 
     let config = get_yml_config("agent_config.yml").unwrap();
@@ -33,7 +31,8 @@ fn main() {
         config["receptor"]["port"].as_i64().unwrap()
     );
 
-    let mut sender = StatusSender::new(hostname, addr.parse().expect("Couldn't convert IP address"));
+    let mut sender =
+        StatusSender::new(hostname, addr.parse().expect("Couldn't convert IP address"));
     loop {
         thread::sleep(time::Duration::from_millis(1000));
         let mut payload = Vec::new();
@@ -42,7 +41,7 @@ fn main() {
             sender.arbitrate(&mut **p, &mut payload);
         }
 
-        debug!("{:?}", payload);
+        debug!("Paytload content: {:?}", payload);
 
         if !payload.is_empty() {
             let serialized_payload =
@@ -50,7 +49,7 @@ fn main() {
 
             let send = TcpStream::connect(&sender.addr)
                 .and_then(|stream| tokio::io::write_all(stream, serialized_payload))
-                .map_err(|e| eprintln!("Error: {}", e))
+                .map_err(|e| error!("Error: {}", e))
                 .map(|_| ());
 
             tokio::run(send);

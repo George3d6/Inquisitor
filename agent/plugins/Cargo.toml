@@ -4,6 +4,10 @@ version = "0.3.0"
 authors = ["Richard Petrie <rap1011@ksu.edu>"]
 build = "build.rs"
 
+[lib]
+name = "plugins"
+path = "src/lib.rs"
+
 [dependencies]
 alive = {path = "../agent_plugins/alive"}
 file_checker = {path = "../agent_plugins/file_checker"}

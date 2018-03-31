@@ -1,15 +1,12 @@
-extern crate serde_json;
-extern crate rusqlite;
 extern crate receptor_lib;
+extern crate rusqlite;
+extern crate serde_json;
 
+use receptor_lib::{get_yml_config, current_ts, utils, ReceptorPlugin};
 use rusqlite::Connection;
-use receptor_lib::ReceptorPlugin;
-use receptor_lib::utils;
-use receptor_lib::shared_lib::{get_yml_config, current_ts};
 
 use std::collections::HashMap;
 use std::string::String;
-
 
 pub struct Plugin {
     last_call_ts: i64,
@@ -26,7 +23,7 @@ impl Plugin {
 
         if config["enabled"].as_bool().unwrap_or(false) {
             plugin.enabled = true;
-            return Ok(())
+            return Ok(());
         } else {
             plugin.enabled = false;
         }
@@ -35,16 +32,20 @@ impl Plugin {
             Some(val) => val,
             _ => return Err("Can't properly read key periodicity !".to_string()),
         };
-        return Ok(())
+        return Ok(());
     }
 }
 
 pub fn new() -> Result<Plugin, String> {
-    let mut new_plugin = Plugin{enabled: true, last_call_ts: 0, periodicity: 0};
+    let mut new_plugin = Plugin {
+        enabled: true,
+        last_call_ts: 0,
+        periodicity: 0,
+    };
     let error = Plugin::config(&mut new_plugin);
     match error {
-            Ok(()) => return Ok(new_plugin),
-            Err(err) => return  Err(err),
+        Ok(()) => return Ok(new_plugin),
+        Err(err) => return Err(err),
     };
 }
 
@@ -58,10 +59,9 @@ impl ReceptorPlugin for Plugin {
 
         let mut raw_data = db_conn.prepare("SELECT strftime('%s', ts_received) - max(ts_sent) as diff, sender FROM agent_status GROUP BY sender;").expect("Can't select from database");
 
-
-        let raw_iter = raw_data.query_map(&[], |row| {
-            (row.get(1), row.get(0))
-        }).expect("Problem getting sender and ts diff touple");
+        let raw_iter = raw_data
+            .query_map(&[], |row| (row.get(1), row.get(0)))
+            .expect("Problem getting sender and ts diff touple");
 
         let mut diff_map: HashMap<String, i64> = HashMap::new();
         for res in raw_iter {
@@ -69,13 +69,12 @@ impl ReceptorPlugin for Plugin {
             diff_map.insert(sender, val);
         }
 
-
         Ok(serde_json::to_string(&diff_map).expect("Can't serialize clock dif map"))
     }
 
     fn ready(&self) -> bool {
         if !self.enabled {
-            return false
+            return false;
         }
         self.last_call_ts + self.periodicity < current_ts()
     }

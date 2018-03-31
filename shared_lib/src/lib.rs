@@ -30,11 +30,11 @@ pub fn get_yml_config(name: &str) -> Result<Yaml, String> {
     cfg_file_path.push(name);
     let contents = match read_to_string(&cfg_file_path) {
         Ok(content) => content,
-        Err(err) => return Err(format!("Config file {} not found !", name))
+        Err(_) => return Err(format!("Config file {} not found !", name))
     };
     let mut docs = match YamlLoader::load_from_str(&contents) {
         Ok(docs) => docs,
-        Err(err) => return Err(format!("File {}, content is not valid yml !", name))
+        Err(_) => return Err(format!("File {}, content is not valid yml !", name))
     };
     if docs.is_empty() {
         return Err(format!("No valid yml documents inside: {} !", name))

@@ -3,8 +3,7 @@
 */
 extern crate agent_lib;
 extern crate serde_json;
-use agent_lib::AgentPlugin;
-use agent_lib::shared_lib::{get_yml_config, current_ts};
+use agent_lib::{current_ts, get_yml_config, AgentPlugin};
 
 use std::collections::HashMap;
 use std::process::Command;
@@ -73,8 +72,7 @@ impl AgentPlugin for Plugin {
     fn gather(&mut self) -> Result<String, String> {
         let mut results = HashMap::new();
         for process in &self.processes {
-            self.last_call_map
-                .insert(process.clone(), current_ts());
+            self.last_call_map.insert(process.clone(), current_ts());
 
             let mut cmd = Command::new("pgrep");
             cmd.arg("-f");

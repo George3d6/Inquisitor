@@ -1,33 +1,33 @@
 mod database;
 
-#[macro_use] extern crate log;
+#[macro_use]
+extern crate log;
 extern crate env_logger;
 #[macro_use] extern crate serde_json;
-extern crate receptor_lib;
-extern crate plugins;
-extern crate serde_derive;
-extern crate rusqlite;
+extern crate fs_extra;
 extern crate futures;
-extern crate tokio;
-extern crate tokio_core;
 extern crate hyper;
 extern crate hyper_staticfile;
-extern crate fs_extra;
+extern crate plugins;
+extern crate receptor_lib;
+extern crate rusqlite;
+extern crate serde_derive;
+extern crate tokio;
+extern crate tokio_core;
 
-use rusqlite::Connection;
+use database::{get_connection, initialize_database};
 use futures::Future;
 use futures::Stream;
-use tokio::io::AsyncRead;
-use tokio::net::{TcpListener, TcpStream};
-use tokio_core::reactor::Core;
 use hyper::server::{Http, Request, Response, Service};
 use hyper::{Method, StatusCode};
 use hyper_staticfile::Static;
-use database::{get_connection, initialize_database};
-use receptor_lib::shared_lib::Status;
-use receptor_lib::shared_lib::get_yml_config;
+use receptor_lib::{get_yml_config, Status};
 use receptor_lib::utils::get_url_params;
 use receptor_lib::ReceptorPlugin;
+use rusqlite::Connection;
+use tokio::io::AsyncRead;
+use tokio::net::{TcpListener, TcpStream};
+use tokio_core::reactor::Core;
 
 use std::env::current_exe;
 use std::path::Path;
@@ -184,8 +184,7 @@ impl PluginRunner {
         }
     }
 
-    pub fn run_plugin(&self, plugin: &mut ReceptorPlugin)
-    {
+    pub fn run_plugin(&self, plugin: &mut ReceptorPlugin) {
         if plugin.ready() {
             let name = plugin.name();
             let message = plugin
@@ -313,7 +312,7 @@ fn main() {
             Ok(())
         })
         .map_err(|err| {
-            println!("IO error {:?}", err);
+            error!("IO error {:?}", err);
         });
 
     tokio::run(receptor);
