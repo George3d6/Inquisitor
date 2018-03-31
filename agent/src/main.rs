@@ -6,7 +6,8 @@ extern crate serde_json;
 extern crate shared_lib;
 extern crate tokio;
 
-use agent_lib::{utils, AgentPlugin};
+use shared_lib::{get_yml_config, current_ts};
+use agent_lib::AgentPlugin;
 use futures::Future;
 use shared_lib::Status;
 use std::net::SocketAddr;
@@ -16,7 +17,7 @@ use tokio::net::TcpStream;
 fn main() {
     let mut plugins = plugins::init();
 
-    let config = shared_lib::get_yml_config("agent_config.yml");
+    let config = get_yml_config("agent_config.yml").unwrap();
 
     let hostname = config["machine_identifier"]
         .as_str()
@@ -68,7 +69,7 @@ impl StatusSender {
             if let Ok(message) = plugin.gather() {
                 let status = Status {
                     sender: self.hostname.clone(),
-                    ts: utils::current_ts(),
+                    ts: current_ts(),
                     message,
                     plugin_name: name,
                 };

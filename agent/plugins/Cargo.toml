@@ -5,12 +5,14 @@ authors = ["Richard Petrie <rap1011@ksu.edu>"]
 build = "build.rs"
 
 [dependencies]
-agent_lib = {path = "../agent_lib"}
 alive = {path = "../agent_plugins/alive"}
 file_checker = {path = "../agent_plugins/file_checker"}
 process_counter = {path = "../agent_plugins/process_counter"}
 system_monitor = {path = "../agent_plugins/system_monitor"}
 command_runner = {path = "../agent_plugins/command_runner"}
+
+agent_lib = {path = "../agent_lib"}
+shared_lib = {path="../../shared_lib"}
 
 [build-dependencies]
 cargo_metadata = "0.4.0"

@@ -2,9 +2,10 @@
     This plugin is used to periodically execute a series of remote commands and return the output
 */
 extern crate agent_lib;
+extern crate shared_lib;
 extern crate serde_json;
 use agent_lib::AgentPlugin;
-use agent_lib::utils;
+use shared_lib::{get_yml_config, current_ts};
 
 use std::collections::HashMap;
 use std::process::Command;
@@ -18,7 +19,7 @@ pub struct Plugin {
 
 impl Plugin {
     fn config(plugin: &mut Plugin) {
-        let config = utils::get_yml_config(&format!("process_counter.yml"));
+        let config = get_yml_config(&format!("process_counter.yml")).unwrap();
 
         if config["enabled"].as_bool().unwrap_or(false) {
             plugin.enabled = true;
@@ -74,7 +75,7 @@ impl AgentPlugin for Plugin {
         let mut results = HashMap::new();
         for process in &self.processes {
             self.last_call_map
-                .insert(process.clone(), utils::current_ts());
+                .insert(process.clone(), current_ts());
 
             let mut cmd = Command::new("pgrep");
             cmd.arg("-f");
@@ -104,6 +105,6 @@ impl AgentPlugin for Plugin {
         }
         self.last_call_map
             .iter()
-            .any(|(k, v)| v + self.periodicity_map[k] < utils::current_ts())
+            .any(|(k, v)| v + self.periodicity_map[k] < current_ts())
     }
 }

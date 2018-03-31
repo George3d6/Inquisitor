@@ -5,3 +5,4 @@ authors = ["George Hosu <george@cerebralab.com>"]
 
 [dependencies]
 agent_lib = {path="../../agent_lib"}
+shared_lib = {path="../../../shared_lib"}

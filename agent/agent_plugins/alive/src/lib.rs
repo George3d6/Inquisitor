@@ -7,7 +7,7 @@
 extern crate agent_lib;
 extern crate shared_lib;
 use agent_lib::AgentPlugin;
-use agent_lib::utils;
+use shared_lib::{get_yml_config, current_ts};
 
 pub struct Plugin {
     last_call_ts: i64,
@@ -17,7 +17,7 @@ pub struct Plugin {
 
 impl Plugin {
     fn config(&mut self) {
-        let config = shared_lib::get_yml_config("alive.yml");
+        let config = get_yml_config("alive.yml").unwrap();
         if config["enabled"].as_bool().unwrap_or(false) {
             self.enabled = true;
         } else {
@@ -50,7 +50,7 @@ impl AgentPlugin for Plugin {
     }
 
     fn gather(&mut self) -> Result<String, String> {
-        self.last_call_ts = utils::current_ts();
+        self.last_call_ts = current_ts();
         Ok(String::from("I live"))
     }
 
@@ -58,6 +58,6 @@ impl AgentPlugin for Plugin {
         if !self.enabled {
             return false;
         }
-        self.last_call_ts + self.periodicity < utils::current_ts()
+        self.last_call_ts + self.periodicity < current_ts()
     }
 }

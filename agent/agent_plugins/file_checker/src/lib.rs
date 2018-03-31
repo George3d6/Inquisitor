@@ -2,9 +2,10 @@
     This plugin is used to periodically execute a series of remote commands and return the output
 */
 extern crate agent_lib;
+extern crate shared_lib;
 extern crate serde_json;
 use agent_lib::AgentPlugin;
-use agent_lib::utils;
+use shared_lib::{get_yml_config, current_ts};
 
 extern crate fs_extra;
 use self::fs_extra::dir::get_size;
@@ -28,7 +29,7 @@ pub struct Plugin {
 
 impl Plugin {
     fn config(plugin: &mut Plugin) {
-        let config = utils::get_yml_config("file_checker.yml");
+        let config = get_yml_config("file_checker.yml").unwrap();
 
         if config["enabled"].as_bool().unwrap_or(false) {
             plugin.enabled = true;
@@ -93,7 +94,7 @@ impl AgentPlugin for Plugin {
     }
 
     fn gather(&mut self) -> Result<String, String> {
-        self.last_call_ts = utils::current_ts();
+        self.last_call_ts = current_ts();
 
         let mut results = Vec::new();
         let mut new_file_info_arr = Vec::new();
@@ -134,6 +135,6 @@ impl AgentPlugin for Plugin {
         if !self.enabled {
             return false;
         }
-        self.last_call_ts + self.periodicity < utils::current_ts()
+        self.last_call_ts + self.periodicity < current_ts()
     }
 }

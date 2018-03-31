@@ -1,12 +1,13 @@
 #[macro_use]
 extern crate serde_derive;
 extern crate agent_lib;
+extern crate shared_lib;
 extern crate serde_json;
 extern crate sysinfo;
 use self::sysinfo::{DiskExt, NetworkExt, ProcessorExt, System, SystemExt};
 
 use agent_lib::AgentPlugin;
-use agent_lib::utils;
+use shared_lib::{get_yml_config, current_ts};
 
 use std::collections::HashMap;
 
@@ -28,7 +29,7 @@ struct MachineState<'a> {
 
 impl Plugin {
     fn config(plugin: &mut Plugin) {
-        let config = utils::get_yml_config(&format!("system_monitor.yml"));
+        let config = get_yml_config(&format!("system_monitor.yml")).unwrap();
 
         if config["enabled"].as_bool().unwrap_or(false) {
             plugin.enabled = true;
@@ -64,7 +65,7 @@ impl AgentPlugin for Plugin {
     }
 
     fn gather(&mut self) -> Result<String, String> {
-        self.last_call_ts = utils::current_ts();
+        self.last_call_ts = current_ts();
 
         self.sys.refresh_all();
 
@@ -117,6 +118,6 @@ impl AgentPlugin for Plugin {
         if !self.enabled {
             return false;
         }
-        self.last_call_ts + self.periodicity < utils::current_ts()
+        self.last_call_ts + self.periodicity < current_ts()
     }
 }
