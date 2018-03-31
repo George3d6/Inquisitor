@@ -5,6 +5,7 @@
     or find machines with unsynchronized clocks
 */
 extern crate agent_lib;
+extern crate shared_lib;
 use agent_lib::AgentPlugin;
 use agent_lib::utils;
 
@@ -16,7 +17,7 @@ pub struct Plugin {
 
 impl Plugin {
     fn config(&mut self) {
-        let config = utils::get_yml_config("alive.yml");
+        let config = shared_lib::get_yml_config("alive.yml");
         if config["enabled"].as_bool().unwrap_or(false) {
             self.enabled = true;
         } else {

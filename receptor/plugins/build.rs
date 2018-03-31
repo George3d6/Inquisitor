@@ -17,7 +17,7 @@ fn main() {
         .dependencies;
     let mut plugins = vec![];
     for p in v {
-        if p.kind == cargo_metadata::DependencyKind::Normal && p.name != "receptor_lib" {
+        if p.kind == cargo_metadata::DependencyKind::Normal && p.name != "receptor_lib" && p.name != "env_logger" && p.name != "log" && p.name != "shared_lib" {
             plugins.push(p.name.clone());
         }
     }
@@ -30,6 +30,9 @@ fn main() {
             "extern crate receptor_lib;
             use receptor_lib::ReceptorPlugin;
 
+            #[macro_use] extern crate log;
+            extern crate env_logger;
+
             #[macro_use]
             mod plugin_initialization;
 
@@ -39,12 +42,16 @@ fn main() {
         ).as_bytes(),
     ).unwrap();
 
+    create_dir_all("../target/debug").unwrap();
+    create_dir_all("../target/release").unwrap();
+
+    copy("../inquisitor-receptor.service", "../target/debug/inquisitor-receptor.service");
+    copy("../inquisitor-receptor.service", "../target/release/inquisitor-receptor.service");
+    copy("../receptor_config.yml", "../target/debug/receptor_config.yml").unwrap();
+    copy("../receptor_config.yml", "../target/release/receptor_config.yml").unwrap();
+
     for plugin in plugins {
-        create_dir_all("../target/debug").unwrap();
-        create_dir_all("../target/release").unwrap();
         copy(format!("../receptor_plugins/{x}/{x}.yml", x=plugin), format!("../target/debug/{x}.yml", x=plugin)).unwrap();
         copy(format!("../receptor_plugins/{x}/{x}.yml", x=plugin), format!("../target/release/{x}.yml", x=plugin)).unwrap();
-        copy("../inquisitor-agent.service", "../target/debug/");
-        copy("../inquisitor-agent.service", "../target/release/");
     }
 }

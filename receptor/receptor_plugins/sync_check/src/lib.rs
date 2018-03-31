@@ -1,10 +1,13 @@
 extern crate serde_json;
 extern crate rusqlite;
 extern crate receptor_lib;
+extern crate shared_lib;
 
 use rusqlite::Connection;
 use receptor_lib::ReceptorPlugin;
 use receptor_lib::utils;
+use shared_lib::current_ts;
+use shared_lib::get_yml_config;
 
 use std::collections::HashMap;
 use std::string::String;
@@ -13,28 +16,38 @@ use std::string::String;
 pub struct Plugin {
     last_call_ts: i64,
     periodicity: i64,
-    disable: bool,
+    enabled: bool,
 }
 
 impl Plugin {
-    fn config(plugin: &mut Plugin) {
-        let config = utils::get_yml_config("sync_check.yml");
+    fn config(plugin: &mut Plugin) -> Result<(), String> {
+        let config = match get_yml_config("sync_check.yml") {
+            Ok(config) => config,
+            Err(err) => return Err(err),
+        };
 
-        if config["disable"].as_bool().unwrap_or(false) {
-            plugin.disable = true;
-            return
+        if config["enabled"].as_bool().unwrap_or(false) {
+            plugin.enabled = true;
+            return Ok(())
         } else {
-            plugin.disable = false;
+            plugin.enabled = false;
         }
 
-        plugin.periodicity = config["periodicity"].as_i64().expect("Can't read periodicity as i64");
+        plugin.periodicity = match config["periodicity"].as_i64() {
+            Some(val) => val,
+            _ => return Err("Can't properly read key periodicity !".to_string()),
+        };
+        return Ok(())
     }
 }
 
 pub fn new() -> Result<Plugin, String> {
-    let mut new_plugin = Plugin{disable: false, last_call_ts: 0, periodicity: 0};
-    Plugin::config(&mut new_plugin);
-    Ok(new_plugin)
+    let mut new_plugin = Plugin{enabled: true, last_call_ts: 0, periodicity: 0};
+    let error = Plugin::config(&mut new_plugin);
+    match error {
+            Ok(()) => return Ok(new_plugin),
+            Err(err) => return  Err(err),
+    };
 }
 
 impl ReceptorPlugin for Plugin {
@@ -43,7 +56,7 @@ impl ReceptorPlugin for Plugin {
     }
 
     fn gather(&mut self, db_conn: &Connection) -> Result<String, String> {
-        self.last_call_ts = utils::current_ts();
+        self.last_call_ts = current_ts();
 
         let mut raw_data = db_conn.prepare("SELECT strftime('%s', ts_received) - max(ts_sent) as diff, sender FROM agent_status GROUP BY sender;").expect("Can't select from database");
 
@@ -63,9 +76,9 @@ impl ReceptorPlugin for Plugin {
     }
 
     fn ready(&self) -> bool {
-        if self.disable {
+        if !self.enabled {
             return false
         }
-        self.last_call_ts + self.periodicity < utils::current_ts()
+        self.last_call_ts + self.periodicity < current_ts()
     }
 }

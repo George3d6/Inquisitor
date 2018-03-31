@@ -1,7 +1,9 @@
-#[macro_use]
+
 mod database;
 
-extern crate serde_json;
+#[macro_use] extern crate log;
+extern crate env_logger;
+#[macro_use] extern crate serde_json;
 extern crate receptor_lib;
 extern crate shared_lib;
 extern crate plugins;
@@ -25,7 +27,7 @@ use hyper::{Method, StatusCode};
 use hyper_staticfile::Static;
 use database::{get_connection, initialize_database};
 use shared_lib::Status;
-use receptor_lib::utils::get_yml_config;
+use shared_lib::get_yml_config;
 use receptor_lib::utils::get_url_params;
 use receptor_lib::ReceptorPlugin;
 
@@ -204,7 +206,9 @@ impl PluginRunner {
 }
 
 fn main() {
-    let config = get_yml_config("receptor_config.yml");
+    env_logger::init();
+
+    let config = get_yml_config("receptor_config.yml").unwrap();
 
     let clean_older_than = config["clean_older_than"].as_i64().expect("Please specify a time after which logs should start being removed from the database under the root parameter: 'clean_older_than' [type==i64]");
 

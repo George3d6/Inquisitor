@@ -16,7 +16,7 @@ use tokio::net::TcpStream;
 fn main() {
     let mut plugins = plugins::init();
 
-    let config = utils::get_yml_config("agent_config.yml");
+    let config = shared_lib::get_yml_config("agent_config.yml");
 
     let hostname = config["machine_identifier"]
         .as_str()

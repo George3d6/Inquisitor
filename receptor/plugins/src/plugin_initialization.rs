@@ -6,8 +6,8 @@ macro_rules! plugins {
             let mut v: Vec<Box<ReceptorPlugin>> = vec!();
             $(
                 match $x::new() {
-                    Ok(x) => {println!("{} successfully loaded", x.name()); v.push(Box::new(x)) }
-                    Err(x) => {println!("{}", x)}
+                    Ok(x) => {info!("{} successfully loaded", x.name()); v.push(Box::new(x)) }
+                    Err(err) => {error!("{}", err)}
                 }
             )*
             v
