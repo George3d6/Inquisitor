@@ -187,9 +187,13 @@ impl PluginRunner {
     pub fn run_plugin(&self, plugin: &mut ReceptorPlugin) {
         if plugin.ready() {
             let name = plugin.name();
-            let message = plugin
-                .gather(&self.db_conn)
-                .expect(&format!("Issue running gather on plugin: {}", name) as &str);
+            let message = match plugin.gather(&self.db_conn) {
+                Ok(message) => message,
+                Err(err) => {
+                    error!("Error: {} ! When running gather for plguin {}", err, name);
+                    return
+                }
+            };
 
             self.db_conn
                 .execute(

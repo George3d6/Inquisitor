@@ -2,7 +2,7 @@ extern crate receptor_lib;
 extern crate rusqlite;
 extern crate serde_json;
 
-use receptor_lib::{get_yml_config, current_ts, utils, ReceptorPlugin};
+use receptor_lib::{get_yml_config, current_ts, ReceptorPlugin};
 use rusqlite::Connection;
 
 use std::collections::HashMap;
@@ -57,19 +57,18 @@ impl ReceptorPlugin for Plugin {
     fn gather(&mut self, db_conn: &Connection) -> Result<String, String> {
         self.last_call_ts = current_ts();
 
-        let mut raw_data = db_conn.prepare("SELECT strftime('%s', ts_received) - max(ts_sent) as diff, sender FROM agent_status GROUP BY sender;").expect("Can't select from database");
+        let mut raw_data = try!(db_conn.prepare("SELECT strftime('%s', ts_received) - max(ts_sent) as diff, sender FROM agent_status GROUP BY sender;").map_err(|e| e.to_string()));
 
-        let raw_iter = raw_data
-            .query_map(&[], |row| (row.get(1), row.get(0)))
-            .expect("Problem getting sender and ts diff touple");
+        let raw_iter = try!(raw_data.query_map(&[], |row| (row.get(1), row.get(0))).map_err(|e| e.to_string()));
 
         let mut diff_map: HashMap<String, i64> = HashMap::new();
         for res in raw_iter {
-            let (sender, val) = res.unwrap();
+            let (sender, val) = try!(res.map_err(|e| e.to_string()));
             diff_map.insert(sender, val);
         }
 
-        Ok(serde_json::to_string(&diff_map).expect("Can't serialize clock dif map"))
+        let message = try!(serde_json::to_string(&diff_map).map_err(|e| e.to_string()));
+        Ok(message)
     }
 
     fn ready(&self) -> bool {
