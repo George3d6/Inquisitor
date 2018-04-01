@@ -3,6 +3,8 @@ extern crate serde_derive;
 extern crate serde;
 extern crate serde_yaml;
 extern crate yaml_rust;
+#[macro_use] extern crate log;
+extern crate env_logger;
 
 use self::yaml_rust::{Yaml, YamlLoader};
 extern crate fs_extra;
@@ -52,7 +54,7 @@ pub fn get_yml_config_string(name: &str) -> Result<String, String> {
     let mut cfg_file_path = current_exe().unwrap();
     cfg_file_path.pop();
     cfg_file_path.push(name);
-    println!("{:?}", cfg_file_path);
+    debug!("Reading config from: {:?}", cfg_file_path);
     return Ok(read_to_string(&cfg_file_path).map_err(|e| e.to_string())?)
 }
 
