@@ -120,6 +120,7 @@ slack and SMTP.
 @TODO
 
 
+<!---
 ## Roadmap
 
 #### <a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a> Feature / Change
@@ -171,3 +172,4 @@ Make the Web UI mobile friendly
 <a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a>
 Add some more plugin to the receptor side of things, such as average resource usage plugin, text diff check (to, for example, check the differences between running
     the same command on multiple machine)... etc
+-->
