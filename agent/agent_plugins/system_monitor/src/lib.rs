@@ -1,26 +1,22 @@
 #[macro_use]
-
 extern crate serde_derive;
-
 extern crate agent_lib;
 extern crate serde_json;
 extern crate sysinfo;
 
 use sysinfo::{DiskExt, NetworkExt, ProcessorExt, System, SystemExt};
-
-use agent_lib::{current_ts, get_yml_config, AgentPlugin};
-
+use agent_lib::{current_ts, read_cfg, AgentPlugin};
 use std::collections::HashMap;
 
-pub struct Plugin {
-	sys:          System,
-	last_call_ts: i64,
-	periodicity:  i64,
-	enabled:      bool
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+struct Config {
+	enabled:		bool,
+	periodicity: 	i64,
 }
 
-#[derive(Serialize, Debug)]
 
+#[derive(Serialize, Debug)]
 struct MachineState<'a> {
 	fs_state:      Vec<HashMap<&'a str, String>>,
 	memory_map:    HashMap<&'a str, String>,
@@ -29,19 +25,23 @@ struct MachineState<'a> {
 	network_map:   HashMap<&'a str, String>
 }
 
+
+pub struct Plugin {
+	sys:          System,
+	last_call_ts: i64,
+	periodicity:  i64,
+	enabled:      bool
+}
+
 impl Plugin {
-	fn config(plugin: &mut Plugin) {
-		let config = get_yml_config(&format!("system_monitor.yml")).unwrap();
-
-		if config["enabled"].as_bool().unwrap_or(false) {
-			plugin.enabled = true;
-		} else {
-			plugin.enabled = false;
-
-			return;
+	fn config(&mut self) -> Result<(), String> {
+		let cfg = read_cfg::<Config>("command_runner.yml")?;
+		self.enabled = cfg.enabled;
+		if !self.enabled {
+			return Ok(())
 		}
-
-		plugin.periodicity = config["periodicity"].as_i64().expect("Can't read periodicity as i64")
+		self.periodicity = cfg.periodicity;
+		return Ok(())
 	}
 }
 
@@ -53,7 +53,7 @@ pub fn new() -> Result<Plugin, String> {
 		periodicity:  0
 	};
 
-	Plugin::config(&mut new_plugin);
+	Plugin::config(&mut new_plugin)?;
 
 	if new_plugin.enabled {
 		Ok(new_plugin)
@@ -123,7 +123,7 @@ impl AgentPlugin for Plugin {
 			network_map
 		};
 
-		Ok(serde_json::to_string(&machine_state).expect("Can't serialize fs_state"))
+		Ok(serde_json::to_string(&machine_state).map_err(|e| e.to_string())?)
 	}
 
 	fn ready(&self) -> bool {

@@ -1,12 +1,21 @@
 extern crate receptor_lib;
 extern crate rusqlite;
 extern crate serde_json;
+#[macro_use]
+extern crate serde_derive;
 
-use receptor_lib::{current_ts, get_yml_config, ReceptorPlugin};
+use receptor_lib::{current_ts, read_cfg, ReceptorPlugin};
 use rusqlite::Connection;
-
 use std::collections::HashMap;
 use std::string::String;
+
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+struct Config {
+	enabled:     bool,
+	periodicity: i64
+}
+
 
 pub struct Plugin {
 	last_call_ts: i64,
@@ -15,25 +24,13 @@ pub struct Plugin {
 }
 
 impl Plugin {
-	fn config(plugin: &mut Plugin) -> Result<(), String> {
-		let config = match get_yml_config("sync_check.yml") {
-			Ok(config) => config,
-			Err(err) => return Err(err)
-		};
-
-		if config["enabled"].as_bool().unwrap_or(false) {
-			plugin.enabled = true;
-
+	fn config(&mut self) -> Result<(), String> {
+		let cfg = read_cfg::<Config>("command_runner.yml")?;
+		self.enabled = cfg.enabled;
+		if !self.enabled {
 			return Ok(());
-		} else {
-			plugin.enabled = false;
 		}
-
-		plugin.periodicity = match config["periodicity"].as_i64() {
-			Some(val) => val,
-			_ => return Err("Can't properly read key periodicity !".to_string())
-		};
-
+		self.periodicity = cfg.periodicity;
 		return Ok(());
 	}
 }
@@ -45,12 +42,13 @@ pub fn new() -> Result<Plugin, String> {
 		periodicity:  0
 	};
 
-	let error = Plugin::config(&mut new_plugin);
+	new_plugin.config()?;
 
-	match error {
-		Ok(()) => return Ok(new_plugin),
-		Err(err) => return Err(err)
-	};
+	if new_plugin.enabled {
+		Ok(new_plugin)
+	} else {
+		Err("Sync check disabled".into())
+	}
 }
 
 impl ReceptorPlugin for Plugin {

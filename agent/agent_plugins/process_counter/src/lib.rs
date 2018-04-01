@@ -4,11 +4,21 @@
 
 extern crate agent_lib;
 extern crate serde_json;
+#[macro_use]
+extern crate serde_derive;
 
-use agent_lib::{current_ts, get_yml_config, AgentPlugin};
-
+use agent_lib::{current_ts, read_cfg, AgentPlugin};
 use std::collections::HashMap;
 use std::process::Command;
+
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+struct Config {
+	enabled:			bool,
+	periodicity_arr: 	Vec<i64>,
+	processes:			Vec<String>,
+}
+
 
 pub struct Plugin {
 	last_call_map:   HashMap<String, i64>,
@@ -18,38 +28,23 @@ pub struct Plugin {
 }
 
 impl Plugin {
-	fn config(plugin: &mut Plugin) {
-		let config = get_yml_config(&format!("process_counter.yml")).unwrap();
-
-		if config["enabled"].as_bool().unwrap_or(false) {
-			plugin.enabled = true;
-		} else {
-			plugin.enabled = false;
-
-			return;
+	fn config(&mut self) -> Result<(), String> {
+		let cfg = read_cfg::<Config>("command_runner.yml")?;
+		self.enabled = cfg.enabled;
+		if !self.enabled {
+			return Ok(())
 		}
+		self.periodicity = cfg.periodicity;
 
-		plugin.processes = config["processes"]
-			.as_vec()
-			.expect("Can't read commands vector")
-			.iter()
-			.map(|x| String::from(x.as_str().expect("Can't read command element")))
-			.collect();
+		self.processes = cfg.processes;
 
-		let periodicity_arr: Vec<i64> = config["periodicity_arr"]
-			.as_vec()
-			.expect("Can't read periodicity vector")
-			.iter()
-			.map(|x| x.as_i64().expect("Can't read periodicity"))
-			.collect();
 
-		for i in 0..plugin.processes.len() {
-			plugin
-				.periodicity_map
-				.insert(plugin.processes[i].clone(), periodicity_arr[i]);
 
-			plugin.last_call_map.insert(plugin.processes[i].clone(), 0);
+		for i in 0..self.processes.len() {
+			self.periodicity_map.insert(self.processes[i].clone(), cfg.periodicity_arr[i]);
+			self.last_call_map.insert(self.processes[i].clone(), 0);
 		}
+		return Ok(())
 	}
 }
 
@@ -87,12 +82,12 @@ impl AgentPlugin for Plugin {
 
 			cmd.arg(&process);
 
-			let output = cmd.output().unwrap();
+			let output = cmd.output().map_err(|e| e.to_string())?;
 
 			let mut running: i64 = 0;
 
 			if output.status.success() {
-				let str_output = String::from_utf8(output.stdout).unwrap();
+				let str_output = String::from_utf8(output.stdout).map_err(|e| e.to_string())?;
 
 				if !str_output.is_empty() {
 					let v: Vec<&str> = str_output.split('\n').filter(|&x| x != "").collect();
@@ -104,7 +99,7 @@ impl AgentPlugin for Plugin {
 			results.insert(process, running);
 		}
 
-		Ok(serde_json::to_string(&results).expect("Can't serialize command result map"))
+		Ok(serde_json::to_string(&results).map_err(|e| e.to_string())?)
 	}
 
 	fn ready(&self) -> bool {

@@ -4,7 +4,7 @@ extern crate shared_lib;
 pub mod utils;
 
 use rusqlite::Connection;
-pub use shared_lib::{current_ts, get_yml_config, Status};
+pub use shared_lib::{current_ts, get_yml_config, read_cfg, Status};
 use std::string::String;
 
 pub trait ReceptorPlugin {

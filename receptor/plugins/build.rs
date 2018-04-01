@@ -35,11 +35,12 @@ fn main() {
             use receptor_lib::ReceptorPlugin;
 
             #[macro_use] \
-			extern crate log;
+			 extern crate log;
             extern crate env_logger;
 
             #[macro_use]
-            mod plugin_initialization;
+            mod \
+			 plugin_initialization;
 
             plugins!({});
             ",

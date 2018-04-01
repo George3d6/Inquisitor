@@ -5,8 +5,17 @@
     or find machines with unsynchronized clocks
 */
 extern crate agent_lib;
+#[macro_use]
+extern crate serde_derive;
 
-use agent_lib::{current_ts, get_yml_config, AgentPlugin};
+use agent_lib::{current_ts, read_cfg, AgentPlugin};
+
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+struct Config {
+	enabled:		bool,
+	periodicity: 	i64,
+}
 
 
 pub struct Plugin {
@@ -15,25 +24,17 @@ pub struct Plugin {
 	enabled:      bool
 }
 
-
 impl Plugin {
 	fn config(&mut self) -> Result<(), String> {
-		let config = get_yml_config("alive.yml").map_err(|e| e.to_string())?;
-		if config["enabled"].as_bool().unwrap_or(false) {
-			self.enabled = true;
-		} else {
-			self.enabled = false;
-			return Ok(());
+		let cfg = read_cfg::<Config>("command_runner.yml")?;
+		self.enabled = cfg.enabled;
+		if !self.enabled {
+			return Ok(())
 		}
-
-		self.periodicity = match config["periodicity"].as_i64() {
-			Some(val) => val,
-			_ => return Err("Can't properly read key periodicity !".to_string())
-		};
-		return Ok(());
+		self.periodicity = cfg.periodicity;
+		return Ok(())
 	}
 }
-
 
 pub fn new() -> Result<Plugin, String> {
 	let mut new_plugin = Plugin {
@@ -42,12 +43,7 @@ pub fn new() -> Result<Plugin, String> {
 		periodicity:  0
 	};
 
-	let error = Plugin::config(&mut new_plugin);
-
-	match error {
-		Ok(()) => return Ok(new_plugin),
-		Err(err) => return Err(err)
-	};
+	new_plugin.config()?;
 
 	if new_plugin.enabled {
 		Ok(new_plugin)
@@ -55,7 +51,6 @@ pub fn new() -> Result<Plugin, String> {
 		Err("Alive plugins disabled".into())
 	}
 }
-
 
 impl AgentPlugin for Plugin {
 	fn name(&self) -> String {
