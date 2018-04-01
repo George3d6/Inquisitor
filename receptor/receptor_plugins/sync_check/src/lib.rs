@@ -11,90 +11,81 @@ use std::string::String;
 pub struct Plugin {
 	last_call_ts: i64,
 	periodicity:  i64,
-	enabled:      bool,
+	enabled:      bool
 }
 
 impl Plugin {
-	fn config(plugin: &mut Plugin) -> Result<(), String,> {
-
-		let config = match get_yml_config("sync_check.yml",) {
-			Ok(config,) => config,
-			Err(err,) => return Err(err,),
+	fn config(plugin: &mut Plugin) -> Result<(), String> {
+		let config = match get_yml_config("sync_check.yml") {
+			Ok(config) => config,
+			Err(err) => return Err(err)
 		};
 
-		if config["enabled"].as_bool().unwrap_or(false,) {
-
+		if config["enabled"].as_bool().unwrap_or(false) {
 			plugin.enabled = true;
 
-			return Ok((),);
+			return Ok(());
 		} else {
-
 			plugin.enabled = false;
 		}
 
 		plugin.periodicity = match config["periodicity"].as_i64() {
-			Some(val,) => val,
-			_ => return Err("Can't properly read key periodicity !".to_string(),),
+			Some(val) => val,
+			_ => return Err("Can't properly read key periodicity !".to_string())
 		};
 
-		return Ok((),);
+		return Ok(());
 	}
 }
 
-pub fn new() -> Result<Plugin, String,> {
-
+pub fn new() -> Result<Plugin, String> {
 	let mut new_plugin = Plugin {
 		enabled:      true,
 		last_call_ts: 0,
-		periodicity:  0,
+		periodicity:  0
 	};
 
-	let error = Plugin::config(&mut new_plugin,);
+	let error = Plugin::config(&mut new_plugin);
 
 	match error {
-		Ok((),) => return Ok(new_plugin,),
-		Err(err,) => return Err(err,),
+		Ok(()) => return Ok(new_plugin),
+		Err(err) => return Err(err)
 	};
 }
 
 impl ReceptorPlugin for Plugin {
 	fn name(&self) -> String {
-
-		String::from("Sync check",)
+		String::from("Sync check")
 	}
 
-	fn gather(&mut self, db_conn: &Connection,) -> Result<String, String,> {
-
+	fn gather(&mut self, db_conn: &Connection) -> Result<String, String> {
 		self.last_call_ts = current_ts();
 
 		let mut raw_data = db_conn
 			.prepare(
-				"SELECT strftime('%s', ts_received) - max(ts_sent) as diff, sender FROM agent_status GROUP BY sender;",
+				"SELECT strftime('%s', ts_received) - max(ts_sent) as diff, sender FROM agent_status GROUP BY sender;"
 			)
-			.map_err(|e| e.to_string(),)?;
+			.map_err(|e| e.to_string())?;
 
 		let raw_iter = raw_data
-			.query_map(&[], |row| (row.get(1,), row.get(0,),),)
-			.map_err(|e| e.to_string(),)?;
+			.query_map(&[], |row| (row.get(1), row.get(0)))
+			.map_err(|e| e.to_string())?;
 
-		let mut diff_map: HashMap<String, i64,> = HashMap::new();
+		let mut diff_map: HashMap<String, i64> = HashMap::new();
 
 		for res in raw_iter {
+			let (sender, val) = res.map_err(|e| e.to_string())?;
 
-			let (sender, val,) = res.map_err(|e| e.to_string(),)?;
-
-			diff_map.insert(sender, val,);
+			diff_map.insert(sender, val);
 		}
 
-		let message = serde_json::to_string(&diff_map,).map_err(|e| e.to_string(),)?;
+		let message = serde_json::to_string(&diff_map).map_err(|e| e.to_string())?;
 
-		Ok(message,)
+		Ok(message)
 	}
 
 	fn ready(&self) -> bool {
-
 		if !self.enabled {
-
 			return false;
 		}
 

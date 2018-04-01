@@ -1,8 +1,7 @@
 use rusqlite::Connection;
 
 pub fn initialize_database() {
-
-	let conn = Connection::open("database.sqlite",).expect("Can't open database connection",);
+	let conn = Connection::open("database.sqlite").expect("Can't open database connection");
 
 	conn.execute(
 		"CREATE TABLE IF NOT EXISTS agent_status (
@@ -14,16 +13,16 @@ pub fn initialize_database() {
         ts_received DATETIME DEFAULT \
 		 CURRENT_TIMESTAMP NOT NULL
     )",
-		&[],
-	).expect("Can't create raw status table",);
+		&[]
+	).expect("Can't create raw status table");
 
-	conn.execute("CREATE INDEX IF NOT EXISTS ts_sent_ind ON agent_status(ts_sent)", &[],)
-		.expect("Can't index tables",);
+	conn.execute("CREATE INDEX IF NOT EXISTS ts_sent_ind ON agent_status(ts_sent)", &[])
+		.expect("Can't index tables");
 
 	conn.execute(
 		"CREATE INDEX IF NOT EXISTS ts_received_ind ON agent_status(ts_received)",
-		&[],
-	).expect("Can't index tables",);
+		&[]
+	).expect("Can't index tables");
 
 	conn.execute(
 		"CREATE TABLE IF NOT EXISTS receptor_status (
@@ -32,25 +31,24 @@ pub fn initialize_database() {
     \
 		 ts DATETIME DEFAULT CURRENT_TIMESTAMP
     )",
-		&[],
-	).expect("Can't create processed status table",);
+		&[]
+	).expect("Can't create processed status table");
 
 	conn.execute(
 		"CREATE INDEX IF NOT EXISTS ts_sent_ind ON receptor_status(ts_sent)",
-		&[],
-	).expect("Can't index tables",);
+		&[]
+	).expect("Can't index tables");
 
 	conn.execute(
 		"CREATE INDEX IF NOT EXISTS ts_received_ind ON receptor_status(ts_received)",
-		&[],
-	).expect("Can't index tables",);
+		&[]
+	).expect("Can't index tables");
 
-	conn.close().expect("Can't close connection to sqlite",);
+	conn.close().expect("Can't close connection to sqlite");
 }
 
 pub fn get_connection() -> Connection {
-
-	let conn = Connection::open("database.sqlite",).expect("Can't open database connection",);
+	let conn = Connection::open("database.sqlite").expect("Can't open database connection");
 
 	conn
 }
