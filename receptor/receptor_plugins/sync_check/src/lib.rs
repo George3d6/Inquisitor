@@ -25,7 +25,7 @@ pub struct Plugin {
 
 impl Plugin {
 	fn config(&mut self) -> Result<(), String> {
-		let cfg = read_cfg::<Config>("command_runner.yml")?;
+		let cfg = read_cfg::<Config>("sync_check.yml")?;
 		self.enabled = cfg.enabled;
 		if !self.enabled {
 			return Ok(());

@@ -14,9 +14,9 @@ use std::process::Command;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Config {
-	enabled:			bool,
-	periodicity_arr: 	Vec<i64>,
-	processes:			Vec<String>,
+	enabled:         bool,
+	periodicity_arr: Vec<i64>,
+	processes:       Vec<String>
 }
 
 
@@ -29,19 +29,16 @@ pub struct Plugin {
 
 impl Plugin {
 	fn config(&mut self) -> Result<(), String> {
-		let cfg = read_cfg::<Config>("command_runner.yml")?;
+		let cfg = read_cfg::<Config>("process_counter.yml")?;
 		self.enabled = cfg.enabled;
 		if !self.enabled {
-			return Ok(())
+			return Ok(());
 		}
-		self.periodicity = cfg.periodicity;
-
 		self.processes = cfg.processes;
 
-
-
 		for i in 0..self.processes.len() {
-			self.periodicity_map.insert(self.processes[i].clone(), cfg.periodicity_arr[i]);
+			self.periodicity_map
+				.insert(self.processes[i].clone(), cfg.periodicity_arr[i]);
 			self.last_call_map.insert(self.processes[i].clone(), 0);
 		}
 		return Ok(())
@@ -56,7 +53,7 @@ pub fn new() -> Result<Plugin, String> {
 		processes:       Vec::new()
 	};
 
-	Plugin::config(&mut new_plugin);
+	Plugin::config(&mut new_plugin)?;
 
 	if new_plugin.enabled {
 		Ok(new_plugin)

@@ -7,7 +7,7 @@ macro_rules! plugins {
             $(
                 match $x::new() {
                     Ok(x) => {info!("{} successfully loaded", x.name()); v.push(Box::new(x)) }
-                    Err(x) => {error!("{}", x)}
+                    Err(err) => {error!("Plugin: {}, error: {}", stringify!($x), err)}
                 }
             )*
             v

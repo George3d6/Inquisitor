@@ -4,8 +4,8 @@
 extern crate agent_lib;
 #[macro_use]
 extern crate serde_derive;
-extern crate serde_json;
 extern crate fs_extra;
+extern crate serde_json;
 
 use agent_lib::{current_ts, read_cfg, AgentPlugin};
 use fs_extra::dir::get_size;
@@ -16,10 +16,10 @@ use std::io::{BufRead, BufReader};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Config {
-	enabled:		bool,
-	periodicity: 	i64,
-	files:			Vec<String>,
-	keyphrase:			Vec<String>,
+	enabled:     bool,
+	periodicity: i64,
+	files:       Vec<String>,
+	keyphrase:   Vec<String>
 }
 
 
@@ -38,11 +38,11 @@ pub struct Plugin {
 }
 
 impl Plugin {
-	fn config(plugin: &mut Plugin) -> Result<(), String>  {
-		let cfg = read_cfg::<Config>("command_runner.yml")?;
+	fn config(plugin: &mut Plugin) -> Result<(), String> {
+		let cfg = read_cfg::<Config>("file_checker.yml")?;
 		plugin.enabled = cfg.enabled;
 		if !plugin.enabled {
-			return Ok(())
+			return Ok(());
 		}
 		plugin.periodicity = cfg.periodicity;
 

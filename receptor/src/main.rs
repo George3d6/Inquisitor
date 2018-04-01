@@ -5,20 +5,12 @@ extern crate fs_extra;
 extern crate futures;
 extern crate hyper;
 extern crate hyper_staticfile;
-
 #[macro_use]
-
 extern crate log;
-
 extern crate plugins;
 extern crate receptor_lib;
 extern crate rusqlite;
-extern crate serde_derive;
-
-#[macro_use]
-
 extern crate serde_json;
-
 extern crate tokio;
 extern crate tokio_core;
 
@@ -131,7 +123,7 @@ impl Service for DataServer {
 				}
 
 				_ => response.set_status(StatusCode::NotFound)
-			}
+			};
 
 			Box::new(futures::future::ok(response))
 		} else if req.path() == "/plugin_list" {
@@ -177,7 +169,7 @@ fn proces_status(stream: TcpStream, db_conn: Connection) {
 	let (reader, _) = stream.split();
 
 	let conn = tokio::io::read_to_end(reader, Vec::new()).then(move |res| {
-		let payload = Vec::from(res.expect("Can't read input from agent").1);
+		let payload = res.expect("Can't read input from agent").1;
 
 		let statuses: Vec<Status> = serde_json::from_slice(&payload).expect("Can't deserialize status");
 
@@ -315,7 +307,7 @@ fn main() {
 		let handler = handle.clone();
 
 		let handleds = handle.clone();
-
+		debug!("Serving web_UI from: {}", format!("{}{}", root.to_str().unwrap(), "/web_ui/"));
 		let serve = Http::new()
 			.serve_addr_handle(&server_addr, &handle, move || {
 				Ok(DataServer {
@@ -328,6 +320,7 @@ fn main() {
 			})
 			.expect("Can't start HTTP server");
 
+		debug!("Spawning server !");
 		handler.spawn(
 			serve
 				.for_each(move |conn| {

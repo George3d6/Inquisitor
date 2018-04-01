@@ -48,7 +48,5 @@ pub fn initialize_database() {
 }
 
 pub fn get_connection() -> Connection {
-	let conn = Connection::open("database.sqlite").expect("Can't open database connection");
-
-	conn
+	Connection::open("database.sqlite").expect("Can't open database connection")
 }

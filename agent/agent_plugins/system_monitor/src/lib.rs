@@ -11,8 +11,8 @@ use std::collections::HashMap;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Config {
-	enabled:		bool,
-	periodicity: 	i64,
+	enabled:     bool,
+	periodicity: i64
 }
 
 
@@ -35,10 +35,10 @@ pub struct Plugin {
 
 impl Plugin {
 	fn config(&mut self) -> Result<(), String> {
-		let cfg = read_cfg::<Config>("command_runner.yml")?;
+		let cfg = read_cfg::<Config>("system_monitor.yml")?;
 		self.enabled = cfg.enabled;
 		if !self.enabled {
-			return Ok(())
+			return Ok(());
 		}
 		self.periodicity = cfg.periodicity;
 		return Ok(())
