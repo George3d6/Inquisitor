@@ -1,84 +1,97 @@
-#[macro_use] extern crate log;
-extern crate env_logger;
+#[macro_use]
+
+extern crate log;
+
 extern crate agent_lib;
+extern crate env_logger;
 extern crate futures;
 extern crate hostname;
 extern crate plugins;
 extern crate serde_json;
 extern crate tokio;
 
-use agent_lib::{get_yml_config, current_ts, Status, AgentPlugin};
+use agent_lib::{current_ts, get_yml_config, AgentPlugin, Status};
 use futures::Future;
 use std::net::SocketAddr;
 use std::{thread, time};
 use tokio::net::TcpStream;
 
 fn main() {
-    env_logger::init();
 
-    let mut plugins = plugins::init();
+	env_logger::init();
 
-    let config = get_yml_config("agent_config.yml").unwrap();
+	let mut plugins = plugins::init();
 
-    let hostname = config["machine_identifier"]
-        .as_str()
-        .map(String::from)
-        .unwrap_or_else(|| hostname::get_hostname().unwrap());
+	let config = get_yml_config("agent_config.yml",).unwrap();
 
-    let addr = format!(
-        "{}:{}",
-        config["receptor"]["host"].as_str().unwrap(),
-        config["receptor"]["port"].as_i64().unwrap()
-    );
+	let hostname = config["machine_identifier"]
+		.as_str()
+		.map(String::from,)
+		.unwrap_or_else(|| hostname::get_hostname().unwrap(),);
 
-    let mut sender =
-        StatusSender::new(hostname, addr.parse().expect("Couldn't convert IP address"));
-    loop {
-        thread::sleep(time::Duration::from_millis(1000));
-        let mut payload = Vec::new();
+	let addr = format!(
+		"{}:{}",
+		config["receptor"]["host"].as_str().unwrap(),
+		config["receptor"]["port"].as_i64().unwrap()
+	);
 
-        for p in &mut plugins {
-            sender.arbitrate(&mut **p, &mut payload);
-        }
+	let mut sender = StatusSender::new(hostname, addr.parse().expect("Couldn't convert IP address",),);
 
-        debug!("Paytload content: {:?}", payload);
+	loop {
 
-        if !payload.is_empty() {
-            let serialized_payload =
-                serde_json::to_string(&payload).expect("Can't serialize payload");
+		thread::sleep(time::Duration::from_millis(1000,),);
 
-            let send = TcpStream::connect(&sender.addr)
-                .and_then(|stream| tokio::io::write_all(stream, serialized_payload))
-                .map_err(|e| error!("Error: {}", e))
-                .map(|_| ());
+		let mut payload = Vec::new();
 
-            tokio::run(send);
-        }
-    }
+		for p in &mut plugins {
+
+			sender.arbitrate(&mut **p, &mut payload,);
+		}
+
+		debug!("Paytload content: {:?}", payload);
+
+		if !payload.is_empty() {
+
+			let serialized_payload = serde_json::to_string(&payload,).expect("Can't serialize payload",);
+
+			let send = TcpStream::connect(&sender.addr,)
+				.and_then(|stream| tokio::io::write_all(stream, serialized_payload,),)
+				.map_err(|e| error!("Error: {}", e),)
+				.map(|_| (),);
+
+			tokio::run(send,);
+		}
+	}
 }
 
 struct StatusSender {
-    pub addr: SocketAddr,
-    pub hostname: String,
+	pub addr:     SocketAddr,
+	pub hostname: String,
 }
 
 impl StatusSender {
-    fn new(hostname: String, addr: std::net::SocketAddr) -> StatusSender {
-        StatusSender { addr, hostname }
-    }
+	fn new(hostname: String, addr: std::net::SocketAddr,) -> StatusSender {
 
-    pub fn arbitrate(&mut self, plugin: &mut AgentPlugin, payload: &mut Vec<Status>) {
-        if plugin.ready() {
-            let name = plugin.name();
-            if let Ok(message) = plugin.gather() {
-                let status = Status {
-                    sender: self.hostname.clone(),
-                    ts: current_ts(),
-                    message,
-                    plugin_name: name,
-                };
-                payload.push(status);
-            }
-        }
-    }
+		StatusSender { addr, hostname, }
+	}
+
+	pub fn arbitrate(&mut self, plugin: &mut AgentPlugin, payload: &mut Vec<Status,>,) {
+
+		if plugin.ready() {
+
+			let name = plugin.name();
+
+			if let Ok(message,) = plugin.gather() {
+
+				let status = Status {
+					sender: self.hostname.clone(),
+					ts: current_ts(),
+					message,
+					plugin_name: name,
+				};
+
+				payload.push(status,);
+			}
+		}
+	}
 }

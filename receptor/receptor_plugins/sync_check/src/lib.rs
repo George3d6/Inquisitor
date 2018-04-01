@@ -2,79 +2,102 @@ extern crate receptor_lib;
 extern crate rusqlite;
 extern crate serde_json;
 
-use receptor_lib::{get_yml_config, current_ts, ReceptorPlugin};
+use receptor_lib::{current_ts, get_yml_config, ReceptorPlugin};
 use rusqlite::Connection;
 
 use std::collections::HashMap;
 use std::string::String;
 
 pub struct Plugin {
-    last_call_ts: i64,
-    periodicity: i64,
-    enabled: bool,
+	last_call_ts: i64,
+	periodicity:  i64,
+	enabled:      bool,
 }
 
 impl Plugin {
-    fn config(plugin: &mut Plugin) -> Result<(), String> {
-        let config = match get_yml_config("sync_check.yml") {
-            Ok(config) => config,
-            Err(err) => return Err(err),
-        };
+	fn config(plugin: &mut Plugin) -> Result<(), String,> {
 
-        if config["enabled"].as_bool().unwrap_or(false) {
-            plugin.enabled = true;
-            return Ok(());
-        } else {
-            plugin.enabled = false;
-        }
+		let config = match get_yml_config("sync_check.yml",) {
+			Ok(config,) => config,
+			Err(err,) => return Err(err,),
+		};
 
-        plugin.periodicity = match config["periodicity"].as_i64() {
-            Some(val) => val,
-            _ => return Err("Can't properly read key periodicity !".to_string()),
-        };
-        return Ok(());
-    }
+		if config["enabled"].as_bool().unwrap_or(false,) {
+
+			plugin.enabled = true;
+
+			return Ok((),);
+		} else {
+
+			plugin.enabled = false;
+		}
+
+		plugin.periodicity = match config["periodicity"].as_i64() {
+			Some(val,) => val,
+			_ => return Err("Can't properly read key periodicity !".to_string(),),
+		};
+
+		return Ok((),);
+	}
 }
 
-pub fn new() -> Result<Plugin, String> {
-    let mut new_plugin = Plugin {
-        enabled: true,
-        last_call_ts: 0,
-        periodicity: 0,
-    };
-    let error = Plugin::config(&mut new_plugin);
-    match error {
-        Ok(()) => return Ok(new_plugin),
-        Err(err) => return Err(err),
-    };
+pub fn new() -> Result<Plugin, String,> {
+
+	let mut new_plugin = Plugin {
+		enabled:      true,
+		last_call_ts: 0,
+		periodicity:  0,
+	};
+
+	let error = Plugin::config(&mut new_plugin,);
+
+	match error {
+		Ok((),) => return Ok(new_plugin,),
+		Err(err,) => return Err(err,),
+	};
 }
 
 impl ReceptorPlugin for Plugin {
-    fn name(&self) -> String {
-        String::from("Sync check")
-    }
+	fn name(&self) -> String {
 
-    fn gather(&mut self, db_conn: &Connection) -> Result<String, String> {
-        self.last_call_ts = current_ts();
+		String::from("Sync check",)
+	}
 
-        let mut raw_data = try!(db_conn.prepare("SELECT strftime('%s', ts_received) - max(ts_sent) as diff, sender FROM agent_status GROUP BY sender;").map_err(|e| e.to_string()));
+	fn gather(&mut self, db_conn: &Connection,) -> Result<String, String,> {
 
-        let raw_iter = try!(raw_data.query_map(&[], |row| (row.get(1), row.get(0))).map_err(|e| e.to_string()));
+		self.last_call_ts = current_ts();
 
-        let mut diff_map: HashMap<String, i64> = HashMap::new();
-        for res in raw_iter {
-            let (sender, val) = try!(res.map_err(|e| e.to_string()));
-            diff_map.insert(sender, val);
-        }
+		let mut raw_data = db_conn
+			.prepare(
+				"SELECT strftime('%s', ts_received) - max(ts_sent) as diff, sender FROM agent_status GROUP BY sender;",
+			)
+			.map_err(|e| e.to_string(),)?;
 
-        let message = try!(serde_json::to_string(&diff_map).map_err(|e| e.to_string()));
-        Ok(message)
-    }
+		let raw_iter = raw_data
+			.query_map(&[], |row| (row.get(1,), row.get(0,),),)
+			.map_err(|e| e.to_string(),)?;
 
-    fn ready(&self) -> bool {
-        if !self.enabled {
-            return false;
-        }
-        self.last_call_ts + self.periodicity < current_ts()
-    }
+		let mut diff_map: HashMap<String, i64,> = HashMap::new();
+
+		for res in raw_iter {
+
+			let (sender, val,) = res.map_err(|e| e.to_string(),)?;
+
+			diff_map.insert(sender, val,);
+		}
+
+		let message = serde_json::to_string(&diff_map,).map_err(|e| e.to_string(),)?;
+
+		Ok(message,)
+	}
+
+	fn ready(&self) -> bool {
+
+		if !self.enabled {
+
+			return false;
+		}
+
+		self.last_call_ts + self.periodicity < current_ts()
+	}
 }
