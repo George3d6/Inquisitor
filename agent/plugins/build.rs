@@ -15,7 +15,7 @@ fn main() {
 	let mut plugins = vec![];
 
 	for p in v {
-		if p.kind == cargo_metadata::DependencyKind::Normal && p.name != "agent_lib" {
+		if p.kind == cargo_metadata::DependencyKind::Normal && p.name != "agent_lib" && p.name != "env_logger" && p.name != "log"{
 			plugins.push(p.name.clone());
 		}
 	}
@@ -30,9 +30,12 @@ fn main() {
 			"extern crate agent_lib;
             use agent_lib::AgentPlugin;
 
+			#[macro_use]
+			extern crate log;
+			extern crate env_logger;
+
             #[macro_use]
-            \
-			 mod plugin_initialization;
+            mod plugin_initialization;
 
             plugins!({});
             ",
