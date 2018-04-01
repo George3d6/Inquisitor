@@ -25,7 +25,7 @@ impl Plugin {
 			self.enabled = false;
 			return Ok(());
 		}
-		
+
 		self.periodicity = match config["periodicity"].as_i64() {
 			Some(val) => val,
 			_ => return Err("Can't properly read key periodicity !".to_string())
