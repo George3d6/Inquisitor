@@ -4,7 +4,6 @@ extern crate env_logger;
 extern crate fs_extra;
 extern crate futures;
 extern crate hyper;
-extern crate hyper_staticfile;
 #[macro_use]
 extern crate log;
 extern crate plugins;
@@ -19,7 +18,6 @@ use futures::Future;
 use futures::Stream;
 use hyper::server::{Http, Request, Response, Service};
 use hyper::{Method, StatusCode};
-use hyper_staticfile::Static;
 use receptor_lib::ReceptorPlugin;
 use receptor_lib::utils::get_url_params;
 use receptor_lib::{get_yml_config, Status};
@@ -27,15 +25,12 @@ use rusqlite::Connection;
 use tokio::io::AsyncRead;
 use tokio::net::{TcpListener, TcpStream};
 use tokio_core::reactor::Core;
-
-use std::env::current_exe;
 use std::path::Path;
 use std::vec::Vec;
 use std::{thread, time};
 
 struct DataServer {
-	pub db_conn: Connection,
-	static_:     Static
+	pub db_conn: Connection
 }
 
 impl Service for DataServer {
@@ -160,7 +155,9 @@ impl Service for DataServer {
 
 			Box::new(futures::future::ok(response))
 		} else {
-			self.static_.call(req)
+			let mut response = Response::new();
+			response.set_status(StatusCode::NotFound);
+			Box::new(futures::future::ok(response))
 		}
 	}
 }
@@ -294,10 +291,6 @@ fn main() {
 	let hyper_server_thread = thread::spawn(move || {
 		let server_addr = server_addr_str.parse().expect("Can't parse HTTP server address");
 
-		let mut root = current_exe().unwrap();
-
-		root.pop();
-
 		let mut core = Core::new().unwrap();
 
 		let handle = core.handle();
@@ -307,17 +300,9 @@ fn main() {
 		let handler = handle.clone();
 
 		let handleds = handle.clone();
-		debug!("Serving web_UI from: {}", format!("{}{}", root.to_str().unwrap(), "/web_ui/"));
+
 		let serve = Http::new()
-			.serve_addr_handle(&server_addr, &handle, move || {
-				Ok(DataServer {
-					db_conn: get_connection(),
-					static_: Static::new(
-						&handleds,
-						Path::new(&format!("{}{}", root.to_str().unwrap(), "/web_ui/"))
-					)
-				})
-			})
+			.serve_addr_handle(&server_addr, &handle, move || { Ok(DataServer {db_conn: get_connection()}) })
 			.expect("Can't start HTTP server");
 
 		debug!("Spawning server !");
