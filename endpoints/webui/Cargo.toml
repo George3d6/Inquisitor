@@ -1,0 +1,15 @@
+[package]
+name = "webui"
+version = "0.3.1"
+authors = ["George Hosu <george@cerebralab.com>"]
+
+[dependencies]
+hyper = "0.11"
+hyper-staticfile = "0.1.1"
+tokio-core = "0.1.15"
+futures = "0.1.18"
+
+shared_lib = {path="../../shared_lib"}
+
+log = "0.4.0"
+env_logger = "0.5.6"
