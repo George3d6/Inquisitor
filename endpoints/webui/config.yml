@@ -1,2 +1,7 @@
-receptor_host: 'localhost'
-receptor_port: 1834
+static_file_path: '/home/george/Inquisitor/endpoints/webui/static/'
+bind: '127.0.0.1'
+port: 7777
+
+receptor:
+    host: 'http://127.0.0.1'
+    port: 1834

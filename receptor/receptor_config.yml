@@ -1,9 +1,7 @@
 clean_older_than: 2678400
-
-receptor:
-    bind: '127.0.0.1'
-    port: 1478
-
 server:
     bind: '127.0.0.1'
     port: 1834
+receptor:
+    bind: '127.0.0.1'
+    port: 1478

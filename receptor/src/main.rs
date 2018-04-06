@@ -29,6 +29,7 @@ use std::path::Path;
 use std::vec::Vec;
 use std::{thread, time};
 
+
 struct DataServer {
 	pub db_conn: Connection
 }
