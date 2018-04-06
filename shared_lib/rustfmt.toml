@@ -1,0 +1,16 @@
+indent_style = "Block"
+reorder_imported_names = true
+tab_spaces = 4
+hard_tabs = true
+format_strings = true
+max_width = 120
+normalize_comments = false
+reorder_imports_in_group = true
+struct_field_align_threshold = 200
+trailing_comma = "Never"
+use_field_init_shorthand = true
+use_try_shorthand = true
+blank_lines_upper_bound = 2
+blank_lines_lower_bound = 0
+remove_blank_lines_at_start_or_end_of_block = true
+color = "Always"

@@ -7,10 +7,11 @@ pub fn initialize_database() {
 		"CREATE TABLE IF NOT EXISTS agent_status (
         sender TEXT NOT NULL,
         message TEXT NOT NULL,
-        \
+		 \
 		 plugin_name TEXT NOT NULL,
         ts_sent DATETIME NOT NULL,
-        ts_received DATETIME DEFAULT \
+        ts_received DATETIME DEFAULT,
+		\
 		 CURRENT_TIMESTAMP NOT NULL
     )",
 		&[]
@@ -26,9 +27,9 @@ pub fn initialize_database() {
 
 	conn.execute(
 		"CREATE TABLE IF NOT EXISTS receptor_status (
-    message TEXT NOT NULL,
-    plugin_name TEXT NOT NULL,
-    \
+		    message TEXT NOT NULL,
+		    plugin_name TEXT NOT NULL,
+		 	\
 		 ts DATETIME DEFAULT CURRENT_TIMESTAMP
     )",
 		&[]

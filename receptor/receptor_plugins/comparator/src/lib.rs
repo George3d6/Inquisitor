@@ -1,0 +1,95 @@
+extern crate receptor_lib;
+extern crate rusqlite;
+extern crate serde_json;
+#[macro_use]
+extern crate serde_derive;
+
+use receptor_lib::{current_ts, read_cfg, ReceptorPlugin};
+use rusqlite::Connection;
+use std::collections::HashMap;
+use std::string::String;
+use std::vec::Vector;
+
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+struct Config {
+	enabled:     	bool,
+	periodicity: 	i64,
+	checks:			Vector<Vector<String>>
+}
+
+
+pub struct Plugin {
+	last_call_ts: i64,
+	periodicity:  i64,
+	enabled:      bool
+}
+
+impl Plugin {
+	fn config(&mut self) -> Result<(), String> {
+		let cfg = read_cfg::<Config>("comparator.yml")?;
+		self.enabled = cfg.enabled;
+		if !self.enabled {
+			return Ok(());
+		}
+		self.periodicity = cfg.periodicity;
+		return Ok(());
+	}
+}
+
+pub fn new() -> Result<Plugin, String> {
+	let mut new_plugin = Plugin {
+		enabled:      true,
+		last_call_ts: 0,
+		periodicity:  0
+	};
+
+	new_plugin.config()?;
+
+	if new_plugin.enabled {
+		Ok(new_plugin)
+	} else {
+		Err("Sync check disabled".into())
+	}
+}
+
+impl ReceptorPlugin for Plugin {
+	fn name(&self) -> String {
+		String::from("Comparator")
+	}
+
+	fn gather(&mut self, db_conn: &Connection) -> Result<String, String> {
+		self.last_call_ts = current_ts();
+
+		let mut raw_data = db_conn
+			.execute(
+				"SELECT sender, message FROM agent_status WHERE ts_received > ?1;"
+				,&[&self.last_call_ts]
+			)
+			.map_err(|e| e.to_string())?;
+
+		let raw_iter = raw_data
+			.query_map(&[], |row| (row.get(1), row.get(0)))
+			.map_err(|e| e.to_string())?;
+
+		let mut diff_map: HashMap<String, i64> = HashMap::new();
+
+		for res in raw_iter {
+			let (sender, val) = res.map_err(|e| e.to_string())?;
+
+			diff_map.insert(sender, val);
+		}
+
+		let message = serde_json::to_string(&diff_map).map_err(|e| e.to_string())?;
+
+		Ok(message)
+	}
+
+	fn ready(&self) -> bool {
+		if !self.enabled {
+			return false;
+		}
+
+		self.last_call_ts + self.periodicity < current_ts()
+	}
+}

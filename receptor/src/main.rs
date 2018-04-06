@@ -303,7 +303,11 @@ fn main() {
 		let handleds = handle.clone();
 
 		let serve = Http::new()
-			.serve_addr_handle(&server_addr, &handle, move || { Ok(DataServer {db_conn: get_connection()}) })
+			.serve_addr_handle(&server_addr, &handle, move || {
+				Ok(DataServer {
+					db_conn: get_connection()
+				})
+			})
 			.expect("Can't start HTTP server");
 
 		debug!("Spawning server !");

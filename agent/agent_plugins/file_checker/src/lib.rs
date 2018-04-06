@@ -62,7 +62,7 @@ impl Plugin {
 				}
 			);
 		}
-		return Ok(())
+		return Ok(());
 	}
 }
 

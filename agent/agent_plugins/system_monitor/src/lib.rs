@@ -41,7 +41,7 @@ impl Plugin {
 			return Ok(());
 		}
 		self.periodicity = cfg.periodicity;
-		return Ok(())
+		return Ok(());
 	}
 }
 
