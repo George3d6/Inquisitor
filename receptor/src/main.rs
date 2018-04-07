@@ -266,7 +266,7 @@ fn main() {
 
 	/* Run receptor side plugins */
 
-	let plugin_runner_thread = thread::spawn(|| {
+	let _plugin_runner_thread = thread::spawn(|| {
 		let mut plugins = plugins::init();
 
 		let plugin_runner = PluginRunner::new();
@@ -288,7 +288,7 @@ fn main() {
 		config["server"]["port"].as_i64().unwrap()
 	);
 
-	let hyper_server_thread = thread::spawn(move || {
+	let _hyper_server_thread = thread::spawn(move || {
 		let server_addr = server_addr_str.parse().expect("Can't parse HTTP server address");
 
 		let mut core = Core::new().unwrap();
@@ -348,7 +348,7 @@ fn main() {
 
 	administrator_thread.join().unwrap();
 
-	plugin_runner_thread.join().unwrap();
+	_plugin_runner_thread.join().unwrap();
 
-	hyper_server_thread.join().unwrap();
+	_hyper_server_thread.join().unwrap();
 }

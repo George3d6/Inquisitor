@@ -4,11 +4,15 @@ extern crate rusqlite;
 extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
+#[macro_use]
+extern crate log;
+extern crate env_logger;
 
 use receptor_lib::{current_ts, read_cfg, ReceptorPlugin};
 use rusqlite::Connection;
 use std::string::String;
 use std::vec::Vec;
+use std::collections::HashMap;
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -49,7 +53,7 @@ impl Plugin {
 pub fn new() -> Result<Plugin, String> {
 	let mut new_plugin = Plugin {
 		enabled:      true,
-		last_call_ts: current_ts() - 1523092463,
+		last_call_ts: current_ts() - 999999999,
 		periodicity:  0,
 		keys:         vec![],
 		checks:       vec![]
@@ -70,9 +74,10 @@ impl ReceptorPlugin for Plugin {
 	}
 
 	fn gather(&mut self, db_conn: &Connection) -> Result<String, String> {
-		let mut results: Vec<String> = Vec::new();
+		let mut results: Vec<HashMap<String, String>> = Vec::new();
 
-		for key in &self.keys {
+		for z in 0..self.keys.len() {
+			let key = &self.keys[z];
 			let mut raw_data = db_conn
 				.prepare(
 					"SELECT sender, message FROM agent_status WHERE ts_received > :ts_received AND plugin_name = :plugin_name;"
@@ -91,30 +96,79 @@ impl ReceptorPlugin for Plugin {
 				data.push((sender, message));
 			}
 
-			for d in data {
-				let mut obj = json!(d.1);
-				println!("Original object: {:?} produced from: {}", obj, d.1);
+			for n in 0..data.len() {
+				let message = &data[n].1;
+				let sender = &data[n].0;
+				let mut obj: serde_json::Value = serde_json::from_str(&message).map_err(|e| e.to_string())?;
+				debug!("Original object: {:?} produced from: {}", &obj, &message);
 				for i in 1..key.len() {
 					let a1 = obj.clone();
-					println!("Tryinga find: '{}' in {:?}", &key[i], &a1);
+					debug!("Tryinga find: '{}' in {:?}", &key[i], &a1);
 					let a2  = match a1.get(&key[i]) {
 						Some(v) => v,
 						_ => continue
 					};
-					println!("{:?} !", a2);
-					obj = json!((*a2).clone());
+					debug!("{:?} !", a2);
+					obj = (*a2).clone();
 				}
-				let a  = match obj.as_str() {
+				debug!("Getting value from: {}", obj);
+				let val  = match obj.as_str() {
 					Some(v) => v,
-					_ => return Err(String::from("Can't properly parse value !"))
+					_ => continue
 				};
+				debug!("Got value: {}", val);
+
+				let operator = &self.checks[z][0];
+				let comparator = &self.checks[z][1];
+
+				debug!("{} {} {}", val, operator, comparator);
+
+				if operator == "<" {
+					let fval = val.trim_right_matches("\n").parse::<f64>().map_err(|e| e.to_string())?;
+					let fcomparator = comparator.parse::<f64>().map_err(|e| e.to_string())?;
+					if fval < fcomparator {
+						let mut warning: HashMap<String, String> = HashMap::new();
+						warning.insert("sender".to_string(), sender.to_string());
+						warning.insert("operation".to_string(), format!("{} {} {}", val, operator, comparator));
+						warning.insert("key".to_string(), format!("{:?}", self.keys));
+						results.push(warning);
+					}
+				} else if operator == ">" {
+					let fval = val.trim_right_matches("\n").parse::<f64>().map_err(|e| e.to_string())?;
+					let fcomparator = comparator.parse::<f64>().map_err(|e| e.to_string())?;
+					if fval > fcomparator {
+						let mut warning: HashMap<String, String> = HashMap::new();
+						warning.insert("sender".to_string(), sender.to_string());
+						warning.insert("operation".to_string(), format!("{} {} {}", val, operator, comparator));
+						warning.insert("key".to_string(), format!("{:?}", self.keys));
+						results.push(warning);
+					}
+				} else if operator == "==" || operator == "=" {
+					if val == comparator {
+						let mut warning: HashMap<String, String> = HashMap::new();
+						warning.insert("sender".to_string(), sender.to_string());
+						warning.insert("operation".to_string(), format!("{} {} {}", val, operator, comparator));
+						warning.insert("key".to_string(), format!("{:?}", self.keys));
+						results.push(warning);
+					}
+				} else if operator == "contains" {
+					if val == comparator {
+						let mut warning: HashMap<String, String> = HashMap::new();
+						warning.insert("sender".to_string(), sender.to_string());
+						warning.insert("operation".to_string(), format!("{} {} {}", val, operator, comparator));
+						warning.insert("key".to_string(), format!("{:?}", self.keys));
+						results.push(warning);
+					}
+				} else {
+					return Err("Unknown operator".to_string());
+				}
 			}
 		}
-
-		let message = serde_json::to_string(&results).map_err(|e| e.to_string())?;
-
+		debug!("{:?}", results);
+		let mut results_map: HashMap<String, Vec<HashMap<String, String>>> = HashMap::new();
+		results_map.insert("warnings".to_string(), results);
+		let message = serde_json::to_string(&results_map).map_err(|e| e.to_string())?;
 		self.last_call_ts = current_ts();
-
 		Ok(message)
 	}
 

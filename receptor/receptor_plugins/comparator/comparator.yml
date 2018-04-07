@@ -6,4 +6,4 @@ keys:
     - ['Command runner', 'date +%s']
 
 checks:
-    - ['<', '1523091271']
+    - ['<', '1623091271']
