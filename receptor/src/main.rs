@@ -25,7 +25,6 @@ use rusqlite::Connection;
 use tokio::io::AsyncRead;
 use tokio::net::{TcpListener, TcpStream};
 use tokio_core::reactor::Core;
-use std::path::Path;
 use std::vec::Vec;
 use std::{thread, time};
 
@@ -299,8 +298,6 @@ fn main() {
 		let handle1 = handle.clone();
 
 		let handler = handle.clone();
-
-		let handleds = handle.clone();
 
 		let serve = Http::new()
 			.serve_addr_handle(&server_addr, &handle, move || {

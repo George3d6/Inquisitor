@@ -1,5 +1,5 @@
 [package]
-name = "sync_check"
+name = "comparator"
 version = "0.3.0"
 authors = ["George Hosu <george@cerebralab.com>"]
 

@@ -10,8 +10,7 @@ pub fn initialize_database() {
 		 \
 		 plugin_name TEXT NOT NULL,
         ts_sent DATETIME NOT NULL,
-        ts_received DATETIME DEFAULT,
-		\
+        ts_received DATETIME DEFAULT \
 		 CURRENT_TIMESTAMP NOT NULL
     )",
 		&[]

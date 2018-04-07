@@ -2,5 +2,8 @@ enabled: true
 
 periodicity: 10
 
+keys:
+    - ['Command runner', 'date +%s']
+
 checks:
-    
+    - ['<', '1523091271']

@@ -10,6 +10,7 @@ path = "src/lib.rs"
 
 [dependencies]
 sync_check = {path = "../receptor_plugins/sync_check"}
+comparator = {path = "../receptor_plugins/comparator"}
 
 receptor_lib = {path = "../receptor_lib"}
 log = "0.4.0"
