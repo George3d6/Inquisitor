@@ -1,0 +1,8 @@
+receptor:
+    host: http://127.0.0.1
+    port: 1834
+
+monitor:
+    - plugin: Comparator
+      sender: all
+      level: receptor
