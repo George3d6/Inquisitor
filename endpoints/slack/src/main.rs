@@ -52,7 +52,7 @@ fn main() {
 	let receptor_uri_base = format!("{}:{}", cfg.receptor.host, cfg.receptor.port);
 	let slack_uri = format!("https://hooks.slack.com/services/{}", my_endpoint);
 
-	let mut ts_collect = current_ts()  - 90 * 3600;
+	let mut ts_collect = current_ts();pa
 
 	loop {
 		thread::sleep(time::Duration::from_millis(1000));
