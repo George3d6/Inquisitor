@@ -1,20 +1,18 @@
-extern crate futures;
-extern crate hyper;
-extern crate hyper_tls;
-extern crate tokio_core;
+extern crate reqwest;
 extern crate shared_lib;
+#[macro_use]
 extern crate serde_json;
-#[macro_use] extern crate serde_derive;
+#[macro_use]
+extern crate serde_derive;
+extern crate env_logger;
+#[macro_use] extern crate log;
 
-use futures::{Future, Stream};
-use tokio_core::reactor::Core;
-use hyper::Client;
-use hyper::{Method, Request};
-use hyper::header::{ContentLength, ContentType};
-use hyper::Uri;
 use std::{thread, time};
 use std::vec::Vec;
 use shared_lib::{current_ts, read_cfg};
+use std::collections::HashMap;
+use std::cmp;
+
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Check {
@@ -36,50 +34,41 @@ struct Config {
 }
 
 
+fn process_row(row: String)-> (String, i64) {
+	let vals: Vec<&str> = row.split('\t').collect();
+	info!("{:?}", vals);
+	let ts = vals[1].parse::<i64>().map_err(|e| e.to_string()).unwrap();
+	let message = vals[0];
+	(message.to_string(), ts)
+}
+
+
 fn main() {
-	let mut core = Core::new().expect("Can't start the tokio core !");
-	let mut handle1 = core.handle();
+	env_logger::init();
 
-	let client = Client::configure()
-		.connector(::hyper_tls::HttpsConnector::new(4, &core.handle()).unwrap())
-		.build(&core.handle());
-
-	let my_endpoint = "your_app/enpoint/w.e you call it add in config later";
-
+	let client = reqwest::Client::new();
+	let my_endpoint = "T0AMHQ3GE/B9AA4TRRS/2hP2m8hPitNc6VHBHuukT4qI";
 	let cfg = read_cfg::<Config>("config.yml").expect("Can't find config.yml file");
-
 	let receptor_uri_base = format!("{}:{}", cfg.receptor.host, cfg.receptor.port);
-	let slack_uri: Uri = format!("https://hooks.slack.com/services/{}", my_endpoint).parse().expect("Can't parse url");
+	let slack_uri = format!("https://hooks.slack.com/services/{}", my_endpoint);
+
+	let mut ts_collect = current_ts()  - 90 * 3600;
 
 	loop {
 		thread::sleep(time::Duration::from_millis(1000));
-
 		for check in &cfg.monitor {
-			let receptor_uri: Uri = format!("{}?level={}&name={}&ts_start=0&ts_end=1823146529",
-			receptor_uri_base, &check.level, &check.plugin).parse().expect("Can't parse url");
-
-			println!("1");
-			let get = client.get(receptor_uri).map(|rres| {
-				println!("2");
-				let message = rres.body().concat2();
-
-				let json = format!("{:?}", &message);
-
-				let mut sreq = Request::new(Method::Post, slack_uri.clone());
-				sreq.headers_mut().set(ContentType::json());
-				sreq.headers_mut().set(ContentLength(json.len() as u64));
-
-				println!("Got from receptor: {}", &json);
-
-				sreq.set_body(json);
-
-				let post = client.request(sreq).and_then(|res| {
-					println!("POST: {}", res.status());
-					res.body().concat2()
-				});
-				//handle1.spawn(post).expect("Can't run post to slack endpoint");
-			});
-			core.run(get).expect("Can't run get to receptor");
+			let mut res = client.get(&format!("{}/plugin_data?level={}&name={}&ts_start={}&ts_end=9923146529",
+			receptor_uri_base, &check.level, &check.plugin, &ts_collect)).send().unwrap();
+			let text = res.text().unwrap();
+			let rows: Vec<(String, i64)> = text.split('\n').map(|x| x.to_string()).filter(|x| x.len() > 1).map(process_row).collect();
+			ts_collect = cmp::max(ts_collect, rows.iter().map(|x| x.1).fold(0i64, |max, val| cmp::max(max, val)));
+			info!("Collecting starting from timestamp: {} !", ts_collect);
+			for r in rows {
+				let mut form = HashMap::new();
+				form.insert("text", r.0);
+				let slack_reponse = client.post(&slack_uri).json(&form).send().unwrap();
+				debug!("{:?}", slack_reponse);
+			}
 		}
 	}
 }
