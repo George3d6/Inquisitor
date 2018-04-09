@@ -53,7 +53,7 @@ impl Plugin {
 pub fn new() -> Result<Plugin, String> {
 	let mut new_plugin = Plugin {
 		enabled:      true,
-		last_call_ts: current_ts() - 999999999,
+		last_call_ts: current_ts(),
 		periodicity:  0,
 		keys:         vec![],
 		checks:       vec![]
