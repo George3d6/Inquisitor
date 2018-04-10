@@ -7,8 +7,6 @@ extern crate serde_derive;
 use receptor_lib::{current_ts, read_cfg, ReceptorPlugin};
 use rusqlite::Connection;
 use std::collections::HashMap;
-use std::string::String;
-
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Config {

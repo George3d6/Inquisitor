@@ -19,13 +19,12 @@ use receptor_lib::ReceptorPlugin;
 use receptor_lib::utils::get_url_params;
 use receptor_lib::{get_yml_config, Status};
 use rusqlite::Connection;
+use std::{thread, time};
 use tokio::io::AsyncRead;
 use tokio::net::{TcpListener, TcpStream};
-use tokio::prelude::{Future, Stream};
 use tokio::prelude::future;
+use tokio::prelude::{Future, Stream};
 use tokio_core::reactor::Core;
-use std::vec::Vec;
-use std::{thread, time};
 
 
 struct DataServer {

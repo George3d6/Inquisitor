@@ -43,7 +43,7 @@ fn main() {
 			sender.arbitrate(&mut **p, &mut payload);
 		}
 
-		debug!("Paytload content: {:?}", payload);
+		debug!("Payload content: {:?}", payload);
 
 		if !payload.is_empty() {
 			let serialized_payload = serde_json::to_string(&payload).expect("Can't serialize payload");

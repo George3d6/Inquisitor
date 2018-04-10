@@ -9,8 +9,6 @@ extern crate env_logger;
 
 use receptor_lib::{current_ts, read_cfg, ReceptorPlugin};
 use rusqlite::Connection;
-use std::string::String;
-use std::vec::Vec;
 use std::collections::HashMap;
 
 
@@ -63,7 +61,7 @@ pub fn new() -> Result<Plugin, String> {
 	if new_plugin.enabled {
 		Ok(new_plugin)
 	} else {
-		Err("Sync check disabled".into())
+		Err("Comparator disabled".into())
 	}
 }
 
@@ -79,14 +77,16 @@ impl ReceptorPlugin for Plugin {
 			let key = &self.keys[z];
 			let mut raw_data = db_conn
 				.prepare(
-					"SELECT sender, message FROM agent_status WHERE ts_received > :ts_received AND plugin_name = :plugin_name;"
+					"SELECT sender, message FROM agent_status WHERE ts_received > :ts_received AND plugin_name = \
+					 :plugin_name;"
 				)
 				.map_err(|e| e.to_string())?;
 
 			let raw_iter = raw_data
-				.query_map_named(&[(":ts_received", &self.last_call_ts), (":plugin_name", &key[0])], |row| {
-					(row.get(0), row.get(1))
-				})
+				.query_map_named(
+					&[(":ts_received", &self.last_call_ts), (":plugin_name", &key[0])],
+					|row| (row.get(0), row.get(1))
+				)
 				.map_err(|e| e.to_string())?;
 
 			let mut data: Vec<(String, String)> = Vec::new();
@@ -100,8 +100,8 @@ impl ReceptorPlugin for Plugin {
 				debug!("Original object: {:?} produced from: {}", &obj, &message);
 				for k in key.iter().skip(1) {
 					let a1 = obj.clone();
-					debug!("Tryinga find: '{}' in {:?}", k, &a1);
-					let a2  = match a1.get(k) {
+					debug!("Trying to find: '{}' in {:?}", k, &a1);
+					let a2 = match a1.get(k) {
 						Some(v) => v,
 						_ => continue
 					};
@@ -109,7 +109,7 @@ impl ReceptorPlugin for Plugin {
 					obj = (*a2).clone();
 				}
 				debug!("Getting value from: {}", obj);
-				let val  = match obj.as_str() {
+				let val = match obj.as_str() {
 					Some(v) => v,
 					_ => continue
 				};

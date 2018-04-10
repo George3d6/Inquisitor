@@ -68,37 +68,26 @@ impl AgentPlugin for Plugin {
 
 	fn gather(&mut self) -> Result<String, String> {
 		self.last_call_ts = current_ts();
-
 		self.sys.refresh_all();
-
 		let mut fs_state: Vec<HashMap<&str, String>> = Vec::new();
 
 		for disk in self.sys.get_disks() {
 			let mut disk_state = HashMap::new();
-
 			disk_state.insert("mount_point", format!("{}", disk.get_mount_point().to_string_lossy()));
-
 			disk_state.insert("available_space", format!("{}", disk.get_available_space()));
-
 			disk_state.insert("total_space", format!("{}", disk.get_total_space()));
-
 			fs_state.push(disk_state);
 		}
 
 		let mut memory_map = HashMap::new();
-
 		memory_map.insert("total_memory", format!("{}", self.sys.get_total_memory()));
-
 		memory_map.insert("used_memory", format!("{}", self.sys.get_used_memory()));
 
 		let mut swap_map = HashMap::new();
-
 		swap_map.insert("total_swap", format!("{}", self.sys.get_total_swap()));
-
 		swap_map.insert("used_swap", format!("{}", self.sys.get_used_swap()));
 
 		let processors = self.sys.get_processor_list();
-
 		let mut processor_map = HashMap::new();
 
 		let total_usage: f32 =
@@ -107,11 +96,8 @@ impl AgentPlugin for Plugin {
 		processor_map.insert("total_usage", total_usage);
 
 		let mut network_map = HashMap::new();
-
 		let network = self.sys.get_network();
-
 		network_map.insert("in", format!("{}", network.get_income()));
-
 		network_map.insert("out", format!("{}", network.get_outcome()));
 
 		let machine_state = MachineState {
@@ -121,7 +107,7 @@ impl AgentPlugin for Plugin {
 			processor_map,
 			network_map
 		};
-
+		
 		Ok(serde_json::to_string(&machine_state).map_err(|e| e.to_string())?)
 	}
 
