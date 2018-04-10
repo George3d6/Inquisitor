@@ -37,11 +37,10 @@ impl Plugin {
 	fn config(&mut self) -> Result<(), String> {
 		let cfg = read_cfg::<Config>("system_monitor.yml")?;
 		self.enabled = cfg.enabled;
-		if !self.enabled {
-			return Ok(());
+		if self.enabled {
+			self.periodicity = cfg.periodicity;
 		}
-		self.periodicity = cfg.periodicity;
-		return Ok(());
+		Ok(())
 	}
 }
 

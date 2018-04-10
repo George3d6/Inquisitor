@@ -41,7 +41,7 @@ impl Plugin {
 				.insert(self.processes[i].clone(), cfg.periodicity_arr[i]);
 			self.last_call_map.insert(self.processes[i].clone(), 0);
 		}
-		return Ok(());
+		Ok(())
 	}
 }
 
