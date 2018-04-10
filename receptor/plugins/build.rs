@@ -55,12 +55,12 @@ fn main() {
 	copy(
 		"../inquisitor-receptor.service",
 		"../target/debug/inquisitor-receptor.service"
-	);
+	).unwrap();
 
 	copy(
 		"../inquisitor-receptor.service",
 		"../target/release/inquisitor-receptor.service"
-	);
+	).unwrap();
 
 	copy("../receptor_config.yml", "../target/debug/receptor_config.yml").unwrap();
 
