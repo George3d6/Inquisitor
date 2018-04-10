@@ -4,9 +4,9 @@ extern crate agent_lib;
 extern crate serde_json;
 extern crate sysinfo;
 
-use sysinfo::{DiskExt, NetworkExt, ProcessorExt, System, SystemExt};
 use agent_lib::{current_ts, read_cfg, AgentPlugin};
 use std::collections::HashMap;
+use sysinfo::{DiskExt, NetworkExt, ProcessorExt, System, SystemExt};
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]

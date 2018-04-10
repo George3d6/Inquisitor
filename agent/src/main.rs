@@ -2,17 +2,16 @@
 extern crate log;
 extern crate agent_lib;
 extern crate env_logger;
-extern crate futures;
 extern crate hostname;
 extern crate plugins;
 extern crate serde_json;
 extern crate tokio;
 
 use agent_lib::{current_ts, get_yml_config, AgentPlugin, Status};
-use futures::Future;
 use std::net::SocketAddr;
 use std::{thread, time};
 use tokio::net::TcpStream;
+use tokio::prelude::Future;
 
 
 fn main() {

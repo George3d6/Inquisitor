@@ -2,7 +2,6 @@ mod database;
 
 extern crate env_logger;
 extern crate fs_extra;
-extern crate futures;
 extern crate hyper;
 #[macro_use]
 extern crate log;
@@ -14,8 +13,6 @@ extern crate tokio;
 extern crate tokio_core;
 
 use database::{get_connection, initialize_database};
-use futures::Future;
-use futures::Stream;
 use hyper::server::{Http, Request, Response, Service};
 use hyper::{Method, StatusCode};
 use receptor_lib::ReceptorPlugin;
@@ -24,6 +21,8 @@ use receptor_lib::{get_yml_config, Status};
 use rusqlite::Connection;
 use tokio::io::AsyncRead;
 use tokio::net::{TcpListener, TcpStream};
+use tokio::prelude::{Future, Stream};
+use tokio::prelude::future;
 use tokio_core::reactor::Core;
 use std::vec::Vec;
 use std::{thread, time};
@@ -120,7 +119,7 @@ impl Service for DataServer {
 				_ => response.set_status(StatusCode::NotFound)
 			};
 
-			Box::new(futures::future::ok(response))
+			Box::new(future::ok(response))
 		} else if req.path() == "/plugin_list" {
 			let mut response = Response::new();
 
@@ -153,11 +152,11 @@ impl Service for DataServer {
 				_ => response.set_status(StatusCode::NotFound)
 			}
 
-			Box::new(futures::future::ok(response))
+			Box::new(future::ok(response))
 		} else {
 			let mut response = Response::new();
 			response.set_status(StatusCode::NotFound);
-			Box::new(futures::future::ok(response))
+			Box::new(future::ok(response))
 		}
 	}
 }
@@ -318,7 +317,7 @@ fn main() {
 				.map_err(|_| ())
 		);
 
-		core.run(futures::future::empty::<(), ()>()).unwrap();
+		core.run(future::empty::<(), ()>()).unwrap();
 	});
 
 	// Listen for incoming statuses from agents and process them
