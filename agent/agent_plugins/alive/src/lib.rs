@@ -24,30 +24,16 @@ pub struct Plugin {
 	enabled:      bool
 }
 
-impl Plugin {
-	fn config(&mut self) -> Result<(), String> {
-		let cfg = read_cfg::<Config>("alive.yml")?;
-		self.enabled = cfg.enabled;
-		if self.enabled {
-			self.periodicity = cfg.periodicity;
-		}
-		Ok(())
-	}
-}
-
 pub fn new() -> Result<Plugin, String> {
-	let mut new_plugin = Plugin {
-		enabled:      false,
-		last_call_ts: 0,
-		periodicity:  0
-	};
-
-	new_plugin.config()?;
-
-	if new_plugin.enabled {
-		Ok(new_plugin)
+	let cfg = read_cfg::<Config>("alive.yml")?;
+	if cfg.enabled {
+		Ok(Plugin {
+			enabled:      true,
+			last_call_ts: 0,
+			periodicity:  cfg.periodicity
+		})
 	} else {
-		Err("Alive plugins disabled".into())
+		Err("Alive plugin disabled".into())
 	}
 }
 
