@@ -1,6 +1,5 @@
 extern crate receptor_lib;
 extern crate rusqlite;
-#[macro_use]
 extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
@@ -10,8 +9,6 @@ extern crate env_logger;
 
 use receptor_lib::{current_ts, read_cfg, ReceptorPlugin};
 use rusqlite::Connection;
-use std::string::String;
-use std::vec::Vec;
 use std::collections::HashMap;
 
 
@@ -46,7 +43,7 @@ impl Plugin {
 		for key in cfg.keys {
 			self.keys.push(key);
 		}
-		return Ok(());
+		Ok(())
 	}
 }
 
@@ -64,7 +61,7 @@ pub fn new() -> Result<Plugin, String> {
 	if new_plugin.enabled {
 		Ok(new_plugin)
 	} else {
-		Err("Sync check disabled".into())
+		Err("Comparator disabled".into())
 	}
 }
 
@@ -80,14 +77,16 @@ impl ReceptorPlugin for Plugin {
 			let key = &self.keys[z];
 			let mut raw_data = db_conn
 				.prepare(
-					"SELECT sender, message FROM agent_status WHERE ts_received > :ts_received AND plugin_name = :plugin_name;"
+					"SELECT sender, message FROM agent_status WHERE ts_received > :ts_received AND plugin_name = \
+					 :plugin_name;"
 				)
 				.map_err(|e| e.to_string())?;
 
 			let raw_iter = raw_data
-				.query_map_named(&[(":ts_received", &self.last_call_ts), (":plugin_name", &key[0])], |row| {
-					(row.get(0), row.get(1))
-				})
+				.query_map_named(
+					&[(":ts_received", &self.last_call_ts), (":plugin_name", &key[0])],
+					|row| (row.get(0), row.get(1))
+				)
 				.map_err(|e| e.to_string())?;
 
 			let mut data: Vec<(String, String)> = Vec::new();
@@ -96,15 +95,13 @@ impl ReceptorPlugin for Plugin {
 				data.push((sender, message));
 			}
 
-			for n in 0..data.len() {
-				let message = &data[n].1;
-				let sender = &data[n].0;
+			for (sender, message) in data {
 				let mut obj: serde_json::Value = serde_json::from_str(&message).map_err(|e| e.to_string())?;
 				debug!("Original object: {:?} produced from: {}", &obj, &message);
-				for i in 1..key.len() {
+				for k in key.iter().skip(1) {
 					let a1 = obj.clone();
-					debug!("Tryinga find: '{}' in {:?}", &key[i], &a1);
-					let a2  = match a1.get(&key[i]) {
+					debug!("Trying to find: '{}' in {:?}", k, &a1);
+					let a2 = match a1.get(k) {
 						Some(v) => v,
 						_ => continue
 					};
@@ -112,7 +109,7 @@ impl ReceptorPlugin for Plugin {
 					obj = (*a2).clone();
 				}
 				debug!("Getting value from: {}", obj);
-				let val  = match obj.as_str() {
+				let val = match obj.as_str() {
 					Some(v) => v,
 					_ => continue
 				};
@@ -124,7 +121,7 @@ impl ReceptorPlugin for Plugin {
 				debug!("{} {} {}", val, operator, comparator);
 
 				if operator == "<" {
-					let fval = val.trim_right_matches("\n").parse::<f64>().map_err(|e| e.to_string())?;
+					let fval = val.trim_right_matches('\n').parse::<f64>().map_err(|e| e.to_string())?;
 					let fcomparator = comparator.parse::<f64>().map_err(|e| e.to_string())?;
 					if fval < fcomparator {
 						let mut warning: HashMap<String, String> = HashMap::new();
@@ -134,7 +131,7 @@ impl ReceptorPlugin for Plugin {
 						results.push(warning);
 					}
 				} else if operator == ">" {
-					let fval = val.trim_right_matches("\n").parse::<f64>().map_err(|e| e.to_string())?;
+					let fval = val.trim_right_matches('\n').parse::<f64>().map_err(|e| e.to_string())?;
 					let fcomparator = comparator.parse::<f64>().map_err(|e| e.to_string())?;
 					if fval > fcomparator {
 						let mut warning: HashMap<String, String> = HashMap::new();

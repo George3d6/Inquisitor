@@ -5,7 +5,6 @@ pub mod utils;
 
 use rusqlite::Connection;
 pub use shared_lib::{current_ts, get_yml_config, read_cfg, Status};
-use std::string::String;
 
 pub trait ReceptorPlugin {
 	fn name(&self) -> String;

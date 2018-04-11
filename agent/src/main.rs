@@ -2,17 +2,16 @@
 extern crate log;
 extern crate agent_lib;
 extern crate env_logger;
-extern crate futures;
 extern crate hostname;
 extern crate plugins;
 extern crate serde_json;
 extern crate tokio;
 
 use agent_lib::{current_ts, get_yml_config, AgentPlugin, Status};
-use futures::Future;
 use std::net::SocketAddr;
 use std::{thread, time};
 use tokio::net::TcpStream;
+use tokio::prelude::Future;
 
 
 fn main() {
@@ -44,7 +43,7 @@ fn main() {
 			sender.arbitrate(&mut **p, &mut payload);
 		}
 
-		debug!("Paytload content: {:?}", payload);
+		debug!("Payload content: {:?}", payload);
 
 		if !payload.is_empty() {
 			let serialized_payload = serde_json::to_string(&payload).expect("Can't serialize payload");

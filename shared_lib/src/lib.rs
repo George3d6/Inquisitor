@@ -52,7 +52,7 @@ pub fn get_yml_config_string(name: &str) -> Result<String, String> {
 	cfg_file_path.pop();
 	cfg_file_path.push(name);
 	debug!("Reading config from: {:?}", cfg_file_path);
-	return Ok(read_to_string(&cfg_file_path).map_err(|e| e.to_string())?);
+	Ok(read_to_string(&cfg_file_path).map_err(|e| e.to_string())?)
 }
 
 pub fn read_cfg<ConfigT>(name: &str) -> Result<ConfigT, String>
@@ -61,5 +61,5 @@ where
 {
 	let cfg_str = get_yml_config_string(name)?;
 	let cfg: ConfigT = serde_yaml::from_str(&cfg_str).map_err(|e| e.to_string())?;
-	return Ok(cfg);
+	Ok(cfg)
 }
