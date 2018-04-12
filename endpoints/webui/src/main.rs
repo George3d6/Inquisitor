@@ -2,7 +2,7 @@ extern crate env_logger;
 extern crate futures;
 extern crate hyper;
 extern crate hyper_staticfile;
-extern crate shared_lib;
+extern crate inquisitor_shared_lib;
 extern crate tokio_core;
 #[macro_use]
 extern crate log;
@@ -19,7 +19,7 @@ use hyper::{Method, StatusCode};
 use hyper_staticfile::Static;
 use std::string::String;
 use std::path::Path;
-use shared_lib::read_cfg;
+use inquisitor_shared_lib::read_cfg;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Receptor {

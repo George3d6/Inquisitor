@@ -15,7 +15,7 @@ serde_derive = "1.0"
 
 reqwest = "0.8.5"
 
-shared_lib = {path="../../shared_lib"}
+inquisitor_shared_lib = {path="../../inquisitor_shared_lib"}
 
 log = "0.4.0"
 env_logger = "0.5.6"

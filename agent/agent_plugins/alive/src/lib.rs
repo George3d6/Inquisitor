@@ -38,8 +38,8 @@ pub fn new() -> Result<Plugin, String> {
 }
 
 impl AgentPlugin for Plugin {
-	fn name(&self) -> String {
-		String::from("Alive")
+	fn name(&self) -> &str {
+		"Alive"
 	}
 
 	fn gather(&mut self) -> Result<String, String> {

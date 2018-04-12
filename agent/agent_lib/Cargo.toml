@@ -7,4 +7,4 @@ authors = ["Richard Petrie <rap1011@ksu.edu>"]
 fs_extra = "1.1.0"
 sysinfo = "0.5.4"
 yaml-rust = "0.4.0"
-shared_lib = {path="../../shared_lib"}
+inquisitor_shared_lib = {path="../../inquisitor_shared_lib"}

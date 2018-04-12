@@ -66,8 +66,8 @@ pub fn new() -> Result<Plugin, String> {
 }
 
 impl ReceptorPlugin for Plugin {
-	fn name(&self) -> String {
-		String::from("Comparator")
+	fn name(&self) -> &str {
+		"Comparator"
 	}
 
 	fn gather(&mut self, db_conn: &Connection) -> Result<String, String> {

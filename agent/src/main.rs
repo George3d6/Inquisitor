@@ -70,21 +70,19 @@ impl StatusSender {
 
 	pub fn arbitrate(&mut self, plugin: &mut AgentPlugin, payload: &mut Vec<Status>) {
 		if plugin.ready() {
-			let name = plugin.name();
-
 			match plugin.gather() {
 				Ok(message) => {
 					let status = Status {
 						sender: self.hostname.clone(),
 						ts: current_ts(),
 						message,
-						plugin_name: name
+						plugin_name: plugin.name().to_string()
 					};
 
 					payload.push(status);
 				}
 				Err(err) => {
-					error!("Error: {} ! When running gather for plguin {}", err, name);
+					error!("Error: {} ! When running gather for plguin {}", err, plugin.name());
 					return;
 				}
 			};

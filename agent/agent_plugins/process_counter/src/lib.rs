@@ -63,8 +63,8 @@ pub fn new() -> Result<Plugin, String> {
 }
 
 impl AgentPlugin for Plugin {
-	fn name(&self) -> String {
-		String::from("Process counter")
+	fn name(&self) -> &str {
+		"Process counter"
 	}
 
 	fn gather(&mut self) -> Result<String, String> {

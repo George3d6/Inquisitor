@@ -1,5 +1,5 @@
 extern crate reqwest;
-extern crate shared_lib;
+extern crate inquisitor_shared_lib;
 #[macro_use]
 extern crate serde_json;
 #[macro_use]
@@ -9,7 +9,7 @@ extern crate env_logger;
 
 use std::{thread, time};
 use std::vec::Vec;
-use shared_lib::{current_ts, read_cfg};
+use inquisitor_shared_lib::{current_ts, read_cfg};
 use std::collections::HashMap;
 use std::cmp;
 

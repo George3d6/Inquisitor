@@ -203,15 +203,15 @@ impl PluginRunner {
 
 	pub fn run_plugin(&self, plugin: &mut ReceptorPlugin) {
 		if plugin.ready() {
-			let name = plugin.name();
-
 			let message = match plugin.gather(&self.db_conn) {
 				Ok(message) => message,
 				Err(err) => {
-					error!("Error: {} ! When running gather for plguin {}", err, name);
+					error!("Error: {} ! When running gather for plguin {}", err, plugin.name());
 					return;
 				}
 			};
+
+			let name = plugin.name();
 
 			self.db_conn
 				.execute(

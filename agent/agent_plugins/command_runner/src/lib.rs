@@ -66,8 +66,8 @@ pub fn new() -> Result<Plugin, String> {
 }
 
 impl AgentPlugin for Plugin {
-	fn name(&self) -> String {
-		String::from("Command runner")
+	fn name(&self) -> &str {
+		"Command runner"
 	}
 
 	fn gather(&mut self) -> Result<String, String> {
