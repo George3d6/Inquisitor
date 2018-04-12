@@ -84,8 +84,8 @@ pub fn new() -> Result<Plugin, String> {
 }
 
 impl AgentPlugin for Plugin {
-	fn name(&self) -> String {
-		String::from("File checker")
+	fn name(&self) -> &'static str {
+		"File checker"
 	}
 
 	fn gather(&mut self) -> Result<String, String> {

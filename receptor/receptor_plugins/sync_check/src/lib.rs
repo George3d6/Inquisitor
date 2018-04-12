@@ -49,8 +49,8 @@ pub fn new() -> Result<Plugin, String> {
 }
 
 impl ReceptorPlugin for Plugin {
-	fn name(&self) -> String {
-		String::from("Sync check")
+	fn name(&self) -> &'static str {
+		"Sync check"
 	}
 
 	fn gather(&mut self, db_conn: &Connection) -> Result<String, String> {

@@ -70,7 +70,7 @@ impl StatusSender {
 
 	pub fn arbitrate(&mut self, plugin: &mut AgentPlugin, payload: &mut Vec<Status>) {
 		if plugin.ready() {
-			let name = plugin.name();
+			let name = plugin.name().to_string();
 
 			match plugin.gather() {
 				Ok(message) => {
