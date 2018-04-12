@@ -38,15 +38,20 @@ pub struct Plugin {
 }
 
 impl Plugin {
-	fn config(plugin: &mut Plugin) -> Result<(), String> {
+	fn new() -> Result<Plugin, String> {
 		let cfg = read_cfg::<Config>("file_checker.yml")?;
-		plugin.enabled = cfg.enabled;
-		if !plugin.enabled {
-			return Ok(());
+		if !cfg.enabled {
+			return Err("File checker disabled".into());
 		}
-		plugin.periodicity = cfg.periodicity;
+		let mut plugin = Plugin {
+			enabled:       true,
+			last_call_ts:  0,
+			periodicity:   cfg.periodicity,
+			file_info_map: HashMap::new()
+		};
 
 		for i in 0..cfg.files.len() {
+			// This disables the entire plugin if any file doesn't exist
 			let fp = File::open(&cfg.files[i]).map_err(|e| e.to_string())?;
 
 			let nr_lines = BufReader::new(fp).lines().count() as i64;
@@ -62,30 +67,17 @@ impl Plugin {
 				}
 			);
 		}
-		Ok(())
+		Ok(plugin)
 	}
 }
 
 pub fn new() -> Result<Plugin, String> {
-	let mut new_plugin = Plugin {
-		enabled:       false,
-		last_call_ts:  0,
-		periodicity:   0,
-		file_info_map: HashMap::new()
-	};
-
-	Plugin::config(&mut new_plugin)?;
-
-	if new_plugin.enabled {
-		Ok(new_plugin)
-	} else {
-		Err("File checker disabled".into())
-	}
+	Plugin::new()
 }
 
 impl AgentPlugin for Plugin {
-	fn name(&self) -> String {
-		String::from("File checker")
+	fn name(&self) -> &'static str {
+		"File checker"
 	}
 
 	fn gather(&mut self) -> Result<String, String> {
@@ -126,7 +118,7 @@ impl AgentPlugin for Plugin {
 		}
 
 		if !results.is_empty() {
-			Ok(serde_json::to_string(&results).map_err(|e| e.to_string())?)
+			serde_json::to_string(&results).map_err(|e| e.to_string())
 		} else {
 			Err(String::from("Nothing to read"))
 		}

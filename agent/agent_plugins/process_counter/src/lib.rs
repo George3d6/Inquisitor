@@ -63,8 +63,8 @@ pub fn new() -> Result<Plugin, String> {
 }
 
 impl AgentPlugin for Plugin {
-	fn name(&self) -> String {
-		String::from("Process counter")
+	fn name(&self) -> &'static str {
+		"Process counter"
 	}
 
 	fn gather(&mut self) -> Result<String, String> {
@@ -96,7 +96,7 @@ impl AgentPlugin for Plugin {
 			results.insert(process, running);
 		}
 
-		Ok(serde_json::to_string(&results).map_err(|e| e.to_string())?)
+		serde_json::to_string(&results).map_err(|e| e.to_string())
 	}
 
 	fn ready(&self) -> bool {

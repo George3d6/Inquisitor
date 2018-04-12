@@ -62,8 +62,8 @@ pub fn new() -> Result<Plugin, String> {
 }
 
 impl AgentPlugin for Plugin {
-	fn name(&self) -> String {
-		String::from("System monitor")
+	fn name(&self) -> &'static str {
+		"System monitor"
 	}
 
 	fn gather(&mut self) -> Result<String, String> {
@@ -107,8 +107,8 @@ impl AgentPlugin for Plugin {
 			processor_map,
 			network_map
 		};
-		
-		Ok(serde_json::to_string(&machine_state).map_err(|e| e.to_string())?)
+
+		serde_json::to_string(&machine_state).map_err(|e| e.to_string())
 	}
 
 	fn ready(&self) -> bool {
