@@ -52,7 +52,7 @@ fn main() {
 	let receptor_uri_base = format!("{}:{}", cfg.receptor.host, cfg.receptor.port);
 	let slack_uri = format!("https://hooks.slack.com/services/{}", my_endpoint);
 
-	let mut ts_collect = current_ts();pa
+	let mut ts_collect = current_ts();
 
 	loop {
 		thread::sleep(time::Duration::from_millis(1000));
@@ -62,7 +62,7 @@ fn main() {
 			let text = res.text().unwrap();
 			let rows: Vec<(String, i64)> = text.split('\n').map(|x| x.to_string()).filter(|x| x.len() > 1).map(process_row).collect();
 			ts_collect = cmp::max(ts_collect, rows.iter().map(|x| x.1).fold(0i64, |max, val| cmp::max(max, val)));
-			info!("Collecting starting from timestamp: {} !", ts_collect);
+			debug!("Collecting starting from timestamp: {} !", ts_collect);
 			for r in rows {
 				let mut form = HashMap::new();
 				form.insert("text", r.0);
