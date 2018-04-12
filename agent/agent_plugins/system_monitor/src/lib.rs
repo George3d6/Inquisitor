@@ -107,8 +107,8 @@ impl AgentPlugin for Plugin {
 			processor_map,
 			network_map
 		};
-		
-		Ok(serde_json::to_string(&machine_state).map_err(|e| e.to_string())?)
+
+		serde_json::to_string(&machine_state).map_err(|e| e.to_string())
 	}
 
 	fn ready(&self) -> bool {

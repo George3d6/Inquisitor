@@ -60,6 +60,5 @@ where
 	ConfigT: DeserializeOwned
 {
 	let cfg_str = get_yml_config_string(name)?;
-	let cfg: ConfigT = serde_yaml::from_str(&cfg_str).map_err(|e| e.to_string())?;
-	Ok(cfg)
+	serde_yaml::from_str(&cfg_str).map_err(|e| e.to_string())
 }

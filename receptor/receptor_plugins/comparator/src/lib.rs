@@ -124,37 +124,21 @@ impl ReceptorPlugin for Plugin {
 					let fval = val.trim_right_matches('\n').parse::<f64>().map_err(|e| e.to_string())?;
 					let fcomparator = comparator.parse::<f64>().map_err(|e| e.to_string())?;
 					if fval < fcomparator {
-						let mut warning: HashMap<String, String> = HashMap::new();
-						warning.insert("sender".to_string(), sender.to_string());
-						warning.insert("operation".to_string(), format!("{} {} {}", val, operator, comparator));
-						warning.insert("key".to_string(), format!("{:?}", self.keys));
-						results.push(warning);
+						results.push(build_warning(sender, val, operator, comparator, &self.keys));
 					}
 				} else if operator == ">" {
 					let fval = val.trim_right_matches('\n').parse::<f64>().map_err(|e| e.to_string())?;
 					let fcomparator = comparator.parse::<f64>().map_err(|e| e.to_string())?;
 					if fval > fcomparator {
-						let mut warning: HashMap<String, String> = HashMap::new();
-						warning.insert("sender".to_string(), sender.to_string());
-						warning.insert("operation".to_string(), format!("{} {} {}", val, operator, comparator));
-						warning.insert("key".to_string(), format!("{:?}", self.keys));
-						results.push(warning);
+						results.push(build_warning(sender, val, operator, comparator, &self.keys));
 					}
 				} else if operator == "==" || operator == "=" {
 					if val == comparator {
-						let mut warning: HashMap<String, String> = HashMap::new();
-						warning.insert("sender".to_string(), sender.to_string());
-						warning.insert("operation".to_string(), format!("{} {} {}", val, operator, comparator));
-						warning.insert("key".to_string(), format!("{:?}", self.keys));
-						results.push(warning);
+						results.push(build_warning(sender, val, operator, comparator, &self.keys));
 					}
 				} else if operator == "contains" {
 					if val == comparator {
-						let mut warning: HashMap<String, String> = HashMap::new();
-						warning.insert("sender".to_string(), sender.to_string());
-						warning.insert("operation".to_string(), format!("{} {} {}", val, operator, comparator));
-						warning.insert("key".to_string(), format!("{:?}", self.keys));
-						results.push(warning);
+						results.push(build_warning(sender, val, operator, comparator, &self.keys));
 					}
 				} else {
 					return Err("Unknown operator".to_string());
@@ -164,9 +148,8 @@ impl ReceptorPlugin for Plugin {
 		debug!("{:?}", results);
 		let mut results_map: HashMap<String, Vec<HashMap<String, String>>> = HashMap::new();
 		results_map.insert("warnings".to_string(), results);
-		let message = serde_json::to_string(&results_map).map_err(|e| e.to_string())?;
 		self.last_call_ts = current_ts();
-		Ok(message)
+		serde_json::to_string(&results_map).map_err(|e| e.to_string())
 	}
 
 	fn ready(&self) -> bool {
@@ -175,4 +158,18 @@ impl ReceptorPlugin for Plugin {
 		}
 		self.last_call_ts + self.periodicity < current_ts()
 	}
+}
+
+fn build_warning(
+	sender: String,
+	val: &str,
+	operator: &String,
+	comparator: &String,
+	keys: &Vec<Vec<String>>
+) -> HashMap<String, String> {
+	let mut warning: HashMap<String, String> = HashMap::new();
+	warning.insert("sender".to_string(), sender.to_string());
+	warning.insert("operation".to_string(), format!("{} {} {}", val, operator, comparator));
+	warning.insert("key".to_string(), format!("{:?}", keys));
+	warning
 }

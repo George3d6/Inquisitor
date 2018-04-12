@@ -96,7 +96,7 @@ impl AgentPlugin for Plugin {
 			results.insert(process, running);
 		}
 
-		Ok(serde_json::to_string(&results).map_err(|e| e.to_string())?)
+		serde_json::to_string(&results).map_err(|e| e.to_string())
 	}
 
 	fn ready(&self) -> bool {
