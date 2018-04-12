@@ -1,8 +1,8 @@
 #[macro_use]
 extern crate log;
-extern crate inquisitor_lib;
 extern crate env_logger;
 extern crate hostname;
+extern crate inquisitor_lib;
 extern crate plugins;
 extern crate serde_json;
 extern crate tokio;

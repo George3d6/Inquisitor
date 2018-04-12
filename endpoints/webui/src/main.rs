@@ -113,7 +113,7 @@ fn main() {
 	debug!("Calling the receptor from addr: {}", &receptor_addr);
 
 	let serve = Http::new()
-		.serve_addr_handle(&addr, &handle, move || {
+		.serve_addr_handle(addr, &handle, move || {
 			Ok(DataServer {
 				static_:       Static::new(&handle_cp_1, Path::new(&cfg.static_file_path)),
 				receptor_addr: receptor_addr.clone()

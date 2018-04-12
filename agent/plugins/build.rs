@@ -33,9 +33,9 @@ fn main() {
             use inquisitor_lib::AgentPlugin;
 
 			#[macro_use]
-			extern crate log;
-			\
-			 extern crate env_logger;
+			extern \
+			 crate log;
+			extern crate env_logger;
 
             #[macro_use]
             mod plugin_initialization;

@@ -1,6 +1,5 @@
 extern crate inquisitor_lib;
 extern crate reqwest;
-#[macro_use]
 extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
@@ -35,7 +34,7 @@ struct Config {
 }
 
 
-fn process_row(row: String) -> (String, i64) {
+fn process_row(row: &str) -> (String, i64) {
 	let vals: Vec<&str> = row.split('\t').collect();
 	info!("{:?}", vals);
 	let ts = vals[1].parse::<i64>().map_err(|e| e.to_string()).unwrap();
@@ -69,12 +68,9 @@ fn main() {
 			let rows: Vec<(String, i64)> = text.split('\n')
 				.map(|x| x.to_string())
 				.filter(|x| x.len() > 1)
-				.map(process_row)
+				.map(|x| process_row(&x))
 				.collect();
-			ts_collect = cmp::max(
-				ts_collect,
-				rows.iter().map(|x| x.1).fold(0i64, |max, val| cmp::max(max, val))
-			);
+			ts_collect = cmp::max(ts_collect, rows.iter().map(|x| x.1).fold(0i64, cmp::max));
 			debug!("Collecting starting from timestamp: {} !", ts_collect);
 			for r in rows {
 				let mut form = HashMap::new();

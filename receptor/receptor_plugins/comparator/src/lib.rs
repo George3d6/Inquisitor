@@ -124,21 +124,21 @@ impl ReceptorPlugin for Plugin {
 					let fval = val.trim_right_matches('\n').parse::<f64>().map_err(|e| e.to_string())?;
 					let fcomparator = comparator.parse::<f64>().map_err(|e| e.to_string())?;
 					if fval < fcomparator {
-						results.push(build_warning(sender, val, operator, comparator, &self.keys));
+						results.push(build_warning(&sender, &val, &operator, &comparator, &self.keys));
 					}
 				} else if operator == ">" {
 					let fval = val.trim_right_matches('\n').parse::<f64>().map_err(|e| e.to_string())?;
 					let fcomparator = comparator.parse::<f64>().map_err(|e| e.to_string())?;
 					if fval > fcomparator {
-						results.push(build_warning(sender, val, operator, comparator, &self.keys));
+						results.push(build_warning(&sender, &val, &operator, &comparator, &self.keys));
 					}
 				} else if operator == "==" || operator == "=" {
 					if val == comparator {
-						results.push(build_warning(sender, val, operator, comparator, &self.keys));
+						results.push(build_warning(&sender, &val, &operator, &comparator, &self.keys));
 					}
 				} else if operator == "contains" {
-					if val == comparator {
-						results.push(build_warning(sender, val, operator, comparator, &self.keys));
+					if val.contains(comparator) {
+						results.push(build_warning(&sender, &val, &operator, &comparator, &self.keys));
 					}
 				} else {
 					return Err("Unknown operator".to_string());
@@ -161,11 +161,11 @@ impl ReceptorPlugin for Plugin {
 }
 
 fn build_warning(
-	sender: String,
+	sender: &str,
 	val: &str,
-	operator: &String,
-	comparator: &String,
-	keys: &Vec<Vec<String>>
+	operator: &str,
+	comparator: &str,
+	keys: &[Vec<String>]
 ) -> HashMap<String, String> {
 	let mut warning: HashMap<String, String> = HashMap::new();
 	warning.insert("sender".to_string(), sender.to_string());
