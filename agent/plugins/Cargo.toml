@@ -15,7 +15,7 @@ process_counter = {path = "../agent_plugins/process_counter"}
 system_monitor = {path = "../agent_plugins/system_monitor"}
 command_runner = {path = "../agent_plugins/command_runner"}
 
-agent_lib = {path = "../agent_lib"}
+inquisitor_lib = {path = "../../inquisitor_lib"}
 log = "0.4.1"
 env_logger = "0.5.6"
 

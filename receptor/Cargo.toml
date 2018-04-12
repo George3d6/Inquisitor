@@ -22,7 +22,7 @@ walkdir = "2.1.4"
 log = "0.4.1"
 env_logger = "0.5.6"
 
-receptor_lib = {path="receptor_lib"}
+inquisitor_lib = {path="../inquisitor_lib"}
 plugins = {path="plugins"}
 
 [dependencies.rusqlite]

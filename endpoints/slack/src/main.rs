@@ -1,15 +1,16 @@
+extern crate inquisitor_lib;
 extern crate reqwest;
-extern crate inquisitor_shared_lib;
 #[macro_use]
 extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
 extern crate env_logger;
-#[macro_use] extern crate log;
+#[macro_use]
+extern crate log;
 
 use std::{thread, time};
 use std::vec::Vec;
-use inquisitor_shared_lib::{current_ts, read_cfg};
+use inquisitor_lib::{current_ts, read_cfg};
 use std::collections::HashMap;
 use std::cmp;
 
@@ -18,7 +19,7 @@ use std::cmp;
 struct Check {
 	plugin: String,
 	sender: String,
-	level: 	String,
+	level:  String
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -29,12 +30,12 @@ struct Receptor {
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Config {
-	receptor:	Receptor,
-	monitor:	Vec<Check>
+	receptor: Receptor,
+	monitor:  Vec<Check>
 }
 
 
-fn process_row(row: String)-> (String, i64) {
+fn process_row(row: String) -> (String, i64) {
 	let vals: Vec<&str> = row.split('\t').collect();
 	info!("{:?}", vals);
 	let ts = vals[1].parse::<i64>().map_err(|e| e.to_string()).unwrap();
@@ -57,11 +58,23 @@ fn main() {
 	loop {
 		thread::sleep(time::Duration::from_millis(1000));
 		for check in &cfg.monitor {
-			let mut res = client.get(&format!("{}/plugin_data?level={}&name={}&ts_start={}&ts_end=9923146529",
-			receptor_uri_base, &check.level, &check.plugin, &ts_collect)).send().unwrap();
+			let mut res = client
+				.get(&format!(
+					"{}/plugin_data?level={}&name={}&ts_start={}&ts_end=9923146529",
+					receptor_uri_base, &check.level, &check.plugin, &ts_collect
+				))
+				.send()
+				.unwrap();
 			let text = res.text().unwrap();
-			let rows: Vec<(String, i64)> = text.split('\n').map(|x| x.to_string()).filter(|x| x.len() > 1).map(process_row).collect();
-			ts_collect = cmp::max(ts_collect, rows.iter().map(|x| x.1).fold(0i64, |max, val| cmp::max(max, val)));
+			let rows: Vec<(String, i64)> = text.split('\n')
+				.map(|x| x.to_string())
+				.filter(|x| x.len() > 1)
+				.map(process_row)
+				.collect();
+			ts_collect = cmp::max(
+				ts_collect,
+				rows.iter().map(|x| x.1).fold(0i64, |max, val| cmp::max(max, val))
+			);
 			debug!("Collecting starting from timestamp: {} !", ts_collect);
 			for r in rows {
 				let mut form = HashMap::new();

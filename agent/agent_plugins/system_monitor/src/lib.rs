@@ -1,10 +1,10 @@
 #[macro_use]
 extern crate serde_derive;
-extern crate agent_lib;
+extern crate inquisitor_lib;
 extern crate serde_json;
 extern crate sysinfo;
 
-use agent_lib::{current_ts, read_cfg, AgentPlugin};
+use inquisitor_lib::{current_ts, read_cfg, AgentPlugin};
 use std::collections::HashMap;
 use sysinfo::{DiskExt, NetworkExt, ProcessorExt, System, SystemExt};
 
@@ -62,7 +62,7 @@ pub fn new() -> Result<Plugin, String> {
 }
 
 impl AgentPlugin for Plugin {
-	fn name(&self) -> &str {
+	fn name(&self) -> &'static str {
 		"System monitor"
 	}
 
@@ -108,7 +108,7 @@ impl AgentPlugin for Plugin {
 			network_map
 		};
 
-		Ok(serde_json::to_string(&machine_state).map_err(|e| e.to_string())?)
+		serde_json::to_string(&machine_state).map_err(|e| e.to_string())
 	}
 
 	fn ready(&self) -> bool {

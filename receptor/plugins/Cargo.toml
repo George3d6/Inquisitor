@@ -12,7 +12,7 @@ path = "src/lib.rs"
 sync_check = {path = "../receptor_plugins/sync_check"}
 comparator = {path = "../receptor_plugins/comparator"}
 
-receptor_lib = {path = "../receptor_lib"}
+inquisitor_lib = {path = "../../inquisitor_lib"}
 log = "0.4.1"
 env_logger = "0.5.6"
 

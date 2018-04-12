@@ -2,12 +2,12 @@
     This plugin is used to periodically execute a series of remote commands and return the output
 */
 
-extern crate agent_lib;
+extern crate inquisitor_lib;
 extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
 
-use agent_lib::{current_ts, read_cfg, AgentPlugin};
+use inquisitor_lib::{current_ts, read_cfg, AgentPlugin};
 use std::collections::HashMap;
 use std::process::Command;
 
@@ -63,7 +63,7 @@ pub fn new() -> Result<Plugin, String> {
 }
 
 impl AgentPlugin for Plugin {
-	fn name(&self) -> &str {
+	fn name(&self) -> &'static str {
 		"Process counter"
 	}
 
@@ -96,7 +96,7 @@ impl AgentPlugin for Plugin {
 			results.insert(process, running);
 		}
 
-		Ok(serde_json::to_string(&results).map_err(|e| e.to_string())?)
+		serde_json::to_string(&results).map_err(|e| e.to_string())
 	}
 
 	fn ready(&self) -> bool {

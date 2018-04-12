@@ -1,14 +1,19 @@
 [package]
-name = "receptor_lib"
+name = "inquisitor_lib"
 version = "0.3.0"
 authors = ["George Hosu <george@cerebralab.com>"]
 
 [dependencies]
+serde = "1.0.37"
+serde_derive = "1.0.37"
+serde_yaml = "0.7.3"
 fs_extra = "1.1.0"
 yaml-rust = "0.4.0"
 url= "1.7.0"
+log = "0.4.1"
+env_logger = "0.5.6"
+sysinfo = "0.5.4"
 hyper = "0.11.25"
-inquisitor_shared_lib = {path="../../inquisitor_shared_lib"}
 
 [dependencies.rusqlite]
 version = "0.13.0"

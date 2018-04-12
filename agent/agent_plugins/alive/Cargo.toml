@@ -4,6 +4,6 @@ version = "0.3.0"
 authors = ["George Hosu <george@cerebralab.com>"]
 
 [dependencies]
-agent_lib = {path="../../agent_lib"}
+inquisitor_lib = {path="../../../inquisitor_lib"}
 serde = "1.0.37"
 serde_derive = "1.0.37"

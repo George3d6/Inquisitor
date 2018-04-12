@@ -15,7 +15,7 @@ fn main() {
 	let mut plugins = vec![];
 
 	for p in v {
-		if p.kind == cargo_metadata::DependencyKind::Normal && p.name != "agent_lib" && p.name != "env_logger"
+		if p.kind == cargo_metadata::DependencyKind::Normal && p.name != "inquisitor_lib" && p.name != "env_logger"
 			&& p.name != "log"
 		{
 			plugins.push(p.name.clone());
@@ -29,8 +29,8 @@ fn main() {
 
 	f.write_all(
 		format!(
-			"extern crate agent_lib;
-            use agent_lib::AgentPlugin;
+			"extern crate inquisitor_lib;
+            use inquisitor_lib::AgentPlugin;
 
 			#[macro_use]
 			extern crate log;

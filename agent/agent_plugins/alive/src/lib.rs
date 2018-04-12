@@ -4,11 +4,11 @@
     It's information can also be used by other plugins in order to determine machine reliability
     or find machines with unsynchronized clocks
 */
-extern crate agent_lib;
+extern crate inquisitor_lib;
 #[macro_use]
 extern crate serde_derive;
 
-use agent_lib::{current_ts, read_cfg, AgentPlugin};
+use inquisitor_lib::{current_ts, read_cfg, AgentPlugin};
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -38,7 +38,7 @@ pub fn new() -> Result<Plugin, String> {
 }
 
 impl AgentPlugin for Plugin {
-	fn name(&self) -> &str {
+	fn name(&self) -> &'static str {
 		"Alive"
 	}
 

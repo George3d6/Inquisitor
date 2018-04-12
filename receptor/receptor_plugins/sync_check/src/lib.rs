@@ -1,10 +1,10 @@
-extern crate receptor_lib;
+extern crate inquisitor_lib;
 extern crate rusqlite;
 extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
 
-use receptor_lib::{current_ts, read_cfg, ReceptorPlugin};
+use inquisitor_lib::{current_ts, read_cfg, ReceptorPlugin};
 use rusqlite::Connection;
 use std::collections::HashMap;
 
@@ -49,7 +49,7 @@ pub fn new() -> Result<Plugin, String> {
 }
 
 impl ReceptorPlugin for Plugin {
-	fn name(&self) -> &str {
+	fn name(&self) -> &'static str {
 		"Sync check"
 	}
 
