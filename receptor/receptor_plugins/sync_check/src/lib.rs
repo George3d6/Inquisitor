@@ -7,8 +7,6 @@ extern crate serde_derive;
 use receptor_lib::{current_ts, read_cfg, ReceptorPlugin};
 use rusqlite::Connection;
 use std::collections::HashMap;
-use std::string::String;
-
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Config {
@@ -27,11 +25,10 @@ impl Plugin {
 	fn config(&mut self) -> Result<(), String> {
 		let cfg = read_cfg::<Config>("sync_check.yml")?;
 		self.enabled = cfg.enabled;
-		if !self.enabled {
-			return Ok(());
+		if self.enabled {
+			self.periodicity = cfg.periodicity;
 		}
-		self.periodicity = cfg.periodicity;
-		return Ok(());
+		Ok(())
 	}
 }
 

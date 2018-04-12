@@ -5,11 +5,11 @@ authors = ["George Hosu <george@cerebralab.com>"]
 
 [dependencies]
 fs_extra = "1.1.0"
-yaml-rust = "0.4"
-url="1.7.0"
-hyper = "0.11"
+yaml-rust = "0.4.0"
+url= "1.7.0"
+hyper = "0.11.25"
 shared_lib = {path="../../shared_lib"}
 
 [dependencies.rusqlite]
-version = "0.11.0"
+version = "0.13.0"
 features = ["bundled"]
