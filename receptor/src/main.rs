@@ -5,13 +5,13 @@ extern crate fs_extra;
 extern crate hyper;
 #[macro_use]
 extern crate log;
+extern crate clap;
 extern crate inquisitor_lib;
 extern crate plugins;
 extern crate rusqlite;
 extern crate serde_json;
 extern crate tokio;
 extern crate tokio_core;
-extern crate clap;
 
 use database::{get_connection, initialize_database};
 use hyper::server::{Http, Request, Response, Service};
@@ -26,7 +26,7 @@ use tokio::net::{TcpListener, TcpStream};
 use tokio::prelude::future;
 use tokio::prelude::{Future, Stream};
 use tokio_core::reactor::Core;
-use clap::{Arg, App};
+use clap::{App, Arg};
 use std::env::current_exe;
 
 
@@ -235,16 +235,21 @@ fn main() {
 	let exec_path = exec_path_buff.into_os_string().into_string().unwrap();
 
 	let matches = App::new("Inquisitor receptor")
-		              .version("0.3.1")
-		              .about("The receptor component of the inquisitor monitoring suite,
-					  for more infomration visit: https://github.com/George3d6/Inquisitor")
-		              .arg(Arg::with_name("config_dir")
-		                   .long("config_dir")
-		                   .help("The directory where the receptor looks for it's configuration files")
-						   .default_value(&exec_path)
-						   .takes_value(true)
-		                   .required(false))
-		              .get_matches();
+		.version("0.3.1")
+		.about(
+			"The receptor component of the inquisitor monitoring suite,
+					  for more infomration visit: \
+			 https://github.com/George3d6/Inquisitor"
+		)
+		.arg(
+			Arg::with_name("config_dir")
+				.long("config_dir")
+				.help("The directory where the receptor looks for it's configuration files")
+				.default_value(&exec_path)
+				.takes_value(true)
+				.required(false)
+		)
+		.get_matches();
 
 	// Produce config path
 	let config_dir = matches.value_of("config_dir").unwrap(); //_or(&cfg_file_path_str);

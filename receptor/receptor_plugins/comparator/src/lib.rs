@@ -22,12 +22,12 @@ struct Config {
 
 
 pub struct Plugin {
-	last_call_ts:	i64,
-	periodicity:  	i64,
-	enabled:      	bool,
-	checks:       	Vec<Vec<String>>,
-	keys:         	Vec<Vec<String>>,
-	cfg_file:		String
+	last_call_ts: i64,
+	periodicity:  i64,
+	enabled:      bool,
+	checks:       Vec<Vec<String>>,
+	keys:         Vec<Vec<String>>,
+	cfg_file:     String
 }
 
 impl Plugin {
@@ -55,7 +55,7 @@ pub fn new(cfg_dir: String) -> Result<Plugin, String> {
 		periodicity:  0,
 		keys:         vec![],
 		checks:       vec![],
-		cfg_file:	  format!("{}/comparator.yml", cfg_dir)
+		cfg_file:     format!("{}/comparator.yml", cfg_dir)
 	};
 
 	new_plugin.config()?;

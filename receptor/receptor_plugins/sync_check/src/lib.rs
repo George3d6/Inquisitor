@@ -16,10 +16,10 @@ struct Config {
 
 
 pub struct Plugin {
-	last_call_ts: 	i64,
-	periodicity:  	i64,
-	enabled:      	bool,
-	cfg_file:		String
+	last_call_ts: i64,
+	periodicity:  i64,
+	enabled:      bool,
+	cfg_file:     String
 }
 
 impl Plugin {
@@ -35,10 +35,10 @@ impl Plugin {
 
 pub fn new(cfg_dir: String) -> Result<Plugin, String> {
 	let mut new_plugin = Plugin {
-		enabled:      	true,
-		last_call_ts: 	0,
-		periodicity:  	0,
-		cfg_file:		format!("{}/sync_check.yml", cfg_dir)
+		enabled:      true,
+		last_call_ts: 0,
+		periodicity:  0,
+		cfg_file:     format!("{}/sync_check.yml", cfg_dir)
 	};
 
 	new_plugin.config()?;
