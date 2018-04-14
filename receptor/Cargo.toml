@@ -1,6 +1,6 @@
 [package]
 name = "inquisitor_receptor"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["George Hosu <george@cerebralab.com>"]
 
 [dependencies]
@@ -21,6 +21,7 @@ walkdir = "2.1.4"
 
 log = "0.4.1"
 env_logger = "0.5.6"
+clap = "2.31.2"
 
 inquisitor_lib = {path="../inquisitor_lib"}
 plugins = {path="plugins"}

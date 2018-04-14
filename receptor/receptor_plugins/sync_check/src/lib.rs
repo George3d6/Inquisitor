@@ -16,14 +16,15 @@ struct Config {
 
 
 pub struct Plugin {
-	last_call_ts: i64,
-	periodicity:  i64,
-	enabled:      bool
+	last_call_ts: 	i64,
+	periodicity:  	i64,
+	enabled:      	bool,
+	cfg_file:		String
 }
 
 impl Plugin {
 	fn config(&mut self) -> Result<(), String> {
-		let cfg = read_cfg::<Config>("sync_check.yml")?;
+		let cfg = read_cfg::<Config>(self.cfg_file.clone())?;
 		self.enabled = cfg.enabled;
 		if self.enabled {
 			self.periodicity = cfg.periodicity;
@@ -32,11 +33,12 @@ impl Plugin {
 	}
 }
 
-pub fn new() -> Result<Plugin, String> {
+pub fn new(cfg_dir: String) -> Result<Plugin, String> {
 	let mut new_plugin = Plugin {
-		enabled:      true,
-		last_call_ts: 0,
-		periodicity:  0
+		enabled:      	true,
+		last_call_ts: 	0,
+		periodicity:  	0,
+		cfg_file:		format!("{}/sync_check.yml", cfg_dir)
 	};
 
 	new_plugin.config()?;

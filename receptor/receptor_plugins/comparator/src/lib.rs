@@ -22,16 +22,17 @@ struct Config {
 
 
 pub struct Plugin {
-	last_call_ts: i64,
-	periodicity:  i64,
-	enabled:      bool,
-	checks:       Vec<Vec<String>>,
-	keys:         Vec<Vec<String>>
+	last_call_ts:	i64,
+	periodicity:  	i64,
+	enabled:      	bool,
+	checks:       	Vec<Vec<String>>,
+	keys:         	Vec<Vec<String>>,
+	cfg_file:		String
 }
 
 impl Plugin {
 	fn config(&mut self) -> Result<(), String> {
-		let cfg = read_cfg::<Config>("comparator.yml")?;
+		let cfg = read_cfg::<Config>(self.cfg_file.clone())?;
 		self.enabled = cfg.enabled;
 		if !self.enabled {
 			return Ok(());
@@ -47,13 +48,14 @@ impl Plugin {
 	}
 }
 
-pub fn new() -> Result<Plugin, String> {
+pub fn new(cfg_dir: String) -> Result<Plugin, String> {
 	let mut new_plugin = Plugin {
 		enabled:      true,
 		last_call_ts: current_ts(),
 		periodicity:  0,
 		keys:         vec![],
-		checks:       vec![]
+		checks:       vec![],
+		cfg_file:	  format!("{}/comparator.yml", cfg_dir)
 	};
 
 	new_plugin.config()?;
