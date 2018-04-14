@@ -21,16 +21,19 @@ struct Config {
 pub struct Plugin {
 	last_call_ts: i64,
 	periodicity:  i64,
-	enabled:      bool
+	enabled:      bool,
+	cfg_file:     String
 }
 
-pub fn new() -> Result<Plugin, String> {
-	let cfg = read_cfg::<Config>("alive.yml")?;
+pub fn new(cfg_dir: String) -> Result<Plugin, String> {
+	let cfg_file = format!("{}/alive.yml", cfg_dir);
+	let cfg = read_cfg::<Config>(cfg_file.clone())?;
 	if cfg.enabled {
 		Ok(Plugin {
-			enabled:      true,
+			enabled: true,
 			last_call_ts: 0,
-			periodicity:  cfg.periodicity
+			periodicity: cfg.periodicity,
+			cfg_file
 		})
 	} else {
 		Err("Alive plugin disabled".into())

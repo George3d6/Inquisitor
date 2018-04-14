@@ -34,45 +34,42 @@ pub struct Plugin {
 	last_call_ts:  i64,
 	periodicity:   i64,
 	file_info_map: HashMap<String, FileInfo>,
-	enabled:       bool
+	enabled:       bool,
+	cfg_file:      String
 }
 
-impl Plugin {
-	fn new() -> Result<Plugin, String> {
-		let cfg = read_cfg::<Config>("file_checker.yml")?;
-		if !cfg.enabled {
-			return Err("File checker disabled".into());
-		}
-		let mut plugin = Plugin {
-			enabled:       true,
-			last_call_ts:  0,
-			periodicity:   cfg.periodicity,
-			file_info_map: HashMap::new()
-		};
-
-		for i in 0..cfg.files.len() {
-			// This disables the entire plugin if any file doesn't exist
-			let fp = File::open(&cfg.files[i]).map_err(|e| e.to_string())?;
-
-			let nr_lines = BufReader::new(fp).lines().count() as i64;
-
-			let file_size = get_size(&cfg.files[i]).map_err(|e| e.to_string())? as i64;
-
-			plugin.file_info_map.insert(
-				cfg.files[i].clone(),
-				FileInfo {
-					last_line: nr_lines,
-					last_size: file_size,
-					look_for:  cfg.keyphrase[i].clone()
-				}
-			);
-		}
-		Ok(plugin)
+pub fn new(cfg_dir: String) -> Result<Plugin, String> {
+	let cfg_file = format!("{}/file_checker.yml", cfg_dir);
+	let cfg = read_cfg::<Config>(cfg_file.clone())?;
+	if !cfg.enabled {
+		return Err("File checker disabled".into());
 	}
-}
+	let mut plugin = Plugin {
+		enabled:       true,
+		last_call_ts:  0,
+		periodicity:   cfg.periodicity,
+		file_info_map: HashMap::new(),
+		cfg_file:      cfg_file.clone()
+	};
 
-pub fn new() -> Result<Plugin, String> {
-	Plugin::new()
+	for i in 0..cfg.files.len() {
+		// This disables the entire plugin if any file doesn't exist
+		let fp = File::open(&cfg.files[i]).map_err(|e| e.to_string())?;
+
+		let nr_lines = BufReader::new(fp).lines().count() as i64;
+
+		let file_size = get_size(&cfg.files[i]).map_err(|e| e.to_string())? as i64;
+
+		plugin.file_info_map.insert(
+			cfg.files[i].clone(),
+			FileInfo {
+				last_line: nr_lines,
+				last_size: file_size,
+				look_for:  cfg.keyphrase[i].clone()
+			}
+		);
+	}
+	Ok(plugin)
 }
 
 impl AgentPlugin for Plugin {

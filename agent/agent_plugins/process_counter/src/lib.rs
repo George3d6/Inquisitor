@@ -24,12 +24,13 @@ pub struct Plugin {
 	last_call_map:   HashMap<String, i64>,
 	periodicity_map: HashMap<String, i64>,
 	processes:       Vec<String>,
-	enabled:         bool
+	enabled:         bool,
+	cfg_file:        String
 }
 
 impl Plugin {
 	fn config(&mut self) -> Result<(), String> {
-		let cfg = read_cfg::<Config>("process_counter.yml")?;
+		let cfg = read_cfg::<Config>(self.cfg_file.clone())?;
 		self.enabled = cfg.enabled;
 		if !self.enabled {
 			return Ok(());
@@ -45,15 +46,18 @@ impl Plugin {
 	}
 }
 
-pub fn new() -> Result<Plugin, String> {
+pub fn new(cfg_dir: String) -> Result<Plugin, String> {
+	let cfg_file = format!("{}/process_counter.yml", cfg_dir);
+
 	let mut new_plugin = Plugin {
-		enabled:         false,
-		last_call_map:   HashMap::new(),
+		enabled: false,
+		last_call_map: HashMap::new(),
 		periodicity_map: HashMap::new(),
-		processes:       Vec::new()
+		processes: Vec::new(),
+		cfg_file
 	};
 
-	Plugin::config(&mut new_plugin)?;
+	new_plugin.config()?;
 
 	if new_plugin.enabled {
 		Ok(new_plugin)
@@ -61,6 +65,7 @@ pub fn new() -> Result<Plugin, String> {
 		Err("Process counter disabled".into())
 	}
 }
+
 
 impl AgentPlugin for Plugin {
 	fn name(&self) -> &'static str {

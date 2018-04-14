@@ -13,7 +13,6 @@ extern crate url;
 use self::yaml_rust::{Yaml, YamlLoader};
 extern crate fs_extra;
 use self::fs_extra::file::read_to_string;
-use std::env::current_exe;
 use std::time::{SystemTime, UNIX_EPOCH};
 use serde::de::DeserializeOwned;
 use self::hyper::server::Request;

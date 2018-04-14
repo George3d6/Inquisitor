@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate log;
+extern crate clap;
 extern crate env_logger;
 extern crate hostname;
 extern crate inquisitor_lib;
@@ -12,14 +13,40 @@ use std::net::SocketAddr;
 use std::{thread, time};
 use tokio::net::TcpStream;
 use tokio::prelude::Future;
+use clap::{App, Arg};
+use std::env::current_exe;
 
 
 fn main() {
 	env_logger::init();
 
-	let mut plugins = plugins::init();
+	let mut exec_path_buff = current_exe().unwrap();
+	exec_path_buff.pop();
+	let exec_path = exec_path_buff.into_os_string().into_string().unwrap();
 
-	let config = get_yml_config("agent_config.yml").unwrap();
+	let matches = App::new("Inquisitor agent")
+		.version("0.3.1")
+		.about(
+			"The agent component of the inquisitor monitoring suite,
+					  for more infomration visit: \
+			 https://github.com/George3d6/Inquisitor"
+		)
+		.arg(
+			Arg::with_name("config_dir")
+				.long("config_dir")
+				.help("The directory where the agent looks for it's configuration files")
+				.default_value(&exec_path)
+				.takes_value(true)
+				.required(false)
+		)
+		.get_matches();
+
+	// Produce config path
+	let config_dir = matches.value_of("config_dir").unwrap(); //_or(&cfg_file_path_str);
+
+	let config = get_yml_config(format!("{}/{}", config_dir, "agent_config.yml")).unwrap();
+
+	let mut plugins = plugins::init(config_dir.to_string());
 
 	let hostname = config["machine_identifier"]
 		.as_str()

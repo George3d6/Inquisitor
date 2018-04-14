@@ -30,12 +30,13 @@ pub struct Plugin {
 	sys:          System,
 	last_call_ts: i64,
 	periodicity:  i64,
-	enabled:      bool
+	enabled:      bool,
+	cfg_file:     String
 }
 
 impl Plugin {
 	fn config(&mut self) -> Result<(), String> {
-		let cfg = read_cfg::<Config>("system_monitor.yml")?;
+		let cfg = read_cfg::<Config>(self.cfg_file.clone())?;
 		self.enabled = cfg.enabled;
 		if self.enabled {
 			self.periodicity = cfg.periodicity;
@@ -44,15 +45,17 @@ impl Plugin {
 	}
 }
 
-pub fn new() -> Result<Plugin, String> {
+pub fn new(cfg_dir: String) -> Result<Plugin, String> {
+	let cfg_file = format!("{}/system_monitor.yml", cfg_dir);
 	let mut new_plugin = Plugin {
-		enabled:      false,
-		sys:          System::new(),
+		enabled: false,
+		sys: System::new(),
 		last_call_ts: 0,
-		periodicity:  0
+		periodicity: 0,
+		cfg_file
 	};
 
-	Plugin::config(&mut new_plugin)?;
+	new_plugin.config()?;
 
 	if new_plugin.enabled {
 		Ok(new_plugin)
