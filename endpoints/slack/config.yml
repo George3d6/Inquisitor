@@ -7,4 +7,4 @@ monitor:
       sender: all
       level: receptor
 
-endpoint: endpoint_url
+endpoint: endpoint_key
