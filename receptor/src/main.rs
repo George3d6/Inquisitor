@@ -16,9 +16,7 @@ extern crate tokio_core;
 use database::{get_connection, initialize_database};
 use hyper::server::{Http, Request, Response, Service};
 use hyper::{Method, StatusCode};
-use inquisitor_lib::ReceptorPlugin;
-use inquisitor_lib::get_url_params;
-use inquisitor_lib::{get_yml_config, Status};
+use inquisitor_lib::{get_yml_config, Status, ReceptorPlugin, get_url_params};
 use rusqlite::Connection;
 use std::{thread, time};
 use tokio::io::AsyncRead;
@@ -29,6 +27,17 @@ use tokio_core::reactor::Core;
 use clap::{App, Arg};
 use std::env::current_exe;
 
+
+struct ConfigServerAddr {
+	bind: String,
+	port: i64
+}
+
+struct Config {
+	clean_older_than: 	i64,
+	server:				ConfigServerAddr,
+	receptor:			ConfigServerAddr
+}
 
 struct DataServer {
 	pub db_conn: Connection
