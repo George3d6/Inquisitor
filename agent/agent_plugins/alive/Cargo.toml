@@ -1,6 +1,6 @@
 [package]
 name = "alive"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["George Hosu <george@cerebralab.com>"]
 
 [dependencies]

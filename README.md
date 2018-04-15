@@ -1,5 +1,5 @@
 # ![Inquisitor icon](https://i.imgur.com/3XZNDko.png) Inquisitor
-**_Version: 0.3.0_**
+**_Version: 0.3.1_**
 
 Inquisitor is a monitoring tool written solely in Rust, it's easy to extend via a plugin system, minimalist and easy to deploy,
 fast and resource light by using asyncio and the amazing optimizations that rustc&llvm provide.
@@ -27,12 +27,6 @@ messages from the monitored machines on port `1478` and serve those statuses on 
 2. Download the latest release of the receptor from https://github.com/George3d6/Inquisitor/releases and uncompress it.
 `wget 'https://github.com/George3d6/Inquisitor/releases/download/0.2.2/inquisitor-receptor.tar.gz' && tar -xvf inquisitor-receptor.tar.gz && rm inquisitor-receptor.tar.gz;`
 
-3. Install sqlite3 on the machine (many distros come with it already installed). Most package managers should have sqlite:
-* Arch: `sudo pacman -S sqlite`
-* Ubuntu/Debian: `sudo apt install sqlite3 libsqlite3-dev`
-* Suse: `sudo zypper install sqlite3 sqlite3-devel`
-* Fedora/CentOS/RHL: `sudo dnf install sqlite sqlite-devel sqlite-tcl sqlite-jdbc`
-
 4. `cd inquisitor-receptor` and edit the `receptor_config.yml` file to allow it to bind to a public interface (unless you are testing locally).
 You can do this by changing the `bind` parameter to `0:0:0:0`
 
@@ -56,11 +50,19 @@ plugin (You can list all plugin you have data fro from the List plugin route).
 2. In the `agent_config.yml` file set `host` to the IP/Domain of the machine were you installed the receptor. Add a `machine_identifier`
 parameter if you want the identifier/name for this machine to be something else than it's hostname
 
-3. Edit the `plugin_name.yml` files for any plugin you want to use (e.g. `file_checker.yml`). To enable the plugin set `disable: false`,
+3. Edit the `plugin_name.yml` files for any plugin you want to use (e.g. `file_checker.yml`). To enable the plugin set `enabled: true`,
 all plugins are disabled by default.
 
 4. Run the agent `./inquisitor_agent`. It should start sending data to the receptor. You can check the data being send at the endpoints
 listed above.
+
+
+#### Endpoint setup
+
+##### Web endpoint
+
+
+##### Slack endpoint
 
 
 #### Plugin configuration guide
@@ -118,58 +120,3 @@ slack and SMTP.
 
 ## Extending via endpoints and plugins & contributing code
 @TODO
-
-
-<!---
-## Roadmap
-
-#### <a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a> Feature / Change
-#### <a href="#"><img alt="Bug" src="https://i.imgur.com/umZtkC4.png" height="28" width="28"></a> Bug
-#### <a href="#"><img alt="Priority" src="https://i.imgur.com/6ieSrzD.png" height="28" width="28"></a> Priority
-#### <a href="#"><img alt="Requires external contributors" src="https://i.imgur.com/lmOki5V.png" height="28" width="28"></a> Requires external contributors / Advice needed
-#### <a href="#"><img alt="Under development" src="https://i.imgur.com/iSXfnTb.png" height="28" width="28"></a> Under development
-
-<a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a>
-<a href="#"><img alt="Priority" src="https://i.imgur.com/6ieSrzD.png" height="28" width="28"></a>
-<a href="#"><img alt="Requires external contributors" src="https://i.imgur.com/lmOki5V.png" height="28" width="28"></a>
-Consider providing an intermediate schema for plugins in order to better facilitate having "generic" endpoints that can work with any plugins.
-
-<a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a>
-<a href="#"><img alt="Priority" src="https://i.imgur.com/6ieSrzD.png" height="28" width="28"></a>
-<a href="#"><img alt="Requires external contributors" src="https://i.imgur.com/lmOki5V.png" height="28" width="28"></a>
-Come up with a testing plan in order to start moving towards a stable release. This part is a bit tricky since 99% of the "hard parts" relate to side effects,
-so it may require a bit of fiddling to come up with a good testing framework and practices. (Advice is welcome on this one)
-
-<a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a>
-<a href="#"><img alt="Under development" src="https://i.imgur.com/iSXfnTb.png" height="28" width="28"></a>
-<a href="#"><img alt="Requires external contributors" src="https://i.imgur.com/lmOki5V.png" height="28" width="28"></a>
-Finalize the http interface for getting plugin data and make sure it's not missing any essential component before starting to build towards a stable release.
-
-<a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a>
-<a href="#"><img alt="Priority" src="https://i.imgur.com/6ieSrzD.png" height="28" width="28"></a>
-Replace the "custom" code inlining system with some macros (if possible).
-
-<a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a>
-<a href="#"><img alt="Priority" src="https://i.imgur.com/6ieSrzD.png" height="28" width="28"></a>
-Use asyncio for all the agent plugins which use the fs.
-
-<a href="#"><img alt="Bug" src="https://i.imgur.com/umZtkC4.png" height="28" width="28"></a>
-<a href="#"><img alt="Priority" src="https://i.imgur.com/6ieSrzD.png" height="28" width="28"></a>
-Make sure SQLite starts in serialized mode (and compiles in serialized mode once SQLite compilation and static linking is added)
-
-
-<a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a>
-Add more pretty graphs to the web ui, add a more intuitive way for people to add plugins to the web ui.
-
-
-<a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a>
-Decide whether or not to separate the Web UI from the receptor component (at the moment it seems like it may fare better as a standalone endpoint)
-
-<a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a>
-Make the Web UI mobile friendly
-
-
-<a href="#"><img alt="Feature" src="https://i.imgur.com/onvKoVz.png" height="28" width="28"></a>
-Add some more plugin to the receptor side of things, such as average resource usage plugin, text diff check (to, for example, check the differences between running
-    the same command on multiple machine)... etc
--->
