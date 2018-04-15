@@ -30,7 +30,8 @@ struct Receptor {
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Config {
 	receptor: Receptor,
-	monitor:  Vec<Check>
+	monitor:  Vec<Check>,
+	endpoint: String
 }
 
 
@@ -47,9 +48,12 @@ fn main() {
 	env_logger::init();
 
 	let client = reqwest::Client::new();
-	let my_endpoint = "T0AMHQ3GE/B9AA4TRRS/2hP2m8hPitNc6VHBHuukT4qI";
+
 	let cfg = read_cfg::<Config>("config.yml").expect("Can't find config.yml file");
 	let receptor_uri_base = format!("{}:{}", cfg.receptor.host, cfg.receptor.port);
+
+	let my_endpoint = cfg.endpoint;
+
 	let slack_uri = format!("https://hooks.slack.com/services/{}", my_endpoint);
 
 	let mut ts_collect = current_ts();

@@ -6,3 +6,5 @@ monitor:
     - plugin: Comparator
       sender: all
       level: receptor
+
+endpoint: endpoint_url
