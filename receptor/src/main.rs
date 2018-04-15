@@ -10,13 +10,15 @@ extern crate inquisitor_lib;
 extern crate plugins;
 extern crate rusqlite;
 extern crate serde_json;
+#[macro_use]
+extern crate serde_derive;
 extern crate tokio;
 extern crate tokio_core;
 
 use database::{get_connection, initialize_database};
 use hyper::server::{Http, Request, Response, Service};
 use hyper::{Method, StatusCode};
-use inquisitor_lib::{get_yml_config, Status, ReceptorPlugin, get_url_params};
+use inquisitor_lib::{read_cfg, Status, ReceptorPlugin, get_url_params};
 use rusqlite::Connection;
 use std::{thread, time};
 use tokio::io::AsyncRead;
@@ -28,11 +30,13 @@ use clap::{App, Arg};
 use std::env::current_exe;
 
 
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct ConfigServerAddr {
 	bind: String,
 	port: i64
 }
 
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Config {
 	clean_older_than: 	i64,
 	server:				ConfigServerAddr,
@@ -262,13 +266,9 @@ fn main() {
 
 	// Produce config path
 	let config_dir = matches.value_of("config_dir").unwrap(); //_or(&cfg_file_path_str);
+	let config = read_cfg::<Config>(format!("{}/{}", config_dir, "receptor_config.yml")).unwrap();
 
-	let config = get_yml_config(format!("{}/{}", config_dir, "receptor_config.yml")).unwrap();
-
-	let clean_older_than = config["clean_older_than"].as_i64().expect(
-		"Please specify a time after which logs should start being removed from the database under the root \
-		 parameter: 'clean_older_than' [type==i64]"
-	);
+	let clean_older_than = config.clean_older_than;
 
 	initialize_database();
 
@@ -319,8 +319,8 @@ fn main() {
 
 	let server_addr_str = format!(
 		"{}:{}",
-		config["server"]["bind"].as_str().unwrap(),
-		config["server"]["port"].as_i64().unwrap()
+		config.server.bind,
+		config.server.port
 	);
 
 	let _hyper_server_thread = thread::spawn(move || {
@@ -360,8 +360,8 @@ fn main() {
 	// validate them & insert them into the database
 	let receptor_addr_str = format!(
 		"{}:{}",
-		config["receptor"]["bind"].as_str().unwrap(),
-		config["receptor"]["port"].as_i64().unwrap()
+		config.receptor.bind,
+		config.receptor.port
 	);
 
 	let listener_addr = receptor_addr_str.parse().expect("Can't parse TCP server address");

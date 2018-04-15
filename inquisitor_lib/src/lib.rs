@@ -37,21 +37,6 @@ pub fn current_ts() -> i64 {
 		.as_secs() as i64
 }
 
-pub fn get_yml_config(cfg_file_path: String) -> Result<Yaml, String> {
-	let contents = match read_to_string(&cfg_file_path) {
-		Ok(content) => content,
-		Err(_) => return Err(format!("Config file {} not found !", cfg_file_path))
-	};
-	let mut docs = match YamlLoader::load_from_str(&contents) {
-		Ok(docs) => docs,
-		Err(_) => return Err(format!("File {}, content is not valid yml !", cfg_file_path))
-	};
-	if docs.is_empty() {
-		return Err(format!("No valid yml documents inside: {} !", cfg_file_path));
-	}
-	Ok(docs.remove(0))
-}
-
 pub fn read_cfg<ConfigT>(cfg_file_path: String) -> Result<ConfigT, String>
 where
 	ConfigT: DeserializeOwned

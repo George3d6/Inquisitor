@@ -6,15 +6,30 @@ extern crate hostname;
 extern crate inquisitor_lib;
 extern crate plugins;
 extern crate serde_json;
+#[macro_use]
+extern crate serde_derive;
 extern crate tokio;
 
-use inquisitor_lib::{current_ts, get_yml_config, AgentPlugin, Status};
+use inquisitor_lib::{current_ts, read_cfg, AgentPlugin, Status};
 use std::net::SocketAddr;
 use std::{thread, time};
 use tokio::net::TcpStream;
 use tokio::prelude::Future;
 use clap::{App, Arg};
 use std::env::current_exe;
+
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+struct ReceptorAddr {
+	host: String,
+	port: i64
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+struct Config {
+	machine_identifier:	Option<String>,
+	receptor:			ReceptorAddr
+}
 
 
 fn main() {
@@ -44,19 +59,17 @@ fn main() {
 	// Produce config path
 	let config_dir = matches.value_of("config_dir").unwrap(); //_or(&cfg_file_path_str);
 
-	let config = get_yml_config(format!("{}/{}", config_dir, "agent_config.yml")).unwrap();
+	let config = read_cfg::<Config>(format!("{}/{}", config_dir, "agent_config.yml")).unwrap();
 
 	let mut plugins = plugins::init(config_dir.to_string());
 
-	let hostname = config["machine_identifier"]
-		.as_str()
-		.map(String::from)
+	let hostname = config.machine_identifier
 		.unwrap_or_else(|| hostname::get_hostname().unwrap());
 
 	let addr = format!(
 		"{}:{}",
-		config["receptor"]["host"].as_str().unwrap(),
-		config["receptor"]["port"].as_i64().unwrap()
+		config.receptor.host,
+		config.receptor.port
 	);
 
 	let mut sender = StatusSender::new(hostname, addr.parse().expect("Couldn't convert IP address"));
