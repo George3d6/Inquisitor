@@ -11,6 +11,7 @@ use inquisitor_lib::{current_ts, read_cfg, AgentPlugin};
 
 use std::collections::HashMap;
 use std::process::Command;
+use std::path::PathBuf;
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -26,12 +27,11 @@ pub struct Plugin {
 	periodicity_map: HashMap<String, i64>,
 	commands:        Vec<Vec<String>>,
 	enabled:         bool,
-	cfg_file:        String
+	cfg_file:        PathBuf
 }
 
-pub fn new(cfg_dir: String) -> Result<Plugin, String> {
-	let cfg_file = format!("{}/command_runner.yml", cfg_dir);
-	let cfg = read_cfg::<Config>(cfg_file.clone())?;
+pub fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
+	let cfg = read_cfg::<Config>(cfg_file)?;
 	if !cfg.enabled {
 		return Err("Command runner disabled".into());
 	}
