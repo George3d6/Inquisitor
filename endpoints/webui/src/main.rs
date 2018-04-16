@@ -20,6 +20,8 @@ use hyper_staticfile::Static;
 use std::string::String;
 use std::path::Path;
 use inquisitor_lib::read_cfg;
+use std::env::current_exe;
+
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Receptor {
@@ -97,7 +99,11 @@ impl Service for DataServer {
 fn main() {
 	env_logger::init();
 
-	let cfg = read_cfg::<Config>("config.yml").unwrap();
+	let mut config_path_buff = current_exe().unwrap();
+	config_path_buff.pop();
+	config_path_buff.push("config.yml");
+
+	let cfg = read_cfg::<Config>(&config_path_buff).unwrap();
 	debug!("Running with configuration {:?}", cfg);
 
 	let mut core = Core::new().unwrap();

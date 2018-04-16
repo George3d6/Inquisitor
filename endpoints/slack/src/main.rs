@@ -12,6 +12,7 @@ use std::vec::Vec;
 use inquisitor_lib::{current_ts, read_cfg};
 use std::collections::HashMap;
 use std::cmp;
+use std::env::current_exe;
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -49,7 +50,11 @@ fn main() {
 
 	let client = reqwest::Client::new();
 
-	let cfg = read_cfg::<Config>("config.yml").expect("Can't find config.yml file");
+	let mut config_path_buff = current_exe().unwrap();
+	config_path_buff.pop();
+	config_path_buff.push("config.yml");
+
+	let cfg = read_cfg::<Config>(&config_path_buff).expect("Can't find config.yml file");
 	let receptor_uri_base = format!("{}:{}", cfg.receptor.host, cfg.receptor.port);
 
 	let my_endpoint = cfg.endpoint;
