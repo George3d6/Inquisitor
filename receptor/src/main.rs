@@ -28,6 +28,7 @@ use tokio::prelude::{Future, Stream};
 use tokio_core::reactor::Core;
 use clap::{App, Arg};
 use std::env::current_exe;
+use std::path::PathBuf;
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -265,8 +266,10 @@ fn main() {
 		.get_matches();
 
 	// Produce config path
-	let config_dir = matches.value_of("config_dir").unwrap(); //_or(&cfg_file_path_str);
-	let config = read_cfg::<Config>(format!("{}/{}", config_dir, "receptor_config.yml")).unwrap();
+	let config_dir = PathBuf::from(matches.value_of("config_dir").unwrap());
+	let mut receptor_config = config_dir.clone();
+	receptor_config.push("receptor_config.yml");
+	let config = read_cfg::<Config>(&receptor_config).unwrap();
 
 	let clean_older_than = config.clean_older_than;
 
@@ -300,9 +303,8 @@ fn main() {
 
 	/* Run receptor side plugins */
 
-	let config_dir_str = config_dir.to_string();
 	let _plugin_runner_thread = thread::spawn(|| {
-		let mut plugins = plugins::init(config_dir_str);
+		let mut plugins = plugins::init(config_dir);
 
 		let plugin_runner = PluginRunner::new();
 

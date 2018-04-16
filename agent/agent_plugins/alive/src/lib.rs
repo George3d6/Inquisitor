@@ -22,17 +22,17 @@ struct Config {
 pub struct Plugin {
 	last_call_ts: i64,
 	periodicity:  i64,
-	enabled:      bool,
+	enabled:      bool
 }
 
 pub fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
 	cfg_path.push("alive.yml");
-	let cfg = read_cfg::<Config>(cfg_path)?;
+	let cfg = read_cfg::<Config>(&cfg_path)?;
 	if cfg.enabled {
 		Ok(Plugin {
-			enabled: true,
+			enabled:      true,
 			last_call_ts: 0,
-			periodicity: cfg.periodicity,
+			periodicity:  cfg.periodicity
 		})
 	} else {
 		Err("Alive plugin disabled".into())

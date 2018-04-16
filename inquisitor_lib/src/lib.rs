@@ -2,7 +2,6 @@
 extern crate serde_derive;
 extern crate serde;
 extern crate serde_yaml;
-extern crate yaml_rust;
 #[macro_use]
 extern crate log;
 extern crate env_logger;
@@ -10,7 +9,6 @@ extern crate hyper;
 extern crate rusqlite;
 extern crate url;
 
-use self::yaml_rust::{Yaml, YamlLoader};
 extern crate fs_extra;
 use self::fs_extra::file::read_to_string;
 use self::hyper::server::Request;
@@ -37,7 +35,7 @@ pub fn current_ts() -> i64 {
 		.as_secs() as i64
 }
 
-pub fn read_cfg<ConfigT>(cfg_file_path: String) -> Result<ConfigT, String>
+pub fn read_cfg<ConfigT>(cfg_file_path: &PathBuf) -> Result<ConfigT, String>
 where
 	ConfigT: DeserializeOwned
 {
