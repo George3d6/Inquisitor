@@ -7,11 +7,12 @@ extern crate serde_derive;
 extern crate fs_extra;
 extern crate serde_json;
 
-use inquisitor_lib::{current_ts, read_cfg, AgentPlugin};
 use fs_extra::dir::get_size;
+use inquisitor_lib::{current_ts, read_cfg, AgentPlugin};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use std::path::PathBuf;
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -29,18 +30,16 @@ struct FileInfo {
 	look_for:  String
 }
 
-
 pub struct Plugin {
 	last_call_ts:  i64,
 	periodicity:   i64,
 	file_info_map: HashMap<String, FileInfo>,
-	enabled:       bool,
-	cfg_file:      String
+	enabled:       bool
 }
 
-pub fn new(cfg_dir: String) -> Result<Plugin, String> {
-	let cfg_file = format!("{}/file_checker.yml", cfg_dir);
-	let cfg = read_cfg::<Config>(cfg_file.clone())?;
+pub fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
+	cfg_path.push("file_checker.yml");
+	let cfg = read_cfg::<Config>(&cfg_path)?;
 	if !cfg.enabled {
 		return Err("File checker disabled".into());
 	}
@@ -48,8 +47,7 @@ pub fn new(cfg_dir: String) -> Result<Plugin, String> {
 		enabled:       true,
 		last_call_ts:  0,
 		periodicity:   cfg.periodicity,
-		file_info_map: HashMap::new(),
-		cfg_file:      cfg_file.clone()
+		file_info_map: HashMap::new()
 	};
 
 	for i in 0..cfg.files.len() {

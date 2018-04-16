@@ -10,6 +10,7 @@ extern crate serde_derive;
 use inquisitor_lib::{current_ts, read_cfg, AgentPlugin};
 
 use std::collections::HashMap;
+use std::path::PathBuf;
 use std::process::Command;
 
 
@@ -25,22 +26,20 @@ pub struct Plugin {
 	last_call_map:   HashMap<String, i64>,
 	periodicity_map: HashMap<String, i64>,
 	commands:        Vec<Vec<String>>,
-	enabled:         bool,
-	cfg_file:        String
+	enabled:         bool
 }
 
-pub fn new(cfg_dir: String) -> Result<Plugin, String> {
-	let cfg_file = format!("{}/command_runner.yml", cfg_dir);
-	let cfg = read_cfg::<Config>(cfg_file.clone())?;
+pub fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
+	cfg_path.push("command_runner.yml");
+	let cfg = read_cfg::<Config>(&cfg_path)?;
 	if !cfg.enabled {
 		return Err("Command runner disabled".into());
 	}
 	let mut new_plugin = Plugin {
-		enabled: cfg.enabled,
-		last_call_map: HashMap::new(),
+		enabled:         cfg.enabled,
+		last_call_map:   HashMap::new(),
 		periodicity_map: HashMap::new(),
-		commands: cfg.commands,
-		cfg_file
+		commands:        cfg.commands
 	};
 	for i in 0..new_plugin.commands.len() {
 		let command_name = new_plugin.commands[i].join(" ");

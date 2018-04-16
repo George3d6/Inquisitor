@@ -10,6 +10,7 @@ extern crate env_logger;
 use inquisitor_lib::{current_ts, read_cfg, ReceptorPlugin};
 use rusqlite::Connection;
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -27,12 +28,12 @@ pub struct Plugin {
 	enabled:      bool,
 	checks:       Vec<Vec<String>>,
 	keys:         Vec<Vec<String>>,
-	cfg_file:     String
+	cfg_path:     PathBuf
 }
 
 impl Plugin {
 	fn config(&mut self) -> Result<(), String> {
-		let cfg = read_cfg::<Config>(self.cfg_file.clone())?;
+		let cfg = read_cfg::<Config>(&self.cfg_path)?;
 		self.enabled = cfg.enabled;
 		if !self.enabled {
 			return Ok(());
@@ -48,14 +49,15 @@ impl Plugin {
 	}
 }
 
-pub fn new(cfg_dir: String) -> Result<Plugin, String> {
+pub fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
+	cfg_path.push("comparator.yml");
 	let mut new_plugin = Plugin {
-		enabled:      true,
+		enabled:      false,
 		last_call_ts: current_ts(),
 		periodicity:  0,
 		keys:         vec![],
 		checks:       vec![],
-		cfg_file:     format!("{}/comparator.yml", cfg_dir)
+		cfg_path
 	};
 
 	new_plugin.config()?;

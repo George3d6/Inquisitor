@@ -2,7 +2,6 @@
 extern crate serde_derive;
 extern crate serde;
 extern crate serde_yaml;
-extern crate yaml_rust;
 #[macro_use]
 extern crate log;
 extern crate env_logger;
@@ -10,16 +9,15 @@ extern crate hyper;
 extern crate rusqlite;
 extern crate url;
 
-use self::yaml_rust::{Yaml, YamlLoader};
 extern crate fs_extra;
 use self::fs_extra::file::read_to_string;
-use std::time::{SystemTime, UNIX_EPOCH};
-use serde::de::DeserializeOwned;
 use self::hyper::server::Request;
 use self::url::Url;
 use rusqlite::Connection;
+use serde::de::DeserializeOwned;
 use std::collections::HashMap;
-use std::string::String;
+use std::path::PathBuf;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -37,11 +35,11 @@ pub fn current_ts() -> i64 {
 		.as_secs() as i64
 }
 
-pub fn read_cfg<ConfigT>(cfg_file_path: String) -> Result<ConfigT, String>
+pub fn read_cfg<ConfigT>(cfg_file_path: &PathBuf) -> Result<ConfigT, String>
 where
 	ConfigT: DeserializeOwned
 {
-	debug!("Reading config from: {:?}", cfg_file_path);
+	debug!("Reading config from: {:?}", cfg_file_path.display());
 	let cfg_str = read_to_string(&cfg_file_path).map_err(|e| e.to_string())?;
 	let cfg: ConfigT = serde_yaml::from_str(&cfg_str).map_err(|e| e.to_string())?;
 	Ok(cfg)

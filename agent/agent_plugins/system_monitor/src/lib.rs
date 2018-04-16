@@ -6,6 +6,7 @@ extern crate sysinfo;
 
 use inquisitor_lib::{current_ts, read_cfg, AgentPlugin};
 use std::collections::HashMap;
+use std::path::PathBuf;
 use sysinfo::{DiskExt, NetworkExt, ProcessorExt, System, SystemExt};
 
 
@@ -30,35 +31,20 @@ pub struct Plugin {
 	sys:          System,
 	last_call_ts: i64,
 	periodicity:  i64,
-	enabled:      bool,
-	cfg_file:     String
+	enabled:      bool
 }
 
-impl Plugin {
-	fn config(&mut self) -> Result<(), String> {
-		let cfg = read_cfg::<Config>(self.cfg_file.clone())?;
-		self.enabled = cfg.enabled;
-		if self.enabled {
-			self.periodicity = cfg.periodicity;
-		}
-		Ok(())
-	}
-}
-
-pub fn new(cfg_dir: String) -> Result<Plugin, String> {
-	let cfg_file = format!("{}/system_monitor.yml", cfg_dir);
-	let mut new_plugin = Plugin {
-		enabled: false,
-		sys: System::new(),
-		last_call_ts: 0,
-		periodicity: 0,
-		cfg_file
-	};
-
-	new_plugin.config()?;
-
-	if new_plugin.enabled {
-		Ok(new_plugin)
+pub fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
+	cfg_path.push("system_monitor.yml");
+	let cfg = read_cfg::<Config>(&cfg_path)?;
+	if cfg.enabled {
+		let plugin = Plugin {
+			enabled:      true,
+			sys:          System::new(),
+			last_call_ts: 0,
+			periodicity:  cfg.periodicity
+		};
+		Ok(plugin)
 	} else {
 		Err("System monitor disabled".into())
 	}

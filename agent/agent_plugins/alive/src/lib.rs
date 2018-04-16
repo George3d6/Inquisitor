@@ -9,6 +9,7 @@ extern crate inquisitor_lib;
 extern crate serde_derive;
 
 use inquisitor_lib::{current_ts, read_cfg, AgentPlugin};
+use std::path::PathBuf;
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -21,19 +22,17 @@ struct Config {
 pub struct Plugin {
 	last_call_ts: i64,
 	periodicity:  i64,
-	enabled:      bool,
-	cfg_file:     String
+	enabled:      bool
 }
 
-pub fn new(cfg_dir: String) -> Result<Plugin, String> {
-	let cfg_file = format!("{}/alive.yml", cfg_dir);
-	let cfg = read_cfg::<Config>(cfg_file.clone())?;
+pub fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
+	cfg_path.push("alive.yml");
+	let cfg = read_cfg::<Config>(&cfg_path)?;
 	if cfg.enabled {
 		Ok(Plugin {
-			enabled: true,
+			enabled:      true,
 			last_call_ts: 0,
-			periodicity: cfg.periodicity,
-			cfg_file
+			periodicity:  cfg.periodicity
 		})
 	} else {
 		Err("Alive plugin disabled".into())

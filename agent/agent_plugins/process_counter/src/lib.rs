@@ -9,8 +9,8 @@ extern crate serde_derive;
 
 use inquisitor_lib::{current_ts, read_cfg, AgentPlugin};
 use std::collections::HashMap;
+use std::path::PathBuf;
 use std::process::Command;
-
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Config {
@@ -24,43 +24,26 @@ pub struct Plugin {
 	last_call_map:   HashMap<String, i64>,
 	periodicity_map: HashMap<String, i64>,
 	processes:       Vec<String>,
-	enabled:         bool,
-	cfg_file:        String
+	enabled:         bool
 }
 
-impl Plugin {
-	fn config(&mut self) -> Result<(), String> {
-		let cfg = read_cfg::<Config>(self.cfg_file.clone())?;
-		self.enabled = cfg.enabled;
-		if !self.enabled {
-			return Ok(());
+pub fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
+	cfg_path.push("process_counter.yml");
+	let cfg = read_cfg::<Config>(&cfg_path)?;
+	if cfg.enabled {
+		let mut plugin = Plugin {
+			enabled:         true,
+			last_call_map:   HashMap::new(),
+			periodicity_map: HashMap::new(),
+			processes:       cfg.processes
+		};
+		for i in 0..plugin.processes.len() {
+			plugin
+				.periodicity_map
+				.insert(plugin.processes[i].clone(), cfg.periodicity_arr[i]);
+			plugin.last_call_map.insert(plugin.processes[i].clone(), 0);
 		}
-		self.processes = cfg.processes;
-
-		for i in 0..self.processes.len() {
-			self.periodicity_map
-				.insert(self.processes[i].clone(), cfg.periodicity_arr[i]);
-			self.last_call_map.insert(self.processes[i].clone(), 0);
-		}
-		Ok(())
-	}
-}
-
-pub fn new(cfg_dir: String) -> Result<Plugin, String> {
-	let cfg_file = format!("{}/process_counter.yml", cfg_dir);
-
-	let mut new_plugin = Plugin {
-		enabled: false,
-		last_call_map: HashMap::new(),
-		periodicity_map: HashMap::new(),
-		processes: Vec::new(),
-		cfg_file
-	};
-
-	new_plugin.config()?;
-
-	if new_plugin.enabled {
-		Ok(new_plugin)
+		Ok(plugin)
 	} else {
 		Err("Process counter disabled".into())
 	}
