@@ -9,8 +9,8 @@ name = "plugins"
 path = "src/lib.rs"
 
 [dependencies]
-sync_check = {path = "../receptor_plugins/sync_check"}
-comparator = {path = "../receptor_plugins/comparator"}
+inquisitor_receptor_sync_check = {path = "../receptor_plugins/sync_check"}
+inquisitor_receptor_comparator = {path = "../receptor_plugins/comparator"}
 
 inquisitor_lib = {path = "../../inquisitor_lib"}
 log = "0.4.1"

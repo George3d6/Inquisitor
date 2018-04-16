@@ -1,5 +1,5 @@
 [package]
-name = "process_counter"
+name = "inquisitor_agent_process_counter"
 version = "0.3.0"
 authors = ["George Hosu <george@cerebralab.com>"]
 

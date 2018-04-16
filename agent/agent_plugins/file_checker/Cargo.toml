@@ -1,5 +1,5 @@
 [package]
-name = "file_checker"
+name = "inquisitor_agent_file_checker"
 version = "0.3.0"
 authors = ["George Hosu <george@cerebralab.com>"]
 

@@ -1,5 +1,5 @@
 [package]
-name = "command_runner"
+name = "inquisitor_agent_command_runner"
 version = "0.3.0"
 authors = ["George Hosu <george@cerebralab.com>"]
 

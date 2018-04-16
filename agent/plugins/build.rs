@@ -1,8 +1,6 @@
 extern crate cargo_metadata;
 
-use std::fs::{copy, create_dir_all, File};
-use std::io::Write;
-use std::path::Path;
+use std::{fs::File, io::Write, path::Path};
 
 fn main() {
 	// Get list of 'dependencies'
@@ -46,36 +44,4 @@ fn main() {
 			plugins.join(", ")
 		).as_bytes()
 	).unwrap();
-
-	create_dir_all("../target/debug").unwrap();
-
-	create_dir_all("../target/release").unwrap();
-
-	copy(
-		"../inquisitor-agent.service",
-		"../target/debug/inquisitor-agent.service"
-	).unwrap();
-
-	copy(
-		"../inquisitor-agent.service",
-		"../target/release/inquisitor-agent.service"
-	).unwrap();
-
-	copy("../agent_config.yml", "../target/debug/agent_config.yml").unwrap();
-
-	copy("../agent_config.yml", "../target/release/agent_config.yml").unwrap();
-
-	for plugin in plugins {
-		println!("{}", plugin);
-
-		copy(
-			format!("../agent_plugins/{x}/{x}.yml", x = plugin),
-			format!("../target/debug/{x}.yml", x = plugin)
-		).unwrap();
-
-		copy(
-			format!("../agent_plugins/{x}/{x}.yml", x = plugin),
-			format!("../target/release/{x}.yml", x = plugin)
-		).unwrap();
-	}
 }
