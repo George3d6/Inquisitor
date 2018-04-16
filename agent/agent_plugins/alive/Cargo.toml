@@ -1,5 +1,5 @@
 [package]
-name = "alive"
+name = "inquisitor_agent_alive"
 version = "0.3.0"
 authors = ["George Hosu <george@cerebralab.com>"]
 

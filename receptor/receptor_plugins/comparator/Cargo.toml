@@ -1,5 +1,5 @@
 [package]
-name = "comparator"
+name = "inquisitor_receptor_comparator"
 version = "0.3.0"
 authors = ["George Hosu <george@cerebralab.com>"]
 

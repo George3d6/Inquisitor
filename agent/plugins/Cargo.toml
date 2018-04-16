@@ -9,11 +9,11 @@ name = "plugins"
 path = "src/lib.rs"
 
 [dependencies]
-alive = {path = "../agent_plugins/alive"}
-file_checker = {path = "../agent_plugins/file_checker"}
-process_counter = {path = "../agent_plugins/process_counter"}
-system_monitor = {path = "../agent_plugins/system_monitor"}
-command_runner = {path = "../agent_plugins/command_runner"}
+inquisitor_agent_alive = {path = "../agent_plugins/alive"}
+inquisitor_agent_file_checker = {path = "../agent_plugins/file_checker"}
+inquisitor_agent_process_counter = {path = "../agent_plugins/process_counter"}
+inquisitor_agent_system_monitor = {path = "../agent_plugins/system_monitor"}
+inquisitor_agent_command_runner = {path = "../agent_plugins/command_runner"}
 
 inquisitor_lib = {path = "../../inquisitor_lib"}
 log = "0.4.1"
