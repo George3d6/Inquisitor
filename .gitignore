@@ -4,3 +4,4 @@
 **/plugins/src/lib.rs
 endpoints/target
 endpoints/semi_private_credentials_because_I_am_lazy.txt
+.idea/

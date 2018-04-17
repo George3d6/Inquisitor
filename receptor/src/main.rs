@@ -15,20 +15,20 @@ extern crate serde_derive;
 extern crate tokio;
 extern crate tokio_core;
 
+use clap::{App, Arg};
 use database::{get_connection, initialize_database};
 use hyper::server::{Http, Request, Response, Service};
 use hyper::{Method, StatusCode};
-use inquisitor_lib::{read_cfg, Status, ReceptorPlugin, get_url_params};
+use inquisitor_lib::{get_url_params, read_cfg, ReceptorPlugin, Status};
 use rusqlite::Connection;
+use std::env::current_exe;
+use std::path::PathBuf;
 use std::{thread, time};
 use tokio::io::AsyncRead;
 use tokio::net::{TcpListener, TcpStream};
 use tokio::prelude::future;
 use tokio::prelude::{Future, Stream};
 use tokio_core::reactor::Core;
-use clap::{App, Arg};
-use std::env::current_exe;
-use std::path::PathBuf;
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -39,9 +39,9 @@ struct ConfigServerAddr {
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Config {
-	clean_older_than: 	i64,
-	server:				ConfigServerAddr,
-	receptor:			ConfigServerAddr
+	clean_older_than: i64,
+	server:           ConfigServerAddr,
+	receptor:         ConfigServerAddr
 }
 
 struct DataServer {
@@ -86,7 +86,7 @@ impl Service for DataServer {
 								&[
 									(":ts_start", &ts_start),
 									(":ts_end", &ts_end),
-									(":plugin_name", &plugin_name),
+									(":plugin_name", &plugin_name)
 								],
 								|row| (row.get(0), row.get(1), row.get(3))
 							)
@@ -114,7 +114,7 @@ impl Service for DataServer {
 								&[
 									(":ts_start", &ts_start),
 									(":ts_end", &ts_end),
-									(":plugin_name", &plugin_name),
+									(":plugin_name", &plugin_name)
 								],
 								|row| (row.get(0), row.get(1))
 							)
@@ -195,7 +195,7 @@ fn proces_status(stream: TcpStream, db_conn: Connection) {
 						&status.sender,
 						&status.message,
 						&status.plugin_name,
-						&status.ts.to_string(),
+						&status.ts.to_string()
 					]
 				)
 				.expect("Can't insert status into agent_status table");
@@ -319,11 +319,7 @@ fn main() {
 
 	/* Run http server for the web UI and http endpoints to get plugin data */
 
-	let server_addr_str = format!(
-		"{}:{}",
-		config.server.bind,
-		config.server.port
-	);
+	let server_addr_str = format!("{}:{}", config.server.bind, config.server.port);
 
 	let _hyper_server_thread = thread::spawn(move || {
 		let server_addr = server_addr_str.parse().expect("Can't parse HTTP server address");
@@ -360,11 +356,7 @@ fn main() {
 
 	// Listen for incoming statuses from agents and process them
 	// validate them & insert them into the database
-	let receptor_addr_str = format!(
-		"{}:{}",
-		config.receptor.bind,
-		config.receptor.port
-	);
+	let receptor_addr_str = format!("{}:{}", config.receptor.bind, config.receptor.port);
 
 	let listener_addr = receptor_addr_str.parse().expect("Can't parse TCP server address");
 
