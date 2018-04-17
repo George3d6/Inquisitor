@@ -37,9 +37,9 @@ impl Plugin {
 pub fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
 	cfg_path.push("sync_check.yml");
 	let mut new_plugin = Plugin {
-		enabled:      false,
+		enabled: false,
 		last_call_ts: 0,
-		periodicity:  0,
+		periodicity: 0,
 		cfg_path
 	};
 

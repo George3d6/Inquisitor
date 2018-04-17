@@ -52,11 +52,11 @@ impl Plugin {
 pub fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
 	cfg_path.push("comparator.yml");
 	let mut new_plugin = Plugin {
-		enabled:      false,
+		enabled: false,
 		last_call_ts: current_ts(),
-		periodicity:  0,
-		keys:         vec![],
-		checks:       vec![],
+		periodicity: 0,
+		keys: vec![],
+		checks: vec![],
 		cfg_path
 	};
 
