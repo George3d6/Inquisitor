@@ -257,7 +257,7 @@ fn main() {
 		)
 		.arg(
 			Arg::with_name("config_dir")
-				.long("config_dir")
+				.long("config-dir")
 				.help("The directory where the receptor looks for it's configuration files")
 				.default_value(&exec_path)
 				.takes_value(true)
