@@ -14,6 +14,5 @@ hostname = "0.1.4"
 clap = "2.31.2"
 
 inquisitor_lib = {path="../inquisitor_lib"}
-plugins = {path="plugins"}
+agent_plugins = {path="plugins"}
 
-[workspace]

@@ -1,14 +1,14 @@
 extern crate cargo_metadata;
 
-use std::{fs::File, io::Write, path::Path};
+use std::{fs::File, io::Write};
 
 fn main() {
 	// Get list of 'dependencies'
-	let packages = &cargo_metadata::metadata_deps(Some(Path::new("Cargo.toml")), true)
+	let packages = &cargo_metadata::metadata_deps(None, true)
 		.unwrap()
 		.packages;
 
-	let v = &packages.iter().find(|&x| x.name == "plugins").unwrap().dependencies;
+	let v = &packages.iter().find(|&x| x.name == "receptor_plugins").unwrap().dependencies;
 
 	let mut plugins = vec![];
 

@@ -1,5 +1,5 @@
 [package]
-name = "plugins"
+name = "agent_plugins"
 version = "0.3.0"
 authors = ["Richard Petrie <rap1011@ksu.edu>"]
 build = "build.rs"

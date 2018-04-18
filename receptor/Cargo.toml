@@ -24,10 +24,9 @@ env_logger = "0.5.7"
 clap = "2.31.2"
 
 inquisitor_lib = {path="../inquisitor_lib"}
-plugins = {path="plugins"}
+receptor_plugins = {path="plugins"}
 
 [dependencies.rusqlite]
 version = "0.13.0"
 features = ["bundled"]
 
-[workspace]

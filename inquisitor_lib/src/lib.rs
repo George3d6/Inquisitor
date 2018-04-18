@@ -42,7 +42,7 @@ pub fn current_ts() -> i64 {
 
 /// A utility function that returns a deserialized object from a configuration file.
 /// Plugins should use this instead of manipulating their own configuration file
-/// 
+///
 /// # TODO examples
 pub fn read_cfg<ConfigT>(cfg_file_path: &PathBuf) -> Result<ConfigT, String>
 where
