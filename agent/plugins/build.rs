@@ -5,9 +5,13 @@ use std::{fs::File, io::Write};
 fn main() {
 	// Get list of 'dependencies'
 	let packages = &cargo_metadata::metadata_deps(None, true)
-		.expect("meta")
+		.expect("Failed to find cargo manifest")
 		.packages;
-	let v = &packages.iter().find(|&x| x.name == "agent_plugins").expect("failed").dependencies;
+	let v = &packages
+		.iter()
+		.find(|&x| x.name == "agent_plugins")
+		.expect("Failed to find plugin package")
+		.dependencies;
 
 	let mut plugins = vec![];
 
@@ -22,7 +26,7 @@ fn main() {
 	println!("Compiling with plugins: {:?}", plugins);
 
 	// Write to src/lib.rs
-	let mut f = File::create("src/lib.rs").expect("file");
+	let mut f = File::create("src/lib.rs").expect("Failed to create lib file");
 
 	f.write_all(
 		format!(
@@ -42,5 +46,5 @@ fn main() {
             ",
 			plugins.join(", ")
 		).as_bytes()
-	).expect("last");
+	).expect("Failed to write lib");
 }
