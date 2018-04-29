@@ -17,7 +17,7 @@ inquisitor_agent_command_runner = {path = "../agent_plugins/command_runner"}
 
 inquisitor_lib = {path = "../../inquisitor_lib"}
 log = "0.4.1"
-env_logger = "0.5.6"
+env_logger = "0.5.9"
 
 [build-dependencies]
 cargo_metadata = "0.5.4"
