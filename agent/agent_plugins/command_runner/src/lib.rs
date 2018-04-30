@@ -29,29 +29,28 @@ pub struct Plugin {
 	enabled:         bool
 }
 
-pub fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
-	cfg_path.push("command_runner.yml");
-	let cfg = read_cfg::<Config>(&cfg_path)?;
-	if !cfg.enabled {
-		return Err("Command runner disabled".into());
-	}
-	let mut new_plugin = Plugin {
-		enabled:         cfg.enabled,
-		last_call_map:   HashMap::new(),
-		periodicity_map: HashMap::new(),
-		commands:        cfg.commands
-	};
-	for i in 0..new_plugin.commands.len() {
-		let command_name = new_plugin.commands[i].join(" ");
-		new_plugin
-			.periodicity_map
-			.insert(command_name.clone(), cfg.periodicity_arr[i]);
-		new_plugin.last_call_map.insert(command_name, 0);
-	}
-	Ok(new_plugin)
-}
-
 impl AgentPlugin for Plugin {
+	fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
+		cfg_path.push("command_runner.yml");
+		let cfg = read_cfg::<Config>(&cfg_path)?;
+		if !cfg.enabled {
+			return Err("Command runner disabled".into());
+		}
+		let mut new_plugin = Plugin {
+			enabled:         cfg.enabled,
+			last_call_map:   HashMap::new(),
+			periodicity_map: HashMap::new(),
+			commands:        cfg.commands
+		};
+		for i in 0..new_plugin.commands.len() {
+			let command_name = new_plugin.commands[i].join(" ");
+			new_plugin
+				.periodicity_map
+				.insert(command_name.clone(), cfg.periodicity_arr[i]);
+			new_plugin.last_call_map.insert(command_name, 0);
+		}
+		Ok(new_plugin)
+	}
 	fn name(&self) -> &'static str {
 		"Command runner"
 	}

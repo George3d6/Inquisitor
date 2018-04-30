@@ -27,30 +27,29 @@ pub struct Plugin {
 	enabled:         bool
 }
 
-pub fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
-	cfg_path.push("process_counter.yml");
-	let cfg = read_cfg::<Config>(&cfg_path)?;
-	if cfg.enabled {
-		let mut plugin = Plugin {
-			enabled:         true,
-			last_call_map:   HashMap::new(),
-			periodicity_map: HashMap::new(),
-			processes:       cfg.processes
-		};
-		for i in 0..plugin.processes.len() {
-			plugin
-				.periodicity_map
-				.insert(plugin.processes[i].clone(), cfg.periodicity_arr[i]);
-			plugin.last_call_map.insert(plugin.processes[i].clone(), 0);
-		}
-		Ok(plugin)
-	} else {
-		Err("Process counter disabled".into())
-	}
-}
-
-
 impl AgentPlugin for Plugin {
+	fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
+		cfg_path.push("process_counter.yml");
+		let cfg = read_cfg::<Config>(&cfg_path)?;
+		if cfg.enabled {
+			let mut plugin = Plugin {
+				enabled:         true,
+				last_call_map:   HashMap::new(),
+				periodicity_map: HashMap::new(),
+				processes:       cfg.processes
+			};
+			for i in 0..plugin.processes.len() {
+				plugin
+					.periodicity_map
+					.insert(plugin.processes[i].clone(), cfg.periodicity_arr[i]);
+				plugin.last_call_map.insert(plugin.processes[i].clone(), 0);
+			}
+			Ok(plugin)
+		} else {
+			Err("Process counter disabled".into())
+		}
+	}
+
 	fn name(&self) -> &'static str {
 		"Process counter"
 	}

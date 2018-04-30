@@ -13,7 +13,7 @@ extern crate fs_extra;
 use self::fs_extra::file::read_to_string;
 use rusqlite::Connection;
 use serde::de::DeserializeOwned;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 /// This struct is for communication between agent and receptor.
@@ -91,6 +91,11 @@ where
 
 /// This trait is required by agent plugins
 pub trait AgentPlugin {
+	/// This creates the object the the agent uses to run the plugin.
+	/// The structs that implement this should be called "Plugin" or have an alias of "Plugin"
+	fn new(PathBuf) -> Result<Self, String>
+	where
+		Self: Sized;
 	/// Returns the plugin's name. Sent to the server to tag plugin messages
 	fn name(&self) -> &'static str;
 	/// This is the 'worker' function, and will be called when the ready function returns true.
@@ -103,6 +108,11 @@ pub trait AgentPlugin {
 
 /// This trait is required by receptor plugins
 pub trait ReceptorPlugin {
+	/// This creates the object the the receptor uses to run the plugin.
+	/// The structs that implement this should be called "Plugin" or have an alias of "Plugin"
+	fn new(PathBuf) -> Result<Self, String>
+	where
+		Self: Sized;
 	/// Returns the plugin's name. Stored in the database with the message returned
 	fn name(&self) -> &'static str;
 	/// This is the 'worker' function, and will be called when the ready function returns true.
