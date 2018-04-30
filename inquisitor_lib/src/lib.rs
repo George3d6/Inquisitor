@@ -1,24 +1,19 @@
 //! This library is intended for use in both the Inquisitor Agent and the Inquisitor Receptor.
 //! Plugin authors must implement the plugin trait for their desired platform, but they
-//! may also make use of several convience functions included in this library.
+//! may also make use of several convenience functions included in this library.
 #[macro_use]
 extern crate serde_derive;
 extern crate serde;
 extern crate serde_yaml;
 #[macro_use]
 extern crate log;
-extern crate hyper;
 extern crate rusqlite;
-extern crate url;
 
 extern crate fs_extra;
 use self::fs_extra::file::read_to_string;
-use self::hyper::server::Request;
-use self::url::Url;
 use rusqlite::Connection;
 use serde::de::DeserializeOwned;
-use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 /// This struct is for communication between agent and receptor.
@@ -32,6 +27,19 @@ pub struct Status {
 }
 
 /// A utility function that returns the current timestamp in seconds
+/// # Example
+/// ```
+/// # extern crate inquisitor_lib;
+/// # use inquisitor_lib::current_ts;
+/// #
+/// # fn main() {
+/// use std::{thread, time::Duration};
+/// let ts1 = current_ts();
+/// thread::sleep(Duration::from_secs(1));
+/// let ts2 = current_ts();
+/// assert_eq!(ts1, ts2 -1);
+/// # }
+/// ```
 pub fn current_ts() -> i64 {
 	SystemTime::now()
 		.duration_since(UNIX_EPOCH)
@@ -41,9 +49,37 @@ pub fn current_ts() -> i64 {
 
 /// A utility function that returns a deserialized object from a configuration file.
 /// Plugins should use this instead of manipulating their own configuration file
+/// # Example
+/// ```
+/// #[macro_use]
+/// extern crate serde_derive;
+/// extern crate serde_yaml;
+/// extern crate inquisitor_lib;
+/// # use std::path::PathBuf;
+/// # use std::fs::File;
+/// # use std::io::Write;
+/// use inquisitor_lib::read_cfg;
 ///
-/// # TODO examples
-pub fn read_cfg<ConfigT>(cfg_file_path: &PathBuf) -> Result<ConfigT, String>
+/// #[derive(Debug, PartialEq, Serialize, Deserialize, Eq)]
+/// struct Config {
+/// 	enabled: bool,
+/// }
+///
+/// fn main() {
+/// 	// Setup
+///     let config: Config = Config { enabled: true };
+///     let p = PathBuf::from("test.yml");
+///     let mut file = File::create(&p).unwrap();
+///     file.write_all(serde_yaml::to_string(&config).unwrap().as_bytes()).unwrap();
+///
+/// 	// Read function
+///     let read_config = read_cfg::<Config>(&p).unwrap();
+///     assert_eq!(config, read_config);
+/// 	# std::fs::remove_file(&p).unwrap()
+/// }
+///
+/// ```
+pub fn read_cfg<ConfigT>(cfg_file_path: &Path) -> Result<ConfigT, String>
 where
 	ConfigT: DeserializeOwned
 {
@@ -57,7 +93,7 @@ where
 pub trait AgentPlugin {
 	/// Returns the plugin's name. Sent to the server to tag plugin messages
 	fn name(&self) -> &'static str;
-	/// This is the 'worker' function, and will be called when the ready fucntion returns true.
+	/// This is the 'worker' function, and will be called when the ready function returns true.
 	/// Currently this requires plugins to return a string.
 	/// An `Ok` will be sent to the server, while currently an `Err` is output to the terminal on the agent
 	fn gather(&mut self) -> Result<String, String>;
@@ -65,19 +101,11 @@ pub trait AgentPlugin {
 	fn ready(&self) -> bool;
 }
 
-pub fn get_url_params(req: &Request) -> HashMap<String, String> {
-	let parsed_url = Url::parse(&format!("http://example.com/{}", req.uri())).unwrap();
-
-	let hash_query: HashMap<String, String> = parsed_url.query_pairs().into_owned().collect();
-
-	hash_query
-}
-
 /// This trait is required by receptor plugins
 pub trait ReceptorPlugin {
-	/// Returns the plugin's name. Stored in the database with the message returnd
+	/// Returns the plugin's name. Stored in the database with the message returned
 	fn name(&self) -> &'static str;
-	/// This is the 'worker' function, and will be called when the ready fucntion returns true.
+	/// This is the 'worker' function, and will be called when the ready function returns true.
 	/// Currently this requires plugins to return a string.
 	/// An `Ok` will be stored, while currently an `Err` is output to the terminal on the receptor
 	fn gather(&mut self, db_conn: &Connection) -> Result<String, String>;
