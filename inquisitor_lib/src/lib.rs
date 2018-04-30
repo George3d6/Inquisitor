@@ -7,7 +7,6 @@ extern crate serde;
 extern crate serde_yaml;
 #[macro_use]
 extern crate log;
-extern crate env_logger;
 extern crate hyper;
 extern crate rusqlite;
 extern crate url;

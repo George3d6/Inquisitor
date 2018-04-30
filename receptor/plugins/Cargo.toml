@@ -14,7 +14,6 @@ inquisitor_receptor_comparator = {path = "../receptor_plugins/comparator"}
 
 inquisitor_lib = {path = "../../inquisitor_lib"}
 log = "0.4.1"
-env_logger = "0.5.9"
 
 [build-dependencies]
 cargo_metadata = "0.5.4"
