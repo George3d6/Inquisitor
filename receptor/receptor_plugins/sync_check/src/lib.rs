@@ -34,25 +34,25 @@ impl Plugin {
 	}
 }
 
-pub fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
-	cfg_path.push("sync_check.yml");
-	let mut new_plugin = Plugin {
-		enabled: false,
-		last_call_ts: 0,
-		periodicity: 0,
-		cfg_path
-	};
-
-	new_plugin.config()?;
-
-	if new_plugin.enabled {
-		Ok(new_plugin)
-	} else {
-		Err("Sync check disabled".into())
-	}
-}
-
 impl ReceptorPlugin for Plugin {
+	fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
+		cfg_path.push("sync_check.yml");
+		let mut new_plugin = Plugin {
+			enabled: false,
+			last_call_ts: 0,
+			periodicity: 0,
+			cfg_path
+		};
+
+		new_plugin.config()?;
+
+		if new_plugin.enabled {
+			Ok(new_plugin)
+		} else {
+			Err("Sync check disabled".into())
+		}
+	}
+
 	fn name(&self) -> &'static str {
 		"Sync check"
 	}

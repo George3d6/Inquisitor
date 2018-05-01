@@ -1,21 +1,23 @@
 extern crate cargo_metadata;
 
-use std::{fs::File, io::Write, path::Path};
+use std::{fs::File, io::Write};
 
 fn main() {
 	// Get list of 'dependencies'
-	let packages = &cargo_metadata::metadata_deps(Some(Path::new("Cargo.toml")), true)
-		.unwrap()
+	let packages = &cargo_metadata::metadata_deps(None, true)
+		.expect("Failed to find manifest")
 		.packages;
 
-	let v = &packages.iter().find(|&x| x.name == "plugins").unwrap().dependencies;
+	let v = &packages
+		.iter()
+		.find(|&x| x.name == "receptor_plugins")
+		.expect("Failed to find plugin package")
+		.dependencies;
 
 	let mut plugins = vec![];
 
 	for p in v {
-		if p.kind == cargo_metadata::DependencyKind::Normal && p.name != "inquisitor_lib" && p.name != "env_logger"
-			&& p.name != "log"
-		{
+		if p.kind == cargo_metadata::DependencyKind::Normal && p.name != "inquisitor_lib" && p.name != "log" {
 			plugins.push(p.name.clone());
 		}
 	}
@@ -23,7 +25,7 @@ fn main() {
 	println!("{:?}", plugins);
 
 	// Write to src/lib.rs
-	let mut f = File::create("src/lib.rs").unwrap();
+	let mut f = File::create("src/lib.rs").expect("Failed to create lib file");
 
 	f.write_all(
 		format!(
@@ -32,15 +34,14 @@ fn main() {
 
             #[macro_use] \
 			 extern crate log;
-            extern crate env_logger;
 
             #[macro_use]
-            mod \
-			 plugin_initialization;
+            mod plugin_initialization;
 
-            plugins!({});
+            \
+			 plugins!({});
             ",
 			plugins.join(", ")
 		).as_bytes()
-	).unwrap();
+	).expect("Failed to write lib file");
 }

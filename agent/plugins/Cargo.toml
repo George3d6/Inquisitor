@@ -1,5 +1,5 @@
 [package]
-name = "plugins"
+name = "agent_plugins"
 version = "0.3.0"
 authors = ["Richard Petrie <rap1011@ksu.edu>"]
 build = "build.rs"
@@ -17,7 +17,6 @@ inquisitor_agent_command_runner = {path = "../agent_plugins/command_runner"}
 
 inquisitor_lib = {path = "../../inquisitor_lib"}
 log = "0.4.1"
-env_logger = "0.5.6"
 
 [build-dependencies]
 cargo_metadata = "0.5.4"

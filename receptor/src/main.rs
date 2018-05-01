@@ -14,13 +14,15 @@ extern crate serde_json;
 extern crate serde_derive;
 extern crate tokio;
 extern crate tokio_core;
+extern crate url;
 
 use clap::{App, Arg};
 use database::{get_connection, initialize_database};
 use hyper::server::{Http, Request, Response, Service};
 use hyper::{Method, StatusCode};
-use inquisitor_lib::{get_url_params, read_cfg, ReceptorPlugin, Status};
+use inquisitor_lib::{read_cfg, ReceptorPlugin, Status};
 use rusqlite::Connection;
+use std::collections::HashMap;
 use std::env::current_exe;
 use std::path::PathBuf;
 use std::{thread, time};
@@ -29,6 +31,7 @@ use tokio::net::{TcpListener, TcpStream};
 use tokio::prelude::future;
 use tokio::prelude::{Future, Stream};
 use tokio_core::reactor::Core;
+use url::Url;
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -257,7 +260,7 @@ fn main() {
 		)
 		.arg(
 			Arg::with_name("config_dir")
-				.long("config_dir")
+				.long("config-dir")
 				.help("The directory where the receptor looks for it's configuration files")
 				.default_value(&exec_path)
 				.takes_value(true)
@@ -380,4 +383,12 @@ fn main() {
 	_plugin_runner_thread.join().unwrap();
 
 	_hyper_server_thread.join().unwrap();
+}
+
+pub fn get_url_params(req: &Request) -> HashMap<String, String> {
+	let parsed_url = Url::parse(&format!("http://example.com/{}", req.uri())).unwrap();
+
+	let hash_query: HashMap<String, String> = parsed_url.query_pairs().into_owned().collect();
+
+	hash_query
 }

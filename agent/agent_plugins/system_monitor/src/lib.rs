@@ -34,23 +34,23 @@ pub struct Plugin {
 	enabled:      bool
 }
 
-pub fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
-	cfg_path.push("system_monitor.yml");
-	let cfg = read_cfg::<Config>(&cfg_path)?;
-	if cfg.enabled {
-		let plugin = Plugin {
-			enabled:      true,
-			sys:          System::new(),
-			last_call_ts: 0,
-			periodicity:  cfg.periodicity
-		};
-		Ok(plugin)
-	} else {
-		Err("System monitor disabled".into())
-	}
-}
-
 impl AgentPlugin for Plugin {
+	fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
+		cfg_path.push("system_monitor.yml");
+		let cfg = read_cfg::<Config>(&cfg_path)?;
+		if cfg.enabled {
+			let plugin = Plugin {
+				enabled:      true,
+				sys:          System::new(),
+				last_call_ts: 0,
+				periodicity:  cfg.periodicity
+			};
+			Ok(plugin)
+		} else {
+			Err("System monitor disabled".into())
+		}
+	}
+
 	fn name(&self) -> &'static str {
 		"System monitor"
 	}

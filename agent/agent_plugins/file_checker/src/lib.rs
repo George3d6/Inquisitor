@@ -37,40 +37,40 @@ pub struct Plugin {
 	enabled:       bool
 }
 
-pub fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
-	cfg_path.push("file_checker.yml");
-	let cfg = read_cfg::<Config>(&cfg_path)?;
-	if !cfg.enabled {
-		return Err("File checker disabled".into());
-	}
-	let mut plugin = Plugin {
-		enabled:       true,
-		last_call_ts:  0,
-		periodicity:   cfg.periodicity,
-		file_info_map: HashMap::new()
-	};
-
-	for i in 0..cfg.files.len() {
-		// This disables the entire plugin if any file doesn't exist
-		let fp = File::open(&cfg.files[i]).map_err(|e| e.to_string())?;
-
-		let nr_lines = BufReader::new(fp).lines().count() as i64;
-
-		let file_size = get_size(&cfg.files[i]).map_err(|e| e.to_string())? as i64;
-
-		plugin.file_info_map.insert(
-			cfg.files[i].clone(),
-			FileInfo {
-				last_line: nr_lines,
-				last_size: file_size,
-				look_for:  cfg.keyphrase[i].clone()
-			}
-		);
-	}
-	Ok(plugin)
-}
-
 impl AgentPlugin for Plugin {
+	fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
+		cfg_path.push("file_checker.yml");
+		let cfg = read_cfg::<Config>(&cfg_path)?;
+		if !cfg.enabled {
+			return Err("File checker disabled".into());
+		}
+		let mut plugin = Plugin {
+			enabled:       true,
+			last_call_ts:  0,
+			periodicity:   cfg.periodicity,
+			file_info_map: HashMap::new()
+		};
+
+		for i in 0..cfg.files.len() {
+			// This disables the entire plugin if any file doesn't exist
+			let fp = File::open(&cfg.files[i]).map_err(|e| e.to_string())?;
+
+			let nr_lines = BufReader::new(fp).lines().count() as i64;
+
+			let file_size = get_size(&cfg.files[i]).map_err(|e| e.to_string())? as i64;
+
+			plugin.file_info_map.insert(
+				cfg.files[i].clone(),
+				FileInfo {
+					last_line: nr_lines,
+					last_size: file_size,
+					look_for:  cfg.keyphrase[i].clone()
+				}
+			);
+		}
+		Ok(plugin)
+	}
+
 	fn name(&self) -> &'static str {
 		"File checker"
 	}

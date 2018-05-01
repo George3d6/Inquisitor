@@ -5,7 +5,6 @@ extern crate serde_json;
 extern crate serde_derive;
 #[macro_use]
 extern crate log;
-extern crate env_logger;
 
 use inquisitor_lib::{current_ts, read_cfg, ReceptorPlugin};
 use rusqlite::Connection;
@@ -49,27 +48,27 @@ impl Plugin {
 	}
 }
 
-pub fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
-	cfg_path.push("comparator.yml");
-	let mut new_plugin = Plugin {
-		enabled: false,
-		last_call_ts: current_ts(),
-		periodicity: 0,
-		keys: vec![],
-		checks: vec![],
-		cfg_path
-	};
-
-	new_plugin.config()?;
-
-	if new_plugin.enabled {
-		Ok(new_plugin)
-	} else {
-		Err("Comparator disabled".into())
-	}
-}
-
 impl ReceptorPlugin for Plugin {
+	fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
+		cfg_path.push("comparator.yml");
+		let mut new_plugin = Plugin {
+			enabled: false,
+			last_call_ts: current_ts(),
+			periodicity: 0,
+			keys: vec![],
+			checks: vec![],
+			cfg_path
+		};
+
+		new_plugin.config()?;
+
+		if new_plugin.enabled {
+			Ok(new_plugin)
+		} else {
+			Err("Comparator disabled".into())
+		}
+	}
+
 	fn name(&self) -> &'static str {
 		"Comparator"
 	}
