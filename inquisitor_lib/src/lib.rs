@@ -19,6 +19,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 /// This struct is for communication between agent and receptor.
 /// Plugins should not use this directly
 /// This struct is considered "internal API" and can change in patch versions
+#[doc(hidden)]
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Status {
 	pub sender:      String,
