@@ -7,6 +7,7 @@ extern crate serde_derive;
 use inquisitor_lib::{current_ts, read_cfg, ReceptorPlugin};
 use rusqlite::Connection;
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Config {
@@ -19,12 +20,12 @@ pub struct Plugin {
 	last_call_ts: i64,
 	periodicity:  i64,
 	enabled:      bool,
-	cfg_file:     String
+	cfg_path:     PathBuf
 }
 
 impl Plugin {
 	fn config(&mut self) -> Result<(), String> {
-		let cfg = read_cfg::<Config>(self.cfg_file.clone())?;
+		let cfg = read_cfg::<Config>(&self.cfg_path)?;
 		self.enabled = cfg.enabled;
 		if self.enabled {
 			self.periodicity = cfg.periodicity;
@@ -33,24 +34,25 @@ impl Plugin {
 	}
 }
 
-pub fn new(cfg_dir: String) -> Result<Plugin, String> {
-	let mut new_plugin = Plugin {
-		enabled:      true,
-		last_call_ts: 0,
-		periodicity:  0,
-		cfg_file:     format!("{}/sync_check.yml", cfg_dir)
-	};
-
-	new_plugin.config()?;
-
-	if new_plugin.enabled {
-		Ok(new_plugin)
-	} else {
-		Err("Sync check disabled".into())
-	}
-}
-
 impl ReceptorPlugin for Plugin {
+	fn new(mut cfg_path: PathBuf) -> Result<Plugin, String> {
+		cfg_path.push("sync_check.yml");
+		let mut new_plugin = Plugin {
+			enabled: false,
+			last_call_ts: 0,
+			periodicity: 0,
+			cfg_path
+		};
+
+		new_plugin.config()?;
+
+		if new_plugin.enabled {
+			Ok(new_plugin)
+		} else {
+			Err("Sync check disabled".into())
+		}
+	}
+
 	fn name(&self) -> &'static str {
 		"Sync check"
 	}

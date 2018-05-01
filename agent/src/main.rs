@@ -10,13 +10,14 @@ extern crate serde_json;
 extern crate serde_derive;
 extern crate tokio;
 
+use clap::{App, Arg};
 use inquisitor_lib::{current_ts, read_cfg, AgentPlugin, Status};
+use std::env::current_exe;
 use std::net::SocketAddr;
+use std::path::PathBuf;
 use std::{thread, time};
 use tokio::net::TcpStream;
 use tokio::prelude::Future;
-use clap::{App, Arg};
-use std::env::current_exe;
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -27,8 +28,8 @@ struct ReceptorAddr {
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Config {
-	machine_identifier:	Option<String>,
-	receptor:			ReceptorAddr
+	machine_identifier: Option<String>,
+	receptor:           ReceptorAddr
 }
 
 
@@ -48,7 +49,7 @@ fn main() {
 		)
 		.arg(
 			Arg::with_name("config_dir")
-				.long("config_dir")
+				.long("config-dir")
 				.help("The directory where the agent looks for it's configuration files")
 				.default_value(&exec_path)
 				.takes_value(true)
@@ -57,20 +58,19 @@ fn main() {
 		.get_matches();
 
 	// Produce config path
-	let config_dir = matches.value_of("config_dir").unwrap(); //_or(&cfg_file_path_str);
+	let config_dir = PathBuf::from(matches.value_of("config_dir").unwrap()); //_or(&cfg_file_path_str);
+	let mut agent_config = config_dir.clone();
+	agent_config.push("agent_config.yml");
 
-	let config = read_cfg::<Config>(format!("{}/{}", config_dir, "agent_config.yml")).unwrap();
+	let config = read_cfg::<Config>(&agent_config).unwrap();
 
-	let mut plugins = plugins::init(config_dir.to_string());
+	let mut plugins = plugins::init(config_dir);
 
-	let hostname = config.machine_identifier
+	let hostname = config
+		.machine_identifier
 		.unwrap_or_else(|| hostname::get_hostname().unwrap());
 
-	let addr = format!(
-		"{}:{}",
-		config.receptor.host,
-		config.receptor.port
-	);
+	let addr = format!("{}:{}", config.receptor.host, config.receptor.port);
 
 	let mut sender = StatusSender::new(hostname, addr.parse().expect("Couldn't convert IP address"));
 

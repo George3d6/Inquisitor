@@ -14,20 +14,24 @@ extern crate serde_json;
 extern crate serde_derive;
 extern crate tokio;
 extern crate tokio_core;
+extern crate url;
 
+use clap::{App, Arg};
 use database::{get_connection, initialize_database};
 use hyper::server::{Http, Request, Response, Service};
 use hyper::{Method, StatusCode};
-use inquisitor_lib::{read_cfg, Status, ReceptorPlugin, get_url_params};
+use inquisitor_lib::{read_cfg, ReceptorPlugin, Status};
 use rusqlite::Connection;
+use std::collections::HashMap;
+use std::env::current_exe;
+use std::path::PathBuf;
 use std::{thread, time};
 use tokio::io::AsyncRead;
 use tokio::net::{TcpListener, TcpStream};
 use tokio::prelude::future;
 use tokio::prelude::{Future, Stream};
 use tokio_core::reactor::Core;
-use clap::{App, Arg};
-use std::env::current_exe;
+use url::Url;
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -38,9 +42,9 @@ struct ConfigServerAddr {
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Config {
-	clean_older_than: 	i64,
-	server:				ConfigServerAddr,
-	receptor:			ConfigServerAddr
+	clean_older_than: i64,
+	server:           ConfigServerAddr,
+	receptor:         ConfigServerAddr
 }
 
 struct DataServer {
@@ -85,7 +89,7 @@ impl Service for DataServer {
 								&[
 									(":ts_start", &ts_start),
 									(":ts_end", &ts_end),
-									(":plugin_name", &plugin_name),
+									(":plugin_name", &plugin_name)
 								],
 								|row| (row.get(0), row.get(1), row.get(3))
 							)
@@ -113,7 +117,7 @@ impl Service for DataServer {
 								&[
 									(":ts_start", &ts_start),
 									(":ts_end", &ts_end),
-									(":plugin_name", &plugin_name),
+									(":plugin_name", &plugin_name)
 								],
 								|row| (row.get(0), row.get(1))
 							)
@@ -194,7 +198,7 @@ fn proces_status(stream: TcpStream, db_conn: Connection) {
 						&status.sender,
 						&status.message,
 						&status.plugin_name,
-						&status.ts.to_string(),
+						&status.ts.to_string()
 					]
 				)
 				.expect("Can't insert status into agent_status table");
@@ -256,7 +260,7 @@ fn main() {
 		)
 		.arg(
 			Arg::with_name("config_dir")
-				.long("config_dir")
+				.long("config-dir")
 				.help("The directory where the receptor looks for it's configuration files")
 				.default_value(&exec_path)
 				.takes_value(true)
@@ -265,8 +269,10 @@ fn main() {
 		.get_matches();
 
 	// Produce config path
-	let config_dir = matches.value_of("config_dir").unwrap(); //_or(&cfg_file_path_str);
-	let config = read_cfg::<Config>(format!("{}/{}", config_dir, "receptor_config.yml")).unwrap();
+	let config_dir = PathBuf::from(matches.value_of("config_dir").unwrap());
+	let mut receptor_config = config_dir.clone();
+	receptor_config.push("receptor_config.yml");
+	let config = read_cfg::<Config>(&receptor_config).unwrap();
 
 	let clean_older_than = config.clean_older_than;
 
@@ -300,9 +306,8 @@ fn main() {
 
 	/* Run receptor side plugins */
 
-	let config_dir_str = config_dir.to_string();
 	let _plugin_runner_thread = thread::spawn(|| {
-		let mut plugins = plugins::init(config_dir_str);
+		let mut plugins = plugins::init(config_dir);
 
 		let plugin_runner = PluginRunner::new();
 
@@ -317,11 +322,7 @@ fn main() {
 
 	/* Run http server for the web UI and http endpoints to get plugin data */
 
-	let server_addr_str = format!(
-		"{}:{}",
-		config.server.bind,
-		config.server.port
-	);
+	let server_addr_str = format!("{}:{}", config.server.bind, config.server.port);
 
 	let _hyper_server_thread = thread::spawn(move || {
 		let server_addr = server_addr_str.parse().expect("Can't parse HTTP server address");
@@ -358,11 +359,7 @@ fn main() {
 
 	// Listen for incoming statuses from agents and process them
 	// validate them & insert them into the database
-	let receptor_addr_str = format!(
-		"{}:{}",
-		config.receptor.bind,
-		config.receptor.port
-	);
+	let receptor_addr_str = format!("{}:{}", config.receptor.bind, config.receptor.port);
 
 	let listener_addr = receptor_addr_str.parse().expect("Can't parse TCP server address");
 
@@ -386,4 +383,12 @@ fn main() {
 	_plugin_runner_thread.join().unwrap();
 
 	_hyper_server_thread.join().unwrap();
+}
+
+pub fn get_url_params(req: &Request) -> HashMap<String, String> {
+	let parsed_url = Url::parse(&format!("http://example.com/{}", req.uri())).unwrap();
+
+	let hash_query: HashMap<String, String> = parsed_url.query_pairs().into_owned().collect();
+
+	hash_query
 }

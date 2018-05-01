@@ -1,0 +1,15 @@
+[workspace]
+members = [
+	"agent",
+	"agent/plugins",
+	"agent/agent_plugins/alive",
+	"agent/agent_plugins/command_runner",
+	"agent/agent_plugins/file_checker",
+	"agent/agent_plugins/process_counter",
+	"agent/agent_plugins/system_monitor",
+	"receptor",
+	"receptor/plugins",
+	"receptor/receptor_plugins/sync_check",
+	"receptor/receptor_plugins/comparator",
+	"inquisitor_lib",
+]

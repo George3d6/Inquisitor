@@ -1,10 +1,10 @@
 [package]
-name = "process_counter"
-version = "0.3.1"
+name = "inquisitor_agent_process_counter"
+version = "0.3.0"
 authors = ["George Hosu <george@cerebralab.com>"]
 
 [dependencies]
 inquisitor_lib = {path="../../../inquisitor_lib"}
-serde_json = "1.0.13"
-serde = "1.0.37"
-serde_derive = "1.0.37"
+serde_json = "1.0.16"
+serde = "1.0.43"
+serde_derive = "1.0.43"

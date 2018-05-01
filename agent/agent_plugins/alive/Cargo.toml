@@ -1,9 +1,9 @@
 [package]
-name = "alive"
-version = "0.3.1"
+name = "inquisitor_agent_alive"
+version = "0.3.0"
 authors = ["George Hosu <george@cerebralab.com>"]
 
 [dependencies]
 inquisitor_lib = {path="../../../inquisitor_lib"}
-serde = "1.0.37"
-serde_derive = "1.0.37"
+serde = "1.0.43"
+serde_derive = "1.0.43"
