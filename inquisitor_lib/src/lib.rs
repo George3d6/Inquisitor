@@ -18,6 +18,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 /// This struct is for communication between agent and receptor.
 /// Plugins should not use this directly
+/// This struct is considered "internal API" and can change in patch versions
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Status {
 	pub sender:      String,
@@ -89,14 +90,15 @@ where
 	Ok(cfg)
 }
 
-/// This trait is required by agent plugins
+/// This trait is required by agent plugins. Structs that implement this trait should
+/// be called "Plugin" or your crate must have a `pub alias Plugin = $YOUR_PLUGIN_STRUCT`.
 pub trait AgentPlugin {
 	/// This creates the object the the agent uses to run the plugin.
-	/// The structs that implement this should be called "Plugin" or have an alias of "Plugin"
 	fn new(PathBuf) -> Result<Self, String>
 	where
 		Self: Sized;
-	/// Returns the plugin's name. Sent to the server to tag plugin messages
+	/// Returns the "human readable" name of your plugin. 
+    /// Sent to the server to tag plugin messages.
 	fn name(&self) -> &'static str;
 	/// This is the 'worker' function, and will be called when the ready function returns true.
 	/// Currently this requires plugins to return a string.
@@ -106,14 +108,15 @@ pub trait AgentPlugin {
 	fn ready(&self) -> bool;
 }
 
-/// This trait is required by receptor plugins
+/// This trait is required by receptor plugins. Structs that implement this trait should
+/// be called "Plugin" or your crate must have a `pub alias Plugin = $YOUR_PLUGIN_STRUCT`.
 pub trait ReceptorPlugin {
 	/// This creates the object the the receptor uses to run the plugin.
-	/// The structs that implement this should be called "Plugin" or have an alias of "Plugin"
 	fn new(PathBuf) -> Result<Self, String>
 	where
 		Self: Sized;
-	/// Returns the plugin's name. Stored in the database with the message returned
+	/// Returns the "human readable" name of your plugin.
+    /// Stored in the database with the message returned.
 	fn name(&self) -> &'static str;
 	/// This is the 'worker' function, and will be called when the ready function returns true.
 	/// Currently this requires plugins to return a string.
