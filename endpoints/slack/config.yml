@@ -6,5 +6,5 @@ monitor:
     - plugin: Comparator
       sender: all
       level: receptor
-
-endpoint: endpoint_key
+      endpoint: endpoint_key
+      #message_contains: ''

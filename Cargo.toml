@@ -12,4 +12,5 @@ members = [
 	"receptor/receptor_plugins/sync_check",
 	"receptor/receptor_plugins/comparator",
 	"inquisitor_lib",
+	"endpoints/slack",
 ]

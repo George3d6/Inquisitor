@@ -19,7 +19,9 @@ use std::env::current_exe;
 struct Check {
 	plugin: String,
 	sender: String,
-	level:  String
+	level:  String,
+	message_contains: Option<String>,
+	endpoint: String
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -31,8 +33,7 @@ struct Receptor {
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Config {
 	receptor: Receptor,
-	monitor:  Vec<Check>,
-	endpoint: String
+	monitor:  Vec<Check>
 }
 
 
@@ -57,15 +58,13 @@ fn main() {
 	let cfg = read_cfg::<Config>(&config_path_buff).expect("Can't find config.yml file");
 	let receptor_uri_base = format!("{}:{}", cfg.receptor.host, cfg.receptor.port);
 
-	let my_endpoint = cfg.endpoint;
-
-	let slack_uri = format!("https://hooks.slack.com/services/{}", my_endpoint);
-
 	let mut ts_collect = current_ts();
 
 	loop {
 		thread::sleep(time::Duration::from_millis(1000));
 		for check in &cfg.monitor {
+			let slack_uri = format!("https://hooks.slack.com/services/{}", check.endpoint);
+
 			let mut res = client
 				.get(&format!(
 					"{}/plugin_data?level={}&name={}&ts_start={}&ts_end=9923146529",
@@ -82,10 +81,14 @@ fn main() {
 			ts_collect = cmp::max(ts_collect, rows.iter().map(|x| x.1).fold(0i64, cmp::max));
 			debug!("Collecting starting from timestamp: {} !", ts_collect);
 			for r in rows {
-				let mut form = HashMap::new();
-				form.insert("text", r.0);
-				let slack_reponse = client.post(&slack_uri).json(&form).send().unwrap();
-				debug!("{:?}", slack_reponse);
+				let should_contain = check.message_contains.clone().unwrap_or("".to_string());
+				let message = r.0;
+				if should_contain == "" || message.contains(&should_contain) {
+					let mut form = HashMap::new();
+					form.insert("text", message);
+					let slack_reponse = client.post(&slack_uri).json(&form).send().unwrap();
+					debug!("{:?}", slack_reponse);
+				}
 			}
 		}
 	}
