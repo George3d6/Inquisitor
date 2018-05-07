@@ -59,16 +59,18 @@ body {
     margin: 0 0 0 0;
 }
 
-.canvas_holder {
+.canvas-holder {
     height: 400px;
     width: 600px;
     margin-top: 20px;
     margin-right: 10px;
     margin-left: 10px;
     margin-bottom: 6px;
+    display: inline-block;
+    text-align: left;
 }
 
-.graph_header {
+.graph-header {
     height: 34px;
     border-radius:4px;
     box-shadow: 1px 1px 5px rgba(0, 0, 0, .3);
@@ -76,4 +78,30 @@ body {
     margin-bottom: 16px;
     padding-top:6px;
     padding-left: 12px;
+}
+
+.sender-graph-header {
+    height: 34px;
+    border-radius:4px;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, .3);
+    background: rgb(224,224,224);
+    margin-bottom: 16px;
+    padding-top:6px;
+    padding-left: 12px;
+    width: 100%;
+    font-size: 24px;
+    font-weight: lighter;
+    color:rgb(183,28,28);
+}
+.sender-graph-holder {
+    width: 100%;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 12px;
+}
+
+.sender-graph {
+    margin: 0, 0, 0, 0;
+    padding: 0, 0 , 0, 0;
+    text-align: center;
 }

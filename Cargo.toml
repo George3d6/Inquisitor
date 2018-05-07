@@ -13,4 +13,5 @@ members = [
 	"receptor/receptor_plugins/comparator",
 	"inquisitor_lib",
 	"endpoints/slack",
+	"endpoints/webui",
 ]

@@ -9,7 +9,6 @@ tokio = "0.1.5"
 time = "0.1.39"
 
 hyper = "0.11.25"
-hyper-staticfile = "0.2.0"
 url = "1.7.0"
 
 serde = "1.0.43"
@@ -30,4 +29,3 @@ receptor_plugins = {path="plugins"}
 [dependencies.rusqlite]
 version = "0.13.0"
 features = ["bundled"]
-

@@ -11,9 +11,10 @@ extern crate serde_json;
 extern crate serde_derive;
 extern crate reqwest;
 
-use futures::Future;
-use futures::Stream;
+
 use tokio_core::reactor::Core;
+use futures::{Future, Stream};
+use hyper::Error;
 use hyper::server::{Http, Request, Response, Service};
 use hyper::{Method, StatusCode};
 use hyper_staticfile::Static;
@@ -44,12 +45,9 @@ struct DataServer {
 
 impl Service for DataServer {
 	type Request = Request;
-
 	type Response = Response;
-
-	type Error = hyper::Error;
-
-	type Future = Box<Future<Item = Self::Response, Error = Self::Error>>;
+	type Error = Error;
+	type Future = Box<Future<Item=Response, Error=Error>>;
 
 	fn call(&self, req: Request) -> Self::Future {
 		if req.path() == "/plugin_data" {
@@ -108,7 +106,7 @@ fn main() {
 
 	let mut core = Core::new().unwrap();
 	let handle = core.handle();
-	let handle_cp_1 = handle.clone();
+	//let handle_cp_1 = handle.clone();
 	let handle_cp_2 = handle.clone();
 
 	let addr_str = format!("{}:{}", cfg.bind, cfg.port);
@@ -121,7 +119,7 @@ fn main() {
 	let serve = Http::new()
 		.serve_addr_handle(addr, &handle, move || {
 			Ok(DataServer {
-				static_:       Static::new(&handle_cp_1, Path::new(&cfg.static_file_path)),
+				static_:       Static::new(Path::new(&cfg.static_file_path)),
 				receptor_addr: receptor_addr.clone()
 			})
 		})
