@@ -324,7 +324,9 @@ fn main() -> Result<(), String> {
 	let server_addr_str = format!("{}:{}", config.server.bind, config.server.port);
 
 	let _hyper_server_thread = thread::spawn(move || {
-		let server_addr = server_addr_str.parse().expect("Couldn't convert server addr to Socket Address. Http server will not start");
+		let server_addr = server_addr_str
+			.parse()
+			.expect("Couldn't convert server addr to Socket Address. Http server will not start");
 
 		let mut core = Core::new().unwrap();
 
@@ -360,7 +362,9 @@ fn main() -> Result<(), String> {
 	// validate them & insert them into the database
 	let receptor_addr_str = format!("{}:{}", config.receptor.bind, config.receptor.port);
 
-	let listener_addr = receptor_addr_str.parse().map_err(|_| format!("Couldn't convert receptor addr {} to Socket Address", receptor_addr_str))?;
+	let listener_addr = receptor_addr_str
+		.parse()
+		.map_err(|_| format!("Couldn't convert receptor addr {} to Socket Address", receptor_addr_str))?;
 
 	let listener = TcpListener::bind(&listener_addr).expect("Can't start TCP server");
 
