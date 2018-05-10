@@ -28,19 +28,16 @@ use std::path::PathBuf;
 use std::{thread, time};
 use tokio::io::AsyncRead;
 use tokio::net::{TcpListener, TcpStream};
-use tokio::prelude::future;
-use tokio::prelude::{Future, Stream};
+use tokio::prelude::{future, Future, Stream};
 use tokio_core::reactor::Core;
-use url::Url;
 
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize)]
 struct ConfigServerAddr {
 	bind: String,
 	port: i64
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize)]
 struct Config {
 	clean_older_than: i64,
 	server:           ConfigServerAddr,
@@ -244,12 +241,14 @@ impl PluginRunner {
 	}
 }
 
-fn main() {
+fn main() -> Result<(), String> {
 	env_logger::init();
 
-	let mut exec_path_buff = current_exe().unwrap();
+	let mut exec_path_buff = current_exe().map_err(|e| e.to_string())?;
 	exec_path_buff.pop();
-	let exec_path = exec_path_buff.into_os_string().into_string().unwrap();
+	let exec_path = exec_path_buff
+		.to_str()
+		.ok_or_else(|| "Couldn't get execution path".to_string())?;
 
 	let matches = App::new("Inquisitor receptor")
 		.version("0.3.1")
@@ -272,7 +271,7 @@ fn main() {
 	let config_dir = PathBuf::from(matches.value_of("config_dir").unwrap());
 	let mut receptor_config = config_dir.clone();
 	receptor_config.push("receptor_config.yml");
-	let config = read_cfg::<Config>(&receptor_config).unwrap();
+	let config = read_cfg::<Config>(&receptor_config)?;
 
 	let clean_older_than = config.clean_older_than;
 
@@ -325,7 +324,7 @@ fn main() {
 	let server_addr_str = format!("{}:{}", config.server.bind, config.server.port);
 
 	let _hyper_server_thread = thread::spawn(move || {
-		let server_addr = server_addr_str.parse().expect("Can't parse HTTP server address");
+		let server_addr = server_addr_str.parse().expect("Couldn't convert server addr to Socket Address. Http server will not start");
 
 		let mut core = Core::new().unwrap();
 
@@ -347,7 +346,7 @@ fn main() {
 		handler.spawn(
 			serve
 				.for_each(move |conn| {
-					handle1.spawn(conn.map(|_| ()).map_err(|err| println!("srv1 error: {:?}", err)));
+					handle1.spawn(conn.map(|_| ()).map_err(|err| error!("srv1 error: {:?}", err)));
 
 					Ok(())
 				})
@@ -361,7 +360,7 @@ fn main() {
 	// validate them & insert them into the database
 	let receptor_addr_str = format!("{}:{}", config.receptor.bind, config.receptor.port);
 
-	let listener_addr = receptor_addr_str.parse().expect("Can't parse TCP server address");
+	let listener_addr = receptor_addr_str.parse().map_err(|_| format!("Couldn't convert receptor addr {} to Socket Address", receptor_addr_str))?;
 
 	let listener = TcpListener::bind(&listener_addr).expect("Can't start TCP server");
 
@@ -383,9 +382,11 @@ fn main() {
 	_plugin_runner_thread.join().unwrap();
 
 	_hyper_server_thread.join().unwrap();
+	Ok(())
 }
 
 pub fn get_url_params(req: &Request) -> HashMap<String, String> {
+	use url::Url;
 	let parsed_url = Url::parse(&format!("http://example.com/{}", req.uri())).unwrap();
 
 	let hash_query: HashMap<String, String> = parsed_url.query_pairs().into_owned().collect();

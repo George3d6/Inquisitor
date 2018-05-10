@@ -31,17 +31,16 @@ fn main() {
 			"extern crate inquisitor_lib;
             use inquisitor_lib::AgentPlugin;
 
-			#[macro_use]
-			extern \
-			 crate log;
+            #[macro_use] \
+			 extern crate log;
 
             #[macro_use]
             mod plugin_initialization;
 
-            plugins!({});
             \
-			 ",
+			 plugins!({});
+            ",
 			plugins.join(", ")
 		).as_bytes()
-	).expect("Failed to write lib");
+	).expect("Failed to write lib file");
 }

@@ -7,21 +7,19 @@ extern crate env_logger;
 #[macro_use]
 extern crate log;
 
-use std::{thread, time};
-use std::vec::Vec;
 use inquisitor_lib::{current_ts, read_cfg};
 use std::collections::HashMap;
-use std::cmp;
 use std::env::current_exe;
+use std::{cmp, thread, time};
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Check {
-	plugin: String,
-	sender: String,
-	level:  String,
+	plugin:           String,
+	sender:           String,
+	level:            String,
 	message_contains: Option<String>,
-	endpoint: String
+	endpoint:         String
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]

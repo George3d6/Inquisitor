@@ -9,12 +9,10 @@ extern crate serde_yaml;
 extern crate log;
 extern crate rusqlite;
 
-extern crate fs_extra;
-use self::fs_extra::file::read_to_string;
 use rusqlite::Connection;
 use serde::de::DeserializeOwned;
+
 use std::path::{Path, PathBuf};
-use std::time::{SystemTime, UNIX_EPOCH};
 
 /// This struct is for communication between agent and receptor.
 /// Plugins should not use this directly
@@ -43,6 +41,7 @@ pub struct Status {
 /// # }
 /// ```
 pub fn current_ts() -> i64 {
+	use std::time::{SystemTime, UNIX_EPOCH};
 	SystemTime::now()
 		.duration_since(UNIX_EPOCH)
 		.expect("Error getting system time !?")
@@ -85,6 +84,7 @@ pub fn read_cfg<ConfigT>(cfg_file_path: &Path) -> Result<ConfigT, String>
 where
 	ConfigT: DeserializeOwned
 {
+	use std::fs::read_to_string;
 	debug!("Reading config from: {:?}", cfg_file_path.display());
 	let cfg_str = read_to_string(&cfg_file_path).map_err(|e| e.to_string())?;
 	let cfg: ConfigT = serde_yaml::from_str(&cfg_str).map_err(|e| e.to_string())?;
@@ -98,8 +98,8 @@ pub trait AgentPlugin {
 	fn new(PathBuf) -> Result<Self, String>
 	where
 		Self: Sized;
-	/// Returns the "human readable" name of your plugin. 
-    /// Sent to the server to tag plugin messages.
+	/// Returns the "human readable" name of your plugin.
+	/// Sent to the server to tag plugin messages.
 	fn name(&self) -> &'static str;
 	/// This is the 'worker' function, and will be called when the ready function returns true.
 	/// Currently this requires plugins to return a string.
@@ -117,7 +117,7 @@ pub trait ReceptorPlugin {
 	where
 		Self: Sized;
 	/// Returns the "human readable" name of your plugin.
-    /// Stored in the database with the message returned.
+	/// Stored in the database with the message returned.
 	fn name(&self) -> &'static str;
 	/// This is the 'worker' function, and will be called when the ready function returns true.
 	/// Currently this requires plugins to return a string.
