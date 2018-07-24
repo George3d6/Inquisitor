@@ -12,33 +12,32 @@ extern crate tokio;
 
 use clap::{App, Arg};
 use inquisitor_lib::{current_ts, read_cfg, AgentPlugin, Status};
-use std::env::current_exe;
-use std::net::SocketAddr;
-use std::path::PathBuf;
+use std::{env::current_exe, net::SocketAddr, path::PathBuf};
 use std::{thread, time};
-use tokio::net::TcpStream;
-use tokio::prelude::Future;
+use tokio::{net::TcpStream, prelude::Future};
 
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize)]
 struct ReceptorAddr {
 	host: String,
 	port: i64
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize)]
 struct Config {
 	machine_identifier: Option<String>,
 	receptor:           ReceptorAddr
 }
 
 
-fn main() {
+fn main() -> Result<(), String> {
 	env_logger::init();
 
-	let mut exec_path_buff = current_exe().unwrap();
+	let mut exec_path_buff = current_exe().map_err(|e| e.to_string())?;
 	exec_path_buff.pop();
-	let exec_path = exec_path_buff.into_os_string().into_string().unwrap();
+	let exec_path = exec_path_buff
+		.to_str()
+		.ok_or_else(|| "Couldn't get execution path".to_string())?;
 
 	let matches = App::new("Inquisitor agent")
 		.version("0.3.1")
@@ -62,17 +61,21 @@ fn main() {
 	let mut agent_config = config_dir.clone();
 	agent_config.push("agent_config.yml");
 
-	let config = read_cfg::<Config>(&agent_config).unwrap();
+	let config = read_cfg::<Config>(&agent_config)?;
 
 	let mut plugins = plugins::init(config_dir);
 
 	let hostname = config
 		.machine_identifier
-		.unwrap_or_else(|| hostname::get_hostname().unwrap());
+		.unwrap_or(hostname::get_hostname().ok_or_else(|| "Couldn't get host name".to_string())?);
 
 	let addr = format!("{}:{}", config.receptor.host, config.receptor.port);
 
-	let mut sender = StatusSender::new(hostname, addr.parse().expect("Couldn't convert IP address"));
+	let mut sender = StatusSender::new(
+		hostname,
+		addr.parse()
+			.map_err(|_| format!("Couldn't convert {} to Socket Address", addr))?
+	);
 
 	loop {
 		thread::sleep(time::Duration::from_millis(1000));
@@ -86,7 +89,7 @@ fn main() {
 		debug!("Payload content: {:?}", payload);
 
 		if !payload.is_empty() {
-			let serialized_payload = serde_json::to_string(&payload).expect("Can't serialize payload");
+			let serialized_payload = serde_json::to_string(&payload).map_err(|e| e.to_string())?;
 
 			let send = TcpStream::connect(&sender.addr)
 				.and_then(|stream| tokio::io::write_all(stream, serialized_payload))

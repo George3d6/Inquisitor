@@ -13,7 +13,7 @@ use std::path::PathBuf;
 
 pub type Plugin = Alive;
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize)]
 struct Config {
 	enabled:     bool,
 	periodicity: i64

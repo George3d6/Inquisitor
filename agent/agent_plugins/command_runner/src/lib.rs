@@ -9,12 +9,10 @@ extern crate serde_derive;
 
 use inquisitor_lib::{current_ts, read_cfg, AgentPlugin};
 
-use std::collections::HashMap;
-use std::path::PathBuf;
-use std::process::Command;
+use std::{collections::HashMap, path::PathBuf, process::Command};
 
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize)]
 pub struct Config {
 	enabled:         bool,
 	periodicity_arr: Vec<i64>,

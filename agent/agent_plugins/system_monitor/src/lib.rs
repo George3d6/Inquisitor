@@ -5,12 +5,11 @@ extern crate serde_json;
 extern crate sysinfo;
 
 use inquisitor_lib::{current_ts, read_cfg, AgentPlugin};
-use std::collections::HashMap;
-use std::path::PathBuf;
+use std::{collections::HashMap, path::PathBuf};
 use sysinfo::{DiskExt, NetworkExt, ProcessorExt, System, SystemExt};
 
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize)]
 struct Config {
 	enabled:     bool,
 	periodicity: i64

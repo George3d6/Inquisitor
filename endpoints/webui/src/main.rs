@@ -11,26 +11,22 @@ extern crate serde_json;
 extern crate serde_derive;
 extern crate reqwest;
 
-
-use tokio_core::reactor::Core;
 use futures::{Future, Stream};
-use hyper::Error;
 use hyper::server::{Http, Request, Response, Service};
+use hyper::Error;
 use hyper::{Method, StatusCode};
 use hyper_staticfile::Static;
-use std::string::String;
-use std::path::Path;
 use inquisitor_lib::read_cfg;
-use std::env::current_exe;
+use std::{env::current_exe, path::Path};
+use tokio_core::reactor::Core;
 
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize)]
 struct Receptor {
 	host: String,
 	port: u32
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize)]
 struct Config {
 	static_file_path: String,
 	bind:             String,
@@ -47,7 +43,7 @@ impl Service for DataServer {
 	type Request = Request;
 	type Response = Response;
 	type Error = Error;
-	type Future = Box<Future<Item=Response, Error=Error>>;
+	type Future = Box<Future<Item = Response, Error = Error>>;
 
 	fn call(&self, req: Request) -> Self::Future {
 		if req.path() == "/plugin_data" {

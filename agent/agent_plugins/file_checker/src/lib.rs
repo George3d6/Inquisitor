@@ -9,13 +9,11 @@ extern crate serde_json;
 
 use fs_extra::dir::get_size;
 use inquisitor_lib::{current_ts, read_cfg, AgentPlugin};
-use std::collections::HashMap;
-use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::path::PathBuf;
+use std::{collections::HashMap, fs::File, path::PathBuf};
 
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize)]
 struct Config {
 	enabled:     bool,
 	periodicity: i64,

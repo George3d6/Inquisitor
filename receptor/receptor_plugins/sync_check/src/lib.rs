@@ -6,8 +6,7 @@ extern crate serde_derive;
 
 use inquisitor_lib::{current_ts, read_cfg, ReceptorPlugin};
 use rusqlite::Connection;
-use std::collections::HashMap;
-use std::path::PathBuf;
+use std::{collections::HashMap, path::PathBuf};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Config {
